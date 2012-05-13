@@ -7,13 +7,17 @@
 \usepackage{epsfig, subfigure, subfloat, graphicx}
 \usepackage{anysize, indentfirst, setspace}
 \usepackage{verbatim, rotating, paralist}
-\usepackage{natbib, float,booktabs, caption}
+\usepackage{natbib, float,booktabs, caption,hyperref}
 \usepackage{soul}
 
-
+\ifdefined\knitrout
+  \renewenvironment{knitrout}{\begin{footnotesize}}{\end{footnotesize}}
+\else
+\fi
+\setlength\parindent{0pt}
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
+\SweaveOpts{concordance=TRUE,comment=NA}
 
 \setkeys{Gin}{width=0.8\textwidth}
 
@@ -32,6 +36,7 @@
 \end{flushright}
 
 \vspace{5mm}
+\tableofcontents
 
 <<echo=FALSE,results='hide'>>=
 #preliminaries
@@ -45,44 +50,43 @@ school districts, school networks, and state agencies across the US. \textbf{Our
 improve student achievement.} We believe that with the right people, the right data, and the right analyses, we can significantly 
 improve the quality of strategic policy and management decisions. \\
 
-\noindent \textbf{Core Strategies} \\
+\textbf{Core Strategies} \\
 To achieve our mission, SDP pursues three core strategies: \\
-\vspace{-12pt}
+
 1. Placing top-notch analytic leaders as ``Fellows'' for two years with our partner agencies; \\
 
-{\small SDP supports more than 40 Data and Agency Fellows serving partner educational agencies--
+\noindent{\small SDP supports more than 40 Data and Agency Fellows serving partner educational agencies--
 districts, states, and charter management organizations--across the nation.  This number will grow to nearly 70 in 2012.} \\
 
 2. Conducting rigorous diagnostic analyses of teacher effectiveness and college-going success using existing agency data; and \\
 
-{\small We have completed diagnostics in teacher effectiveness and / or college-going success in 
+\noindent{\small We have completed diagnostics in teacher effectiveness and / or college-going success in 
 seven districts, with more diagnostics currently underway or planned in additional district 
 and state partner agencies.} \\
 
 3. Disseminating our tools, methods, and lessons learned to many more education agencies. \\
 
-{\small Through the diagnostic analyses, we have developed a body of knowledge around effective 
+\noindent{\small Through the diagnostic analyses, we have developed a body of knowledge around effective 
 data use.  The release of this toolkit reflects SDP's third core strategy to spread knowledge 
 and build capacity within educational agencies for effective data use.} \\
 
 
 \textbf{SDP DIAGNOSTICS}\\
 
-\noindent Our second core strategy, conducting rigorous diagnostic analyses using existing agency data, focuses on two core areas: \textbf{(1) college-going
-success and attainment for students and (2) human capital} (primarily examining teacher effectiveness).
+Our second core strategy, conducting rigorous diagnostic analyses using existing agency data, focuses on two core areas: \textbf{(1) college-going
+success and attainment for students and (2) human capital} (primarily examining teacher effectiveness).\\
 
-The diagnostics are a set of analyses that frame actionable questions for education leaders.  By asking questions such as, ``How well do students transition to postsecondary education?'' or ``How successfully is an agency recruiting effective teachers?'' we support education leaders to develop a deep understanding of student achievement in their agency. In an effort to make these analyses accessible and more widely used, this toolkit helps analysts collect data and produce analyses associated with the SDP College-Going and Human Capital diagnostics.  Notably, the diagnostic analyses in this release of our toolkit are specific to the 
-College-Going diagnostic.  The data collection (Identify), data cleaning (Clean), and best practices (Adopt) stages of the toolkit, however, are 
-applicable to either diagnostic and convey general data use guidelines valuable to any analysts interested in increasing the quality and rigor of 
-their analyses. Later releases will address the analyses in our Human Capital diagnostic.
+The diagnostics are a set of analyses that frame actionable questions for education leaders.  By asking questions such as, ``How well do students transition to postsecondary education?'' or ``How successfully is an agency recruiting effective teachers?'' we support education leaders to develop a deep understanding of student achievement in their agency. In an effort to make these analyses accessible and more widely used, this toolkit helps analysts collect data and produce analyses associated with the SDP College-Going and Human Capital diagnostics.  \\
+
+Notably, the diagnostic analyses in this release of our toolkit are specific to the College-Going diagnostic.  The data collection (Identify), data cleaning (Clean), and best practices (Adopt) stages of the toolkit, however, are applicable to either diagnostic and convey general data use guidelines valuable to any analysts interested in increasing the quality and rigor of their analyses. Later releases will address the analyses in our Human Capital diagnostic.
 
 \section{Introduction}
-\noindent \Large \textbf{SDP Data Building Tasks} \\
+\noindent \large \textbf{SDP Data Building Tasks} \\
 \normalsize
 Congratulations on identifying the data elements that are essential for conducting rigorous analyses in your 
 organization. \textbf{Clean} is the next stage in the SDP Toolkit for Effective Data Use.  To successfully move through the 
-Clean stage, you should review the  Identify component of this toolkit.  Upon completing this stage, you will have 
-produced clean research files that will allow you to Connect and Analyze data related to college-going success in your 
+\textbf{Clean} stage, you should review the  \textbf{Identify} component of this toolkit.  Upon completing this stage, you will have 
+produced clean research files that will allow you to \textbf{Connect} and \textbf{Analyze} data related to college-going success in your 
 agency.  \\
 
 \noindent \large{THE TASKS} \\
@@ -90,7 +94,7 @@ agency.  \\
 \textbf{Clean} consist of five tasks that share a similar structure.  The tasks are geared toward analysts with at least moderately 
 strong data background and comfort with statistics.  Each task provides hands-on experience building specific 
 components of the research file used for the SDP CollegeGoing Diagnostic Analyses.  \\
-\vspace{-6pt}
+
 \noindent The tasks are listed as follows:
 \begin{description}
 \item [Task 1] Student Attributes
@@ -110,13 +114,13 @@ the files to be used in Connect and Analyze.  Our goal is to equip you with an u
 constructing robust, clean research files.  We do, however, aim to explicitly indicate what additional elements are 
 needed in the DATA DESCRIPTION section of each task to deliver a fully realized research file.  Furthermore, we also 
 provide a DECISION RULES GLOSSARY in the Appendix at the end of this document to provide guidance on how 
-to approach the cleaning process for these additional elements.\\ 
+to approach the cleaning process for these additional elements.\\
 
 For those who are less familiar with or who need to brush up on Stata use, we also include a STATA GLOSSARY of 
 commonly used commands in the Appendix at the end of this document.  Through this set of tasks, you will learn effective practices 
 for: data transformations, new variable construction, and the implementation of key decision rules.\\
 
-\Large{TASK STRUCTURE} \\
+\noindent\large{TASK STRUCTURE} \\
 \normalsize
 The core of each task is a set of step-by-step instructions that guide you through the work. For each task you will find:
 \begin{itemize}
@@ -127,9 +131,9 @@ The core of each task is a set of step-by-step instructions that guide you throu
 \item Solutions --- Provides answers for the data snapshot exercises.
 \end{itemize}
 
-After completing these tasks, you will be well-positioned to use your own agency’s data to construct similar clean research files needed in the Connect and Analyze stages.\\
+\noindent After completing these tasks, you will be well-positioned to use your own agency’s data to construct similar clean research files needed in the Connect and Analyze stages.\\
 
-Finally, if you find yourself in need of additional guidance, the friendly research team at SDP is available to help: sdp@gse.harvard.edu
+\noindent Finally, if you find yourself in need of additional guidance, the friendly research team at SDP is available to help: sdp@gse.harvard.edu
 
 
 \section{Task 1: STUDENT ATTRIBUTES}
@@ -139,17 +143,18 @@ Finally, if you find yourself in need of additional guidance, the friendly resea
 file that has only one observation per student. These data will allow you to examine college-going outcomes by race/ethnicity.\\
 
 The core assignments of this task are to: \\
-1. Resolve instances in which the same student appears with different values for race/ethnicity in different years. Our goal is to 
+
+\noindent 1. Resolve instances in which the same student appears with different values for race/ethnicity in different years. Our goal is to 
 have only one race/ethnicity associated with each student.\\
 
-2. Drop duplicate observations so the file is unique by student--that is, it contains only one observation per student. Upon completing this task, you will be have a clean Student\_Attributes file that can then be used as to create the analysis file in Connect.  From Task 1, Task 2 is a natural next step, in which you will clean the Student\_School\_Year file in preparation for Task 3 and Task 4. \\
+\noindent 2. Drop duplicate observations so the file is unique by student--that is, it contains only one observation per student. Upon completing this task, you will be have a clean Student\_Attributes file that can then be used as to create the analysis file in Connect.  From Task 1, Task 2 is a natural next step, in which you will clean the Student\_School\_Year file in preparation for Task 3 and Task 4. \\
 
 \subsection{HOW TO START}
-To begin, open the provided Student\_Attributes practice file.
+\noindent To begin, open the provided Student\_Attributes practice file.
 
 <<loadData,echo=TRUE,results='asis'>>=
 # Read in Stata
-library(foreign) # required for DATA
+library(foreign) # required for .dta files
 stuatt<-read.dta('data/Student_Attributes.dta') # read data in the data subdirectory
 # We can also convert to .csv and import
 @
@@ -171,7 +176,7 @@ provided at the end of the task.
 \subsection{DATA DESCRIPTION}
 In Identify: Data Specification Guide, we specify the data elements included in the Student\_Attributes research file.\footnote{
 You may be wondering how  this specification compares to the  version in Identify: Data Specification Guide. Here are the primary changes:
-First, the race\_ethnicity variable is coded as a string rather than being numeric, as specified in the Data Specification Guide.  You will correct this in the task as it will facilitate the process of making the file unique by sid.Second, we are examining a time-variant data set. In the Data Specification Guide, the Student\_Attributes file is specified as being unique by sid.  In this case, the data are time-variant and unique by sid and school\_year. Note that some districts may actually store race\_ethnicity in a time-variant form such as this, and it is our job through this task to make the data time-invariant, i.e. each student only has a single value for race\_ethnicity across time. Third, we are examining a partial data set including only sid, school\_year, and race\_ethnicity.  We do not include variables such as male, hs\_diploma, or hs\_diploma\_type, or hs\_diploma\_date to simplify the task.  These variables are essential for later analyses but are left for you to complete as a further exercise.For guidance on cleaning these additional variables, refer to the DECISION RULES GLOSSARY at the end of this document and use this task as a reference.}
+First, the race\_ethnicity variable is coded as a string rather than being numeric, as specified in the Data Specification Guide.  You will correct this in the task as it will facilitate the process of making the file unique by sid.Second, we are examining a time-variant data set. In the Data Specification Guide, the Student\_Attributes file is specified as being unique by sid.  In this case, the data are time-variant and unique by sid and school\_year. Note that some districts may actually store race\_ethnicity in a time-variant form such as this, and it is our job through this task to make the data time-invariant, i.e. each student only has a single value for race\_ethnicity across time. Third, we are examining a partial data set including only sid, school\_year, and race\_ethnicity.  We do not include variables such as male, hs\_diploma, or hs\_diploma\_type, or hs\_diploma\_date to simplify the task.  These variables are essential for later analyses but are left for you to complete as a further exercise.For guidance on cleaning these additional variables, refer to the DECISION RULES GLOSSARY at the end of this document and use this task as a reference.} \\
 
 In this task, we examine a partial version of the Student\_Attributes file that includes only sid, school\_year, and race\_ethnicity. This partial 
 version is presented to help you learn the Student\_Attributes cleaning process to make a file unique by sid without having to 
@@ -182,7 +187,7 @@ relevant variables and definitions you will need to complete the task are illust
 str(stuatt)
 @
 
-Uniqueness: ideally, the data in its raw form would be unique by sid.  However, this may not be the case as some agencies might 
+\textbf{Uniqueness:} ideally, the data in its raw form would be unique by sid.  However, this may not be the case as some agencies might 
 record race\_ethnicity in a time-variant manner, such as by school year. To address this, we explain how to take the raw research 
 file from being unique by sid and school\_year to being unique by sid alone.  Once the file is unique by sid alone, it is ready to be 
 incorporated into the analysis file in the Connect stage.
@@ -247,7 +252,7 @@ table(stuatt$race_ethnicity) # counts
 prop.table(table(stuatt$race_ethnicity))*100 #percentages
 @
 
-Check:  What does the distribution of your race\_ethnicity variable look like?
+Check:  What does the distribution of your race\_ethnicity variable look like? Let's redraw the tables above in a more readable format.
 
 <<echo=TRUE,eval=FALSE>>=
 library(xtable) #beautify our output
@@ -278,7 +283,7 @@ print(xtable(table(stuatt$race_ethnicity)*100,digits=0),
 
 Let's also draw a figure to show this distribution.
 
-<<echo=TRUE,fig.keep='last',out.width='.75\\textwidth',out.height='.35\\paperheight',fig.align='left',fig.cap='Graphic'>>=
+<<echo=TRUE,fig.keep='last',fig.width=8,fig.height=3,out.width='.8\\textwidth',out.height='.2\\paperheight',fig.align='center',fig.pos='h',fig.cap='Distribution of Observation Race'>>=
 library(ggplot2)
 qplot(stuatt$race_ethnicity,geom='bar')+theme_bw()+xlab('Race/Ethnicity')+ylab('Count')
 @
@@ -302,7 +307,9 @@ nvals<-tapply(stuatt$race_ethnicity,stuatt$sid,function(x)length(unique(x)))
 table(nvals)
 @
 
-<<echo=TRUE,fig.keep='last',out.width='.75\\textwidth',out.height='.35\\paperheight',fig.align='left',fig.cap='Graphic 2'>>=
+
+
+<<echo=TRUE,fig.keep='last',fig.width=8,fig.height=3,out.width='.8\\textwidth',out.height='.2\\paperheight',fig.align='center',fig.cap='Number of Values'>>=
 library(ggplot2)
 qplot(as.factor(nvals),geom='bar')+theme_bw()+xlab('Unique Race Codes')+ylab('Count')
 @
@@ -334,11 +341,23 @@ addmargins(tab1,FUN=list(Total=sum),quiet=TRUE)
 Check:  What does the distribution of the temporary race variable look like for students with only one unique race value and for 
 students with more than one race value?
 
-<<dotplot,echo=TRUE,fig.keep='last',out.width='.95\\textwidth',out.height='.2\\paperheight',fig.align='left',fig.cap='Graphic 2'>>=
+<<dotplot,echo=TRUE,fig.keep='last',fig.width=8,fig.height=3,out.width='.8\\textwidth',out.height='.2\\paperheight',fig.align='center',fig.cap='Distribution of Race and NVALS'>>=
 df<-as.data.frame(tab1)
-qplot(Var1,Var2,geom='point',size=Freq,data=df)+theme_bw()+xlab('Nvals')+ylab('Modal Race')
+qplot(Var1,Var2,geom='point',size=log(Freq),data=df)+theme_bw()+xlab('Nvals')+ylab('Modal Race')
 @
 
+Note, thanks to the power of R, we can create a function to do this for us for other variables in the future and on other datasets:
+
+<<echo=TRUE,results='markup',comment=NA,cache=TRUE>>=
+source('functions.R') # Read in the functions we have written
+# All functions are available in the Appendix
+a<-nvals(df="stuatt",id="sid",year="school_year",var="race_ethnicity")
+# Here we pass R some characters to tell it which variables we care about
+# This allows us to generalize beyond the race variable in the future
+# df = data frame, id= student id, year= school year, and var= our variable of interest
+head(a)
+rm(a)
+@
 
 C. It appears that we now have 29 students with appended values for the race\_temp variable. This occurs because these students'
 race\_ethnicity has two or more modes, so none of the modes is selected as the variable mode in part B of this step.  For these 
@@ -346,7 +365,7 @@ students, assign their most recently observed race value as their race\_ethnicit
 
 <<echo=TRUE,results='markup',comment=NA>>=
 # Create a variable indicating the latest school year
-modes<-modes<-ddply(stuatt,.(sid),summarize,race_temp=statamode(race_ethnicity),
+modes<-ddply(stuatt,.(sid),summarize,race_temp=statamode(race_ethnicity),
              nvals=length(unique(race_ethnicity)),most_recent_year=max(school_year),
               most_recent_race=tail(race_ethnicity,1))
 modes$race2[modes$race_temp!="."]<-modes$race_temp[modes$race_temp!="."]
@@ -365,9 +384,182 @@ head(stuatt,n=20)
 Check: What is the distribution of the race\_ethnicity in the final file? If all steps were completed correctly, the distributions 
 should look exactly the same as in the Check steps for the final  race\_ethnicity variable in 3C.
 
-<<histogramfinal,echo=TRUE,fig.keep='last',fig.width=5,fig.height=7,out.width='.7\\textwidth',out.height='.4\\paperheight',fig.align='left',fig.cap='Graphic 3'>>=
+<<histogramfinal,echo=TRUE,fig.keep='last',fig.width=9,fig.height=5,out.width='.85\\textwidth',out.height='.25\\paperheight',fig.align='center',fig.cap='Student Race'>>=
 qplot(race_ethnicity,data=stuatt,geom='histogram')+theme_bw()+ stat_bin(geom="text", aes(label=..count.., vjust=-.5))
 @
+
+Note we can automate all of Task 1 for the future, again using the power of functions:
+<<echo=TRUE,results='markup',comment=NA,cache=TRUE>>=
+# The Task 1 function starts with our raw data
+# It performs all the tasks above
+# And gives us back cleaned data that just needs variable
+# renaming.
+a<-task1(df="stuatt",id="sid",year="school_year",var="race_ethnicity")
+head(a)
+@
+
+\section{Task 2: STUDENT SCHOOL YEAR}
+
+\subsection{PURPOSE}
+Through Task 2: Student School Year, you will take the raw Student School Year research file and generate a clean Student School 
+Year output file that has only one observation per student and school year.  First, we will create a time-invariant Free or Reduced 
+Price Lunch (FRPL) variable as a proxy for students' poverty status. Then, we will ensure that only one grade level is assigned 
+per student per school year. \\
+\noindent The core assignments of this task is to:
+\begin{enumerate}
+\setlength{\parskip}{-6pt}
+\item Create a variable indicating whether each student was ever eligible for FRPL. 
+\item Resolve instances in which a student has more than one grade level in a single school year.
+\item Drop duplicate observations so the file is unique by student and school year.
+\end{enumerate}
+Upon completing this task, you will have a data set unique by student and school year, allowing you to assign students to the 
+appropriate ninth grade cohort in Task 3.
+
+\subsection{HOW TO START}
+To begin, open the provided Student\_School\_Year\_Preliminary practice file in R.
+<<echo=TRUE,results='hide'>>=
+# This time read from a .csv file
+stuyear<-read.csv('data/Student_School_Year.csv')
+# Note that in RStudio we can click "Import Dataset" in the Workspaces View
+@
+
+This practice file contains data on student grade level progression and FRPL eligibility through school years 2000-01 through 2006-07 for all 
+grades. This file is unique by student, school\_year, and grade\_level.
+If this is your first time going through the task, we recommend starting with the practice file, rather than your agency's own 
+data file.  Doing so will help you learn SDP's cleaning methodology and allow you to easily check your answers from a common 
+dataset.  You may then apply these methods to your agency’s own Student\_School\_Year data with confidence.  To learn more 
+about the data you will need to collect in your agency, refer to Identify: Data Specification Guide and the DATA DESCRIPTION
+section of this document.
+In addition to the practice file, you may also find it useful to complete the data snapshot exercises provided in the task.  These 
+exercises will allow you to visualize changes to the data occurring in each step of the task.  Solutions for the exercises are 
+provided at the end of the task.
+
+\subsection{DATA DESCRIPTION}
+In Identify: Data Specification Guide, we specify the data elements included in the Student\_School\_Year research file.  In this 
+task, however, we consider a partial version of the Student\_School\_Year file that includes only sid, school\_year, grade\_level, 
+and frpl. This partial version is presented to help you learn the Student\_School\_Year cleaning process to make a file unique by 
+sid and school\_year without having to worry about additional Student\_School\_Year variables such as iep, ell, gifted, or days\_enrolled.  
+The relevant variables and definitions you will need to complete the task are illustrated below:  
+
+<<echo=TRUE,results='markup'>>=
+str(stuyear)
+@
+
+Uniqueness: ideally, this data set would be unique by sid + school\_year. However, this may not be the case as some students may 
+transfer grades mid-year and be reported with two separate grades within one school year.  As they transfer, it is possible that 
+their FRPL status might change as well.  To address these circumstances, we explain how to take the raw research file from NOT 
+being unique by sid and school\_year to being unique by sid and school\_year.  Once the file is unique by sid and school\_year, it is 
+considered clean and ready for use in Task 3.
+
+
+\subsection{INSTRUCTIONS}
+\subsubsection{Examine the Data Set}
+Examine your Student\_Characteristics raw research input dataset.  According to the data specification, the file should be 
+unique by sid and school\_year.  Examine the snapshot below to determine if it is unique as described.\footnote{ Note that the student with sid of 3 has two 
+different values for grade\_level in 2007. The same is true of the student with sid of 5.  Thus, the file is not unique by sid and school\_year.
+The goal of the first half of this task is to create a time-invariant frpl binary  variable that captures whether or not the student ever qualified for FRPL. The second half of the task will resolve issues of multiple grade\_level observations within the same sid and school\_year.  This will make the file unique by sid and school\_year.}
+
+<<echo=TRUE,results='markup'>>=
+head(stuyear,n=12)
+@
+
+\subsubsection{Recode the Raw FRPL as Binary}
+Recode the raw frpl variable as binary. Frpl is currently coded as a string variable with separate designations for ``reduced 
+lunch'' and ``free lunch.''  Replace the string values with numeric values, combining the two designations into one, as shown 
+below. This binary frpl variable will be useful to define a student as having ever been FRPL.
+
+\begin{description}
+\setlength{\parskip}{-6pt}
+\item [0=] "N"
+\item [1=] "R"
+\item [1=] "F" (Do not distinguish between free and reduced price lunch)
+\end{description}
+
+<<echo=TRUE,results='markup'>>=
+stuyear$frpl_num<-0 # create new variable
+stuyear$frpl_num[stuyear$frpl=='R']<-1 #recode
+stuyear$frpl_num[stuyear$frpl=='F']<-1
+stuyear$frpl<-stuyear$frpl_num # Replace frpl with new variable
+stuyear$frpl_num<-NULL # Drop
+head(stuyear,n=6)
+@
+
+Check:  What does the distribution of the new numeric frpl variable look like?
+
+<<echo=TRUE,results='markup'>>=
+addmargins(table(stuyear$frpl))
+@
+
+\subsubsection{Create a binary indicator}
+Create a binary indicator equal to 1 if the student was ever eligible for FRPL, and 0 otherwise. In other words, if the student 
+has a frpl value of 1 in any year, create a binary variable equal to 1 in all observations for that student; conversely, if a student 
+never appears as being FRPL, the binary variable would be equal to 0 in all observations for that student.
+
+<<echo=TRUE,results='markup'>>=
+stu<-ddply(stuyear,.(sid),summarize,ever_frpl=max(frpl)) # Create variable by student
+stuyear<-merge(stuyear,stu) # merge back
+@
+
+Check: How many students have ever been FRPL?
+
+<<echo=TRUE,results='markup'>>=
+addmargins(table(stu$ever_frpl))
+@
+
+\subsubsection{Resolve multiple grade-year entries}
+Resolve instances in which a student has more than one grade level listed for a given school year.\\
+
+There are a total of 18 occasions in which a student has duplicate schoolyear observations. 
+
+
+<<echo=TRUE,results='markup'>>=
+stuyear$dupes<-dedupe(stuyear[,1:2]) # Create indicator for all duplicated rows
+table(stuyear$dupes) # count them, TRUE is a duplicated element
+@
+
+The SDP decision rule is to keep the highest grade\_level when a student has multiple 
+grade levels within the same year.
+
+<<echo=TRUE,results='markup'>>=
+# In R it is faster to subset out the duplicated elements, fix them, and merge them back in
+dupes<-subset(stuyear,dupes==TRUE)
+for(i in dupes$sid){
+  dupes$grade_level[dupes$sid==i]<-max(dupes$grade_level[dupes$sid==i])
+}
+stuyear<-rbind(dupes,subset(stuyear,dupes==FALSE))
+stuyear<-stuyear[with(stuyear, order(as.numeric(row.names(stuyear)))),]
+head(stuyear)
+@
+
+\subsubsection{Drop Duplicated Values}
+Drop any duplicate observations so the file is unique by student and school\_year-that is, it contains only one observation 
+for each student-school\_year combination. We can confidently do that now, because the variables we need to keep are timeinvariant: their values are constant across years for every student.
+
+<<echo=TRUE,results='markup'>>=
+stuyear$dupes<-duplicated(stuyear[,1:2]) # Create new dupe indicator for 
+                                         # one duplicate value
+
+table(stuyear$dupes)
+stuyear<-subset(stuyear,dupes==FALSE) # drop all duplicated terms
+stuyear$dupes<-NULL # Indicator not needed
+head(stuyear,n=10)
+@
+
+
+\subsubsection{Export Data}
+
+<<echo=TRUE,results='markup',eval=FALSE>>=
+# Not run
+# write.csv(stuyear,file='data/Student_School_Year_Intermediate.csv') # CSV
+# write.dta(stuyear,file='data/Student_School_Year_Intermediate.dta') # STATA
+@
+
+
+
+
+
+
+
 
 \end{document}
 

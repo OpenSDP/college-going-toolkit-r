@@ -390,10 +390,14 @@
 \usepackage{epsfig, subfigure, subfloat, graphicx}
 \usepackage{anysize, indentfirst, setspace}
 \usepackage{verbatim, rotating, paralist}
-\usepackage{natbib, float,booktabs, caption}
+\usepackage{natbib, float,booktabs, caption,hyperref}
 \usepackage{soul}
 
-
+\ifdefined\knitrout
+  \renewenvironment{knitrout}{\begin{footnotesize}}{\end{footnotesize}}
+\else
+\fi
+\setlength\parindent{0pt}
 
 \begin{document}
 
@@ -415,6 +419,7 @@
 \end{flushright}
 
 \vspace{5mm}
+\tableofcontents
 
 
 
@@ -425,44 +430,43 @@ school districts, school networks, and state agencies across the US. \textbf{Our
 improve student achievement.} We believe that with the right people, the right data, and the right analyses, we can significantly 
 improve the quality of strategic policy and management decisions. \\
 
-\noindent \textbf{Core Strategies} \\
+\textbf{Core Strategies} \\
 To achieve our mission, SDP pursues three core strategies: \\
-\vspace{-12pt}
+
 1. Placing top-notch analytic leaders as ``Fellows'' for two years with our partner agencies; \\
 
-{\small SDP supports more than 40 Data and Agency Fellows serving partner educational agencies--
+\noindent{\small SDP supports more than 40 Data and Agency Fellows serving partner educational agencies--
 districts, states, and charter management organizations--across the nation.  This number will grow to nearly 70 in 2012.} \\
 
 2. Conducting rigorous diagnostic analyses of teacher effectiveness and college-going success using existing agency data; and \\
 
-{\small We have completed diagnostics in teacher effectiveness and / or college-going success in 
+\noindent{\small We have completed diagnostics in teacher effectiveness and / or college-going success in 
 seven districts, with more diagnostics currently underway or planned in additional district 
 and state partner agencies.} \\
 
 3. Disseminating our tools, methods, and lessons learned to many more education agencies. \\
 
-{\small Through the diagnostic analyses, we have developed a body of knowledge around effective 
+\noindent{\small Through the diagnostic analyses, we have developed a body of knowledge around effective 
 data use.  The release of this toolkit reflects SDP's third core strategy to spread knowledge 
 and build capacity within educational agencies for effective data use.} \\
 
 
 \textbf{SDP DIAGNOSTICS}\\
 
-\noindent Our second core strategy, conducting rigorous diagnostic analyses using existing agency data, focuses on two core areas: \textbf{(1) college-going
-success and attainment for students and (2) human capital} (primarily examining teacher effectiveness).
+Our second core strategy, conducting rigorous diagnostic analyses using existing agency data, focuses on two core areas: \textbf{(1) college-going
+success and attainment for students and (2) human capital} (primarily examining teacher effectiveness).\\
 
-The diagnostics are a set of analyses that frame actionable questions for education leaders.  By asking questions such as, ``How well do students transition to postsecondary education?'' or ``How successfully is an agency recruiting effective teachers?'' we support education leaders to develop a deep understanding of student achievement in their agency. In an effort to make these analyses accessible and more widely used, this toolkit helps analysts collect data and produce analyses associated with the SDP College-Going and Human Capital diagnostics.  Notably, the diagnostic analyses in this release of our toolkit are specific to the 
-College-Going diagnostic.  The data collection (Identify), data cleaning (Clean), and best practices (Adopt) stages of the toolkit, however, are 
-applicable to either diagnostic and convey general data use guidelines valuable to any analysts interested in increasing the quality and rigor of 
-their analyses. Later releases will address the analyses in our Human Capital diagnostic.
+The diagnostics are a set of analyses that frame actionable questions for education leaders.  By asking questions such as, ``How well do students transition to postsecondary education?'' or ``How successfully is an agency recruiting effective teachers?'' we support education leaders to develop a deep understanding of student achievement in their agency. In an effort to make these analyses accessible and more widely used, this toolkit helps analysts collect data and produce analyses associated with the SDP College-Going and Human Capital diagnostics.  \\
+
+Notably, the diagnostic analyses in this release of our toolkit are specific to the College-Going diagnostic.  The data collection (Identify), data cleaning (Clean), and best practices (Adopt) stages of the toolkit, however, are applicable to either diagnostic and convey general data use guidelines valuable to any analysts interested in increasing the quality and rigor of their analyses. Later releases will address the analyses in our Human Capital diagnostic.
 
 \section{Introduction}
-\noindent \Large \textbf{SDP Data Building Tasks} \\
+\noindent \large \textbf{SDP Data Building Tasks} \\
 \normalsize
 Congratulations on identifying the data elements that are essential for conducting rigorous analyses in your 
 organization. \textbf{Clean} is the next stage in the SDP Toolkit for Effective Data Use.  To successfully move through the 
-Clean stage, you should review the  Identify component of this toolkit.  Upon completing this stage, you will have 
-produced clean research files that will allow you to Connect and Analyze data related to college-going success in your 
+\textbf{Clean} stage, you should review the  \textbf{Identify} component of this toolkit.  Upon completing this stage, you will have 
+produced clean research files that will allow you to \textbf{Connect} and \textbf{Analyze} data related to college-going success in your 
 agency.  \\
 
 \noindent \large{THE TASKS} \\
@@ -470,7 +474,7 @@ agency.  \\
 \textbf{Clean} consist of five tasks that share a similar structure.  The tasks are geared toward analysts with at least moderately 
 strong data background and comfort with statistics.  Each task provides hands-on experience building specific 
 components of the research file used for the SDP CollegeGoing Diagnostic Analyses.  \\
-\vspace{-6pt}
+
 \noindent The tasks are listed as follows:
 \begin{description}
 \item [Task 1] Student Attributes
@@ -490,13 +494,13 @@ the files to be used in Connect and Analyze.  Our goal is to equip you with an u
 constructing robust, clean research files.  We do, however, aim to explicitly indicate what additional elements are 
 needed in the DATA DESCRIPTION section of each task to deliver a fully realized research file.  Furthermore, we also 
 provide a DECISION RULES GLOSSARY in the Appendix at the end of this document to provide guidance on how 
-to approach the cleaning process for these additional elements.\\ 
+to approach the cleaning process for these additional elements.\\
 
 For those who are less familiar with or who need to brush up on Stata use, we also include a STATA GLOSSARY of 
 commonly used commands in the Appendix at the end of this document.  Through this set of tasks, you will learn effective practices 
 for: data transformations, new variable construction, and the implementation of key decision rules.\\
 
-\Large{TASK STRUCTURE} \\
+\noindent\large{TASK STRUCTURE} \\
 \normalsize
 The core of each task is a set of step-by-step instructions that guide you through the work. For each task you will find:
 \begin{itemize}
@@ -507,9 +511,9 @@ The core of each task is a set of step-by-step instructions that guide you throu
 \item Solutions --- Provides answers for the data snapshot exercises.
 \end{itemize}
 
-After completing these tasks, you will be well-positioned to use your own agency’s data to construct similar clean research files needed in the Connect and Analyze stages.\\
+\noindent After completing these tasks, you will be well-positioned to use your own agency’s data to construct similar clean research files needed in the Connect and Analyze stages.\\
 
-Finally, if you find yourself in need of additional guidance, the friendly research team at SDP is available to help: sdp@gse.harvard.edu
+\noindent Finally, if you find yourself in need of additional guidance, the friendly research team at SDP is available to help: sdp@gse.harvard.edu
 
 
 \section{Task 1: STUDENT ATTRIBUTES}
@@ -519,19 +523,20 @@ Finally, if you find yourself in need of additional guidance, the friendly resea
 file that has only one observation per student. These data will allow you to examine college-going outcomes by race/ethnicity.\\
 
 The core assignments of this task are to: \\
-1. Resolve instances in which the same student appears with different values for race/ethnicity in different years. Our goal is to 
+
+\noindent 1. Resolve instances in which the same student appears with different values for race/ethnicity in different years. Our goal is to 
 have only one race/ethnicity associated with each student.\\
 
-2. Drop duplicate observations so the file is unique by student--that is, it contains only one observation per student. Upon completing this task, you will be have a clean Student\_Attributes file that can then be used as to create the analysis file in Connect.  From Task 1, Task 2 is a natural next step, in which you will clean the Student\_School\_Year file in preparation for Task 3 and Task 4. \\
+\noindent 2. Drop duplicate observations so the file is unique by student--that is, it contains only one observation per student. Upon completing this task, you will be have a clean Student\_Attributes file that can then be used as to create the analysis file in Connect.  From Task 1, Task 2 is a natural next step, in which you will clean the Student\_School\_Year file in preparation for Task 3 and Task 4. \\
 
 \subsection{HOW TO START}
-To begin, open the provided Student\_Attributes practice file.
+\noindent To begin, open the provided Student\_Attributes practice file.
 
 \begin{kframe}
 \begin{flushleft}
 \ttfamily\noindent
 \hlcomment{\usebox{\hlnormalsizeboxhash}{\ }Read{\ }in{\ }Stata}\hspace*{\fill}\\
-\hlstd{}\hlfunctioncall{library}\hlkeyword{(}\hlsymbol{foreign}\hlkeyword{)}{\ }{\ }\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }required{\ }for{\ }DATA}\hspace*{\fill}\\
+\hlstd{}\hlfunctioncall{library}\hlkeyword{(}\hlsymbol{foreign}\hlkeyword{)}{\ }{\ }\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }required{\ }for{\ }.dta{\ }files}\hspace*{\fill}\\
 \hlstd{}\hlsymbol{stuatt}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{read.dta}\hlkeyword{(}\hlstring{"{}data/Student\usebox{\hlnormalsizeboxunderscore}Attributes.dta"{}}\hlkeyword{)}{\ }{\ }\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }read{\ }data{\ }in{\ }the{\ }data{\ }subdirectory}\hspace*{\fill}\\
 \hlstd{}\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }We{\ }can{\ }also{\ }convert{\ }to{\ }.csv{\ }and{\ }import}\mbox{}
 \normalfont
@@ -556,7 +561,7 @@ provided at the end of the task.
 \subsection{DATA DESCRIPTION}
 In Identify: Data Specification Guide, we specify the data elements included in the Student\_Attributes research file.\footnote{
 You may be wondering how  this specification compares to the  version in Identify: Data Specification Guide. Here are the primary changes:
-First, the race\_ethnicity variable is coded as a string rather than being numeric, as specified in the Data Specification Guide.  You will correct this in the task as it will facilitate the process of making the file unique by sid.Second, we are examining a time-variant data set. In the Data Specification Guide, the Student\_Attributes file is specified as being unique by sid.  In this case, the data are time-variant and unique by sid and school\_year. Note that some districts may actually store race\_ethnicity in a time-variant form such as this, and it is our job through this task to make the data time-invariant, i.e. each student only has a single value for race\_ethnicity across time. Third, we are examining a partial data set including only sid, school\_year, and race\_ethnicity.  We do not include variables such as male, hs\_diploma, or hs\_diploma\_type, or hs\_diploma\_date to simplify the task.  These variables are essential for later analyses but are left for you to complete as a further exercise.For guidance on cleaning these additional variables, refer to the DECISION RULES GLOSSARY at the end of this document and use this task as a reference.}
+First, the race\_ethnicity variable is coded as a string rather than being numeric, as specified in the Data Specification Guide.  You will correct this in the task as it will facilitate the process of making the file unique by sid.Second, we are examining a time-variant data set. In the Data Specification Guide, the Student\_Attributes file is specified as being unique by sid.  In this case, the data are time-variant and unique by sid and school\_year. Note that some districts may actually store race\_ethnicity in a time-variant form such as this, and it is our job through this task to make the data time-invariant, i.e. each student only has a single value for race\_ethnicity across time. Third, we are examining a partial data set including only sid, school\_year, and race\_ethnicity.  We do not include variables such as male, hs\_diploma, or hs\_diploma\_type, or hs\_diploma\_date to simplify the task.  These variables are essential for later analyses but are left for you to complete as a further exercise.For guidance on cleaning these additional variables, refer to the DECISION RULES GLOSSARY at the end of this document and use this task as a reference.} \\
 
 In this task, we examine a partial version of the Student\_Attributes file that includes only sid, school\_year, and race\_ethnicity. This partial 
 version is presented to help you learn the Student\_Attributes cleaning process to make a file unique by sid without having to 
@@ -571,23 +576,23 @@ relevant variables and definitions you will need to complete the task are illust
 \normalfont
 \end{flushleft}
 \begin{verbatim}
-## 'data.frame':	59606 obs. of  3 variables:
-##  $ sid           : int  1 1 1 1 2 2 3 3 3 4 ...
-##  $ school_year   : int  2004 2005 2006 2007 2006 2007 2005 2006 2007 2005 ...
-##  $ race_ethnicity: chr  "B" "H" "H" "H" ...
-##  - attr(*, "datalabel")= chr ""
-##  - attr(*, "time.stamp")= chr "30 Jan 2012 15:37"
-##  - attr(*, "formats")= chr  "%10.0g" "%10.0g" "%9s"
-##  - attr(*, "types")= int  252 252 3
-##  - attr(*, "val.labels")= chr  "" "" ""
-##  - attr(*, "var.labels")= chr  "sdpsid" "schoolyear" "raceethnicity"
-##  - attr(*, "version")= int 12
+'data.frame':	59606 obs. of  3 variables:
+ $ sid           : int  1 1 1 1 2 2 3 3 3 4 ...
+ $ school_year   : int  2004 2005 2006 2007 2006 2007 2005 2006 2007 2005 ...
+ $ race_ethnicity: chr  "B" "H" "H" "H" ...
+ - attr(*, "datalabel")= chr ""
+ - attr(*, "time.stamp")= chr "30 Jan 2012 15:37"
+ - attr(*, "formats")= chr  "%10.0g" "%10.0g" "%9s"
+ - attr(*, "types")= int  252 252 3
+ - attr(*, "val.labels")= chr  "" "" ""
+ - attr(*, "var.labels")= chr  "sdpsid" "schoolyear" "raceethnicity"
+ - attr(*, "version")= int 12
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
 
 
-Uniqueness: ideally, the data in its raw form would be unique by sid.  However, this may not be the case as some agencies might 
+\textbf{Uniqueness:} ideally, the data in its raw form would be unique by sid.  However, this may not be the case as some agencies might 
 record race\_ethnicity in a time-variant manner, such as by school year. To address this, we explain how to take the raw research 
 file from being unique by sid and school\_year to being unique by sid alone.  Once the file is unique by sid alone, it is ready to be 
 incorporated into the analysis file in the Connect stage.
@@ -679,14 +684,14 @@ be easier to use in later stages of the task. \\
 \normalfont
 \end{flushleft}
 \begin{verbatim}
-##      
-##       Black Asian Hispanic Native American White MultipleOther
-##   A       0  6588        0               0     0             0
-##   B   40220     0        0               0     0             0
-##   H       0     0     7798               0     0             0
-##   M/O     0     0        0               0     0           106
-##   NA      0     0        0             147     0             0
-##   W       0     0        0               0  4747             0
+     
+      Black Asian Hispanic Native American White MultipleOther
+  A       0  6588        0               0     0             0
+  B   40220     0        0               0     0             0
+  H       0     0     7798               0     0             0
+  M/O     0     0        0               0     0           106
+  NA      0     0        0             147     0             0
+  W       0     0        0               0  4747             0
 \end{verbatim}
 \begin{flushleft}
 \ttfamily\noindent
@@ -700,11 +705,11 @@ be easier to use in later stages of the task. \\
 \normalfont
 \end{flushleft}
 \begin{verbatim}
-## 
-##           Black           Asian        Hispanic Native American           White 
-##           40220            6588            7798             147            4747 
-##   MultipleOther 
-##             106 
+
+          Black           Asian        Hispanic Native American           White 
+          40220            6588            7798             147            4747 
+  MultipleOther 
+            106 
 \end{verbatim}
 \begin{flushleft}
 \ttfamily\noindent
@@ -712,17 +717,17 @@ be easier to use in later stages of the task. \\
 \normalfont
 \end{flushleft}
 \begin{verbatim}
-## 
-##           Black           Asian        Hispanic Native American           White 
-##         67.4764         11.0526         13.0826          0.2466          7.9640 
-##   MultipleOther 
-##          0.1778 
+
+          Black           Asian        Hispanic Native American           White 
+        67.4764         11.0526         13.0826          0.2466          7.9640 
+  MultipleOther 
+         0.1778 
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
 
 
-Check:  What does the distribution of your race\_ethnicity variable look like?
+Check:  What does the distribution of your race\_ethnicity variable look like? Let's redraw the tables above in a more readable format.
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -743,7 +748,7 @@ Check:  What does the distribution of your race\_ethnicity variable look like?
 \centering
 
 % latex table generated in R 2.15.0 by xtable 1.7-0 package
-% Sun May 13 02:53:32 2012
+% Sun May 13 15:24:11 2012
 \begin{tabular}{rr}
   Black & 67.48 \\ 
   Asian & 11.05 \\ 
@@ -761,7 +766,7 @@ Check:  What does the distribution of your race\_ethnicity variable look like?
 \centering
 
 % latex table generated in R 2.15.0 by xtable 1.7-0 package
-% Sun May 13 02:53:32 2012
+% Sun May 13 15:24:11 2012
 \begin{tabular}{rr}
   Black & 4022000 \\ 
   Asian & 658800 \\ 
@@ -788,12 +793,14 @@ Let's also draw a figure to show this distribution.
 \hlstd{}{\ }{\ }{\ }{\ }\hlfunctioncall{ylab}\hlkeyword{(}\hlstring{"{}Count"{}}\hlkeyword{)}\mbox{}
 \normalfont
 \end{flushleft}
-\end{kframe}\begin{figure}[]
+\end{kframe}\begin{figure}[h]
 
 
-\includegraphics[width=.75\textwidth,height=.35\paperheight]{figure/unnamed-chunk-9} \hfill{}
+{\centering \includegraphics[width=.8\textwidth,height=.2\paperheight]{figure/unnamed-chunk-9} 
 
-\caption[Graphic]{Graphic\label{fig:unnamed-chunk-9}}
+}
+
+\caption[Distribution of Observation Race]{Distribution of Observation Race\label{fig:unnamed-chunk-9}}
 \end{figure}
 
 \end{knitrout}
@@ -824,6 +831,8 @@ nvals
 \end{knitrout}
 
 
+
+
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{flushleft}
@@ -836,9 +845,11 @@ nvals
 \end{kframe}\begin{figure}[]
 
 
-\includegraphics[width=.75\textwidth,height=.35\paperheight]{figure/unnamed-chunk-11} \hfill{}
+{\centering \includegraphics[width=.8\textwidth,height=.2\paperheight]{figure/unnamed-chunk-11} 
 
-\caption[Graphic 2]{Graphic 2\label{fig:unnamed-chunk-11}}
+}
+
+\caption[Number of Values]{Number of Values\label{fig:unnamed-chunk-11}}
 \end{figure}
 
 \end{knitrout}
@@ -894,20 +905,54 @@ students with more than one race value?
 \begin{flushleft}
 \ttfamily\noindent
 \hlsymbol{df}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{as.data.frame}\hlkeyword{(}\hlsymbol{tab1}\hlkeyword{)}\hspace*{\fill}\\
-\hlstd{}\hlfunctioncall{qplot}\hlkeyword{(}\hlsymbol{Var1}\hlkeyword{,}{\ }\hlsymbol{Var2}\hlkeyword{,}{\ }\hlargument{geom}{\ }\hlargument{=}{\ }\hlstring{"{}point"{}}\hlkeyword{,}{\ }\hlargument{size}{\ }\hlargument{=}{\ }\hlsymbol{Freq}\hlkeyword{,}{\ }\hlargument{data}{\ }\hlargument{=}{\ }\hlsymbol{df}\hlkeyword{)}{\ }\hlkeyword{+}{\ }\hlfunctioncall{theme\usebox{\hlnormalsizeboxunderscore}bw}\hlkeyword{(}\hlkeyword{)}{\ }\hlkeyword{+}\hspace*{\fill}\\
+\hlstd{}\hlfunctioncall{qplot}\hlkeyword{(}\hlsymbol{Var1}\hlkeyword{,}{\ }\hlsymbol{Var2}\hlkeyword{,}{\ }\hlargument{geom}{\ }\hlargument{=}{\ }\hlstring{"{}point"{}}\hlkeyword{,}{\ }\hlargument{size}{\ }\hlargument{=}{\ }\hlfunctioncall{log}\hlkeyword{(}\hlsymbol{Freq}\hlkeyword{)}\hlkeyword{,}{\ }\hlargument{data}{\ }\hlargument{=}{\ }\hlsymbol{df}\hlkeyword{)}{\ }\hlkeyword{+}{\ }\hlfunctioncall{theme\usebox{\hlnormalsizeboxunderscore}bw}\hlkeyword{(}\hlkeyword{)}{\ }\hlkeyword{+}\hspace*{\fill}\\
 \hlstd{}{\ }{\ }{\ }{\ }\hlfunctioncall{xlab}\hlkeyword{(}\hlstring{"{}Nvals"{}}\hlkeyword{)}{\ }\hlkeyword{+}{\ }\hlfunctioncall{ylab}\hlkeyword{(}\hlstring{"{}Modal{\ }Race"{}}\hlkeyword{)}\mbox{}
 \normalfont
 \end{flushleft}
 \end{kframe}\begin{figure}[]
 
 
-\includegraphics[width=.95\textwidth,height=.2\paperheight]{figure/dotplot} \hfill{}
+{\centering \includegraphics[width=.8\textwidth,height=.2\paperheight]{figure/dotplot} 
 
-\caption[Graphic 2]{Graphic 2\label{fig:dotplot}}
+}
+
+\caption[Distribution of Race and NVALS]{Distribution of Race and NVALS\label{fig:dotplot}}
 \end{figure}
 
 \end{knitrout}
 
+
+Note, thanks to the power of R, we can create a function to do this for us for other variables in the future and on other datasets:
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{flushleft}
+\ttfamily\noindent
+\hlfunctioncall{source}\hlkeyword{(}\hlstring{"{}functions.R"{}}\hlkeyword{)}{\ }{\ }\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }Read{\ }in{\ }the{\ }functions{\ }we{\ }have{\ }written}\hspace*{\fill}\\
+\hlstd{}\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }All{\ }functions{\ }are{\ }available{\ }in{\ }the{\ }Appendix}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{a}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{nvals}\hlkeyword{(}\hlargument{df}{\ }\hlargument{=}{\ }\hlstring{"{}stuatt"{}}\hlkeyword{,}{\ }\hlargument{id}{\ }\hlargument{=}{\ }\hlstring{"{}sid"{}}\hlkeyword{,}{\ }\hlargument{year}{\ }\hlargument{=}{\ }\hlstring{"{}school\usebox{\hlnormalsizeboxunderscore}year"{}}\hlkeyword{,}{\ }\hlargument{var}{\ }\hlargument{=}{\ }\hlstring{"{}race\usebox{\hlnormalsizeboxunderscore}ethnicity"{}}\hlkeyword{)}\hspace*{\fill}\\
+\hlstd{}\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }Here{\ }we{\ }pass{\ }R{\ }some{\ }characters{\ }to{\ }tell{\ }it{\ }which{\ }variables{\ }we{\ }care{\ }about{\ }This}\hspace*{\fill}\\
+\hlstd{}\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }allows{\ }us{\ }to{\ }generalize{\ }beyond{\ }the{\ }race{\ }variable{\ }in{\ }the{\ }future{\ }df{\ }={\ }data}\hspace*{\fill}\\
+\hlstd{}\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }frame,{\ }id={\ }student{\ }id,{\ }year={\ }school{\ }year,{\ }and{\ }var={\ }our{\ }variable{\ }of{\ }interest}\hspace*{\fill}\\
+\hlstd{}\hlfunctioncall{head}\hlkeyword{(}\hlsymbol{a}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\begin{verbatim}
+  sid var_temp nvals most_recent_year most_recent_var
+1   1 Hispanic     2             2007        Hispanic
+2   2        .     2             2007           Black
+3   3    Black     2             2007           Black
+4   4    Black     1             2007           Black
+5   5    Black     1             2007           Black
+6   7    Black     1             2001           Black
+\end{verbatim}
+\begin{flushleft}
+\ttfamily\noindent
+\hlfunctioncall{rm}\hlkeyword{(}\hlsymbol{a}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\end{kframe}
+\end{knitrout}
 
 
 C. It appears that we now have 29 students with appended values for the race\_temp variable. This occurs because these students'
@@ -919,7 +964,7 @@ students, assign their most recently observed race value as their race\_ethnicit
 \begin{flushleft}
 \ttfamily\noindent
 \hlcomment{\usebox{\hlnormalsizeboxhash}{\ }Create{\ }a{\ }variable{\ }indicating{\ }the{\ }latest{\ }school{\ }year}\hspace*{\fill}\\
-\hlstd{}\hlsymbol{modes}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlsymbol{modes}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{ddply}\hlkeyword{(}\hlsymbol{stuatt}\hlkeyword{,}{\ }\hlfunctioncall{.}\hlkeyword{(}\hlsymbol{sid}\hlkeyword{)}\hlkeyword{,}{\ }\hlsymbol{summarize}\hlkeyword{,}{\ }\hlargument{race\usebox{\hlnormalsizeboxunderscore}temp}{\ }\hlargument{=}{\ }\hlfunctioncall{statamode}\hlkeyword{(}\hlsymbol{race\usebox{\hlnormalsizeboxunderscore}ethnicity}\hlkeyword{)}\hlkeyword{,}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{modes}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{ddply}\hlkeyword{(}\hlsymbol{stuatt}\hlkeyword{,}{\ }\hlfunctioncall{.}\hlkeyword{(}\hlsymbol{sid}\hlkeyword{)}\hlkeyword{,}{\ }\hlsymbol{summarize}\hlkeyword{,}{\ }\hlargument{race\usebox{\hlnormalsizeboxunderscore}temp}{\ }\hlargument{=}{\ }\hlfunctioncall{statamode}\hlkeyword{(}\hlsymbol{race\usebox{\hlnormalsizeboxunderscore}ethnicity}\hlkeyword{)}\hlkeyword{,}\hspace*{\fill}\\
 \hlstd{}{\ }{\ }{\ }{\ }\hlargument{nvals}{\ }\hlargument{=}{\ }\hlfunctioncall{length}\hlkeyword{(}\hlfunctioncall{unique}\hlkeyword{(}\hlsymbol{race\usebox{\hlnormalsizeboxunderscore}ethnicity}\hlkeyword{)}\hlkeyword{)}\hlkeyword{,}{\ }\hlargument{most\usebox{\hlnormalsizeboxunderscore}recent\usebox{\hlnormalsizeboxunderscore}year}{\ }\hlargument{=}{\ }\hlfunctioncall{max}\hlkeyword{(}\hlsymbol{school\usebox{\hlnormalsizeboxunderscore}year}\hlkeyword{)}\hlkeyword{,}\hspace*{\fill}\\
 \hlstd{}{\ }{\ }{\ }{\ }\hlargument{most\usebox{\hlnormalsizeboxunderscore}recent\usebox{\hlnormalsizeboxunderscore}race}{\ }\hlargument{=}{\ }\hlfunctioncall{tail}\hlkeyword{(}\hlsymbol{race\usebox{\hlnormalsizeboxunderscore}ethnicity}\hlkeyword{,}{\ }\hlnumber{1}\hlkeyword{)}\hlkeyword{)}\hspace*{\fill}\\
 \hlstd{}\hlsymbol{modes}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{race2}\hlkeyword{[}\hlsymbol{modes}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{race\usebox{\hlnormalsizeboxunderscore}temp}{\ }\hlkeyword{!=}{\ }\hlstring{"{}."{}}\hlkeyword{]}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlsymbol{modes}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{race\usebox{\hlnormalsizeboxunderscore}temp}\hlkeyword{[}\hlsymbol{modes}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{race\usebox{\hlnormalsizeboxunderscore}temp}{\ }\hlkeyword{!=}\hspace*{\fill}\\
@@ -990,17 +1035,369 @@ should look exactly the same as in the Check steps for the final  race\_ethnicit
 \normalfont
 \end{flushleft}
 \begin{verbatim}
-## ymax not defined: adjusting position using y instead
+ymax not defined: adjusting position using y instead
 \end{verbatim}
 \end{kframe}\begin{figure}[]
 
 
-\includegraphics[width=.7\textwidth,height=.4\paperheight]{figure/histogramfinal} \hfill{}
+{\centering \includegraphics[width=.85\textwidth,height=.25\paperheight]{figure/histogramfinal} 
 
-\caption[Graphic 3]{Graphic 3\label{fig:histogramfinal}}
+}
+
+\caption[Student Race]{Student Race\label{fig:histogramfinal}}
 \end{figure}
 
 \end{knitrout}
+
+
+Note we can automate all of Task 1 for the future, again using the power of functions:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{flushleft}
+\ttfamily\noindent
+\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }The{\ }Task{\ }1{\ }function{\ }starts{\ }with{\ }our{\ }raw{\ }data{\ }It{\ }performs{\ }all{\ }the{\ }tasks{\ }above}\hspace*{\fill}\\
+\hlstd{}\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }And{\ }gives{\ }us{\ }back{\ }cleaned{\ }data{\ }that{\ }just{\ }needs{\ }variable{\ }renaming.}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{a}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{task1}\hlkeyword{(}\hlargument{df}{\ }\hlargument{=}{\ }\hlstring{"{}stuatt"{}}\hlkeyword{,}{\ }\hlargument{id}{\ }\hlargument{=}{\ }\hlstring{"{}sid"{}}\hlkeyword{,}{\ }\hlargument{year}{\ }\hlargument{=}{\ }\hlstring{"{}school\usebox{\hlnormalsizeboxunderscore}year"{}}\hlkeyword{,}{\ }\hlargument{var}{\ }\hlargument{=}{\ }\hlstring{"{}race\usebox{\hlnormalsizeboxunderscore}ethnicity"{}}\hlkeyword{)}\hspace*{\fill}\\
+\hlstd{}\hlfunctioncall{head}\hlkeyword{(}\hlsymbol{a}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\begin{verbatim}
+  sid school_year race_ethnicity var_temp nvals most_recent_year
+1   1        2004       Hispanic Hispanic     1             2007
+2   1        2005       Hispanic Hispanic     1             2007
+3   1        2006       Hispanic Hispanic     1             2007
+4   1        2007       Hispanic Hispanic     1             2007
+5   2        2006          Black    Black     1             2007
+6   2        2007          Black    Black     1             2007
+  most_recent_var     var2
+1        Hispanic Hispanic
+2        Hispanic Hispanic
+3        Hispanic Hispanic
+4        Hispanic Hispanic
+5           Black    Black
+6           Black    Black
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\section{Task 2: STUDENT SCHOOL YEAR}
+
+\subsection{PURPOSE}
+Through Task 2: Student School Year, you will take the raw Student School Year research file and generate a clean Student School 
+Year output file that has only one observation per student and school year.  First, we will create a time-invariant Free or Reduced 
+Price Lunch (FRPL) variable as a proxy for students' poverty status. Then, we will ensure that only one grade level is assigned 
+per student per school year. \\
+\noindent The core assignments of this task is to:
+\begin{enumerate}
+\setlength{\parskip}{-6pt}
+\item Create a variable indicating whether each student was ever eligible for FRPL. 
+\item Resolve instances in which a student has more than one grade level in a single school year.
+\item Drop duplicate observations so the file is unique by student and school year.
+\end{enumerate}
+Upon completing this task, you will have a data set unique by student and school year, allowing you to assign students to the 
+appropriate ninth grade cohort in Task 3.
+
+\subsection{HOW TO START}
+To begin, open the provided Student\_School\_Year\_Preliminary practice file in R.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{flushleft}
+\ttfamily\noindent
+\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }This{\ }time{\ }read{\ }from{\ }a{\ }.csv{\ }file}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuyear}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{read.csv}\hlkeyword{(}\hlstring{"{}data/Student\usebox{\hlnormalsizeboxunderscore}School\usebox{\hlnormalsizeboxunderscore}Year.csv"{}}\hlkeyword{)}\hspace*{\fill}\\
+\hlstd{}\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }Note{\ }that{\ }in{\ }RStudio{\ }we{\ }can{\ }click{\ }\usebox{\hlnormalsizeboxsinglequote}Import{\ }Dataset\usebox{\hlnormalsizeboxsinglequote}{\ }in{\ }the{\ }Workspaces{\ }View}\mbox{}
+\normalfont
+\end{flushleft}
+\end{kframe}
+\end{knitrout}
+
+
+This practice file contains data on student grade level progression and FRPL eligibility through school years 2000-01 through 2006-07 for all 
+grades. This file is unique by student, school\_year, and grade\_level.
+If this is your first time going through the task, we recommend starting with the practice file, rather than your agency's own 
+data file.  Doing so will help you learn SDP's cleaning methodology and allow you to easily check your answers from a common 
+dataset.  You may then apply these methods to your agency’s own Student\_School\_Year data with confidence.  To learn more 
+about the data you will need to collect in your agency, refer to Identify: Data Specification Guide and the DATA DESCRIPTION
+section of this document.
+In addition to the practice file, you may also find it useful to complete the data snapshot exercises provided in the task.  These 
+exercises will allow you to visualize changes to the data occurring in each step of the task.  Solutions for the exercises are 
+provided at the end of the task.
+
+\subsection{DATA DESCRIPTION}
+In Identify: Data Specification Guide, we specify the data elements included in the Student\_School\_Year research file.  In this 
+task, however, we consider a partial version of the Student\_School\_Year file that includes only sid, school\_year, grade\_level, 
+and frpl. This partial version is presented to help you learn the Student\_School\_Year cleaning process to make a file unique by 
+sid and school\_year without having to worry about additional Student\_School\_Year variables such as iep, ell, gifted, or days\_enrolled.  
+The relevant variables and definitions you will need to complete the task are illustrated below:  
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{flushleft}
+\ttfamily\noindent
+\hlfunctioncall{str}\hlkeyword{(}\hlsymbol{stuyear}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\begin{verbatim}
+'data.frame':	56044 obs. of  4 variables:
+ $ sid        : int  1 1 1 1 2 2 3 3 3 4 ...
+ $ school_year: int  2004 2005 2006 2007 2006 2007 2006 2007 2007 2005 ...
+ $ grade_level: int  9 9 10 11 10 11 10 8 9 11 ...
+ $ frpl       : Factor w/ 3 levels "F","N","R": 2 2 3 3 1 1 1 1 1 2 ...
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+Uniqueness: ideally, this data set would be unique by sid + school\_year. However, this may not be the case as some students may 
+transfer grades mid-year and be reported with two separate grades within one school year.  As they transfer, it is possible that 
+their FRPL status might change as well.  To address these circumstances, we explain how to take the raw research file from NOT 
+being unique by sid and school\_year to being unique by sid and school\_year.  Once the file is unique by sid and school\_year, it is 
+considered clean and ready for use in Task 3.
+
+
+\subsection{INSTRUCTIONS}
+\subsubsection{Examine the Data Set}
+Examine your Student\_Characteristics raw research input dataset.  According to the data specification, the file should be 
+unique by sid and school\_year.  Examine the snapshot below to determine if it is unique as described.\footnote{ Note that the student with sid of 3 has two 
+different values for grade\_level in 2007. The same is true of the student with sid of 5.  Thus, the file is not unique by sid and school\_year.
+The goal of the first half of this task is to create a time-invariant frpl binary  variable that captures whether or not the student ever qualified for FRPL. The second half of the task will resolve issues of multiple grade\_level observations within the same sid and school\_year.  This will make the file unique by sid and school\_year.}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{flushleft}
+\ttfamily\noindent
+\hlfunctioncall{head}\hlkeyword{(}\hlsymbol{stuyear}\hlkeyword{,}{\ }\hlargument{n}{\ }\hlargument{=}{\ }\hlnumber{12}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\begin{verbatim}
+   sid school_year grade_level frpl
+1    1        2004           9    N
+2    1        2005           9    N
+3    1        2006          10    R
+4    1        2007          11    R
+5    2        2006          10    F
+6    2        2007          11    F
+7    3        2006          10    F
+8    3        2007           8    F
+9    3        2007           9    F
+10   4        2005          11    N
+11   4        2006          10    N
+12   4        2007           9    N
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\subsubsection{Recode the Raw FRPL as Binary}
+Recode the raw frpl variable as binary. Frpl is currently coded as a string variable with separate designations for ``reduced 
+lunch'' and ``free lunch.''  Replace the string values with numeric values, combining the two designations into one, as shown 
+below. This binary frpl variable will be useful to define a student as having ever been FRPL.
+
+\begin{description}
+\setlength{\parskip}{-6pt}
+\item [0=] "N"
+\item [1=] "R"
+\item [1=] "F" (Do not distinguish between free and reduced price lunch)
+\end{description}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{flushleft}
+\ttfamily\noindent
+\hlsymbol{stuyear}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{frpl\usebox{\hlnormalsizeboxunderscore}num}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlnumber{0}{\ }{\ }\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }create{\ }new{\ }variable}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuyear}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{frpl\usebox{\hlnormalsizeboxunderscore}num}\hlkeyword{[}\hlsymbol{stuyear}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{frpl}{\ }=={\ }\hlstring{"{}R"{}}\hlkeyword{]}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlnumber{1}{\ }{\ }\hlcomment{\usebox{\hlnormalsizeboxhash}recode}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuyear}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{frpl\usebox{\hlnormalsizeboxunderscore}num}\hlkeyword{[}\hlsymbol{stuyear}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{frpl}{\ }=={\ }\hlstring{"{}F"{}}\hlkeyword{]}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlnumber{1}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuyear}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{frpl}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlsymbol{stuyear}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{frpl\usebox{\hlnormalsizeboxunderscore}num}{\ }{\ }\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }Replace{\ }frpl{\ }with{\ }new{\ }variable}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuyear}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{frpl\usebox{\hlnormalsizeboxunderscore}num}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }NULL{\ }{\ }\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }Drop}\hspace*{\fill}\\
+\hlstd{}\hlfunctioncall{head}\hlkeyword{(}\hlsymbol{stuyear}\hlkeyword{,}{\ }\hlargument{n}{\ }\hlargument{=}{\ }\hlnumber{6}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\begin{verbatim}
+  sid school_year grade_level frpl
+1   1        2004           9    0
+2   1        2005           9    0
+3   1        2006          10    1
+4   1        2007          11    1
+5   2        2006          10    1
+6   2        2007          11    1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+Check:  What does the distribution of the new numeric frpl variable look like?
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{flushleft}
+\ttfamily\noindent
+\hlfunctioncall{addmargins}\hlkeyword{(}\hlfunctioncall{table}\hlkeyword{(}\hlsymbol{stuyear}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{frpl}\hlkeyword{)}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\begin{verbatim}
+
+    0     1   Sum 
+14827 41217 56044 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\subsubsection{Create a binary indicator}
+Create a binary indicator equal to 1 if the student was ever eligible for FRPL, and 0 otherwise. In other words, if the student 
+has a frpl value of 1 in any year, create a binary variable equal to 1 in all observations for that student; conversely, if a student 
+never appears as being FRPL, the binary variable would be equal to 0 in all observations for that student.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{flushleft}
+\ttfamily\noindent
+\hlsymbol{stu}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{ddply}\hlkeyword{(}\hlsymbol{stuyear}\hlkeyword{,}{\ }\hlfunctioncall{.}\hlkeyword{(}\hlsymbol{sid}\hlkeyword{)}\hlkeyword{,}{\ }\hlsymbol{summarize}\hlkeyword{,}{\ }\hlargument{ever\usebox{\hlnormalsizeboxunderscore}frpl}{\ }\hlargument{=}{\ }\hlfunctioncall{max}\hlkeyword{(}\hlsymbol{frpl}\hlkeyword{)}\hlkeyword{)}{\ }{\ }\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }Create{\ }variable{\ }by{\ }student}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuyear}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{merge}\hlkeyword{(}\hlsymbol{stuyear}\hlkeyword{,}{\ }\hlsymbol{stu}\hlkeyword{)}{\ }{\ }\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }merge{\ }back}\mbox{}
+\normalfont
+\end{flushleft}
+\end{kframe}
+\end{knitrout}
+
+
+Check: How many students have ever been FRPL?
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{flushleft}
+\ttfamily\noindent
+\hlfunctioncall{addmargins}\hlkeyword{(}\hlfunctioncall{table}\hlkeyword{(}\hlsymbol{stu}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{ever\usebox{\hlnormalsizeboxunderscore}frpl}\hlkeyword{)}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\begin{verbatim}
+
+    0     1   Sum 
+ 2801 13090 15891 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\subsubsection{Resolve multiple grade-year entries}
+Resolve instances in which a student has more than one grade level listed for a given school year.\\
+
+There are a total of 18 occasions in which a student has duplicate schoolyear observations. 
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{flushleft}
+\ttfamily\noindent
+\hlsymbol{stuyear}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{dupes}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{dedupe}\hlkeyword{(}\hlsymbol{stuyear}\hlkeyword{[}\hlkeyword{,}{\ }\hlnumber{1}\hlkeyword{:}\hlnumber{2}\hlkeyword{]}\hlkeyword{)}{\ }{\ }\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }Create{\ }indicator{\ }for{\ }all{\ }duplicated{\ }rows}\hspace*{\fill}\\
+\hlstd{}\hlfunctioncall{table}\hlkeyword{(}\hlsymbol{stuyear}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{dupes}\hlkeyword{)}{\ }{\ }\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }count{\ }them,{\ }TRUE{\ }is{\ }a{\ }duplicated{\ }element}\mbox{}
+\normalfont
+\end{flushleft}
+\begin{verbatim}
+
+FALSE  TRUE 
+56008    36 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+The SDP decision rule is to keep the highest grade\_level when a student has multiple 
+grade levels within the same year.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{flushleft}
+\ttfamily\noindent
+\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }In{\ }R{\ }it{\ }is{\ }faster{\ }to{\ }subset{\ }out{\ }the{\ }duplicated{\ }elements,{\ }fix{\ }them,{\ }and{\ }merge}\hspace*{\fill}\\
+\hlstd{}\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }them{\ }back{\ }in}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{dupes}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{subset}\hlkeyword{(}\hlsymbol{stuyear}\hlkeyword{,}{\ }\hlsymbol{dupes}{\ }=={\ }\hlnumber{TRUE}\hlkeyword{)}\hspace*{\fill}\\
+\hlstd{}\hlkeyword{for}{\ }\hlkeyword{(}\hlsymbol{i}{\ }\hlkeyword{in}{\ }\hlsymbol{dupes}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{sid}\hlkeyword{)}{\ }\hlkeyword{\usebox{\hlnormalsizeboxopenbrace}}\hspace*{\fill}\\
+\hlstd{}{\ }{\ }{\ }{\ }\hlsymbol{dupes}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{grade\usebox{\hlnormalsizeboxunderscore}level}\hlkeyword{[}\hlsymbol{dupes}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{sid}{\ }=={\ }\hlsymbol{i}\hlkeyword{]}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{max}\hlkeyword{(}\hlsymbol{dupes}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{grade\usebox{\hlnormalsizeboxunderscore}level}\hlkeyword{[}\hlsymbol{dupes}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{sid}{\ }=={\ }\hlsymbol{i}\hlkeyword{]}\hlkeyword{)}\hspace*{\fill}\\
+\hlstd{}\hlkeyword{\usebox{\hlnormalsizeboxclosebrace}}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuyear}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{rbind}\hlkeyword{(}\hlsymbol{dupes}\hlkeyword{,}{\ }\hlfunctioncall{subset}\hlkeyword{(}\hlsymbol{stuyear}\hlkeyword{,}{\ }\hlsymbol{dupes}{\ }=={\ }\hlnumber{FALSE}\hlkeyword{)}\hlkeyword{)}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuyear}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlsymbol{stuyear}\hlkeyword{[}\hlfunctioncall{with}\hlkeyword{(}\hlsymbol{stuyear}\hlkeyword{,}{\ }\hlfunctioncall{order}\hlkeyword{(}\hlfunctioncall{as.numeric}\hlkeyword{(}\hlfunctioncall{row.names}\hlkeyword{(}\hlsymbol{stuyear}\hlkeyword{)}\hlkeyword{)}\hlkeyword{)}\hlkeyword{)}\hlkeyword{,}\hspace*{\fill}\\
+\hlstd{}{\ }{\ }{\ }{\ }\hlkeyword{]}\hspace*{\fill}\\
+\hlstd{}\hlfunctioncall{head}\hlkeyword{(}\hlsymbol{stuyear}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\begin{verbatim}
+  sid school_year grade_level frpl ever_frpl dupes
+1   1        2004           9    0         1 FALSE
+2   1        2005           9    0         1 FALSE
+3   1        2006          10    1         1 FALSE
+4   1        2007          11    1         1 FALSE
+5   2        2006          10    1         1 FALSE
+6   2        2007          11    1         1 FALSE
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\subsubsection{Drop Duplicated Values}
+Drop any duplicate observations so the file is unique by student and school\_year-that is, it contains only one observation 
+for each student-school\_year combination. We can confidently do that now, because the variables we need to keep are timeinvariant: their values are constant across years for every student.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{flushleft}
+\ttfamily\noindent
+\hlsymbol{stuyear}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{dupes}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{duplicated}\hlkeyword{(}\hlsymbol{stuyear}\hlkeyword{[}\hlkeyword{,}{\ }\hlnumber{1}\hlkeyword{:}\hlnumber{2}\hlkeyword{]}\hlkeyword{)}{\ }{\ }\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }Create{\ }new{\ }dupe{\ }indicator{\ }for}\hspace*{\fill}\\
+\hlstd{}\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }one{\ }duplicate{\ }value}\hspace*{\fill}\\
+\hlstd{}\hspace*{\fill}\\
+\hlstd{}\hlfunctioncall{table}\hlkeyword{(}\hlsymbol{stuyear}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{dupes}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\begin{verbatim}
+
+FALSE  TRUE 
+56026    18 
+\end{verbatim}
+\begin{flushleft}
+\ttfamily\noindent
+\hlsymbol{stuyear}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{subset}\hlkeyword{(}\hlsymbol{stuyear}\hlkeyword{,}{\ }\hlsymbol{dupes}{\ }=={\ }\hlnumber{FALSE}\hlkeyword{)}{\ }{\ }\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }drop{\ }all{\ }duplicated{\ }terms}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuyear}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{dupes}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }NULL{\ }{\ }\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }Indicator{\ }not{\ }needed}\hspace*{\fill}\\
+\hlstd{}\hlfunctioncall{head}\hlkeyword{(}\hlsymbol{stuyear}\hlkeyword{,}{\ }\hlargument{n}{\ }\hlargument{=}{\ }\hlnumber{10}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\begin{verbatim}
+   sid school_year grade_level frpl ever_frpl
+1    1        2004           9    0         1
+2    1        2005           9    0         1
+3    1        2006          10    1         1
+4    1        2007          11    1         1
+5    2        2006          10    1         1
+6    2        2007          11    1         1
+7    3        2006          10    1         1
+8    3        2007           9    1         1
+10   4        2005          11    0         0
+11   4        2006          10    0         0
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+
+\subsubsection{Export Data}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{flushleft}
+\ttfamily\noindent
+\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }Not{\ }run{\ }write.csv(stuyear,file=\usebox{\hlnormalsizeboxsinglequote}data/Student\usebox{\hlnormalsizeboxunderscore}School\usebox{\hlnormalsizeboxunderscore}Year\usebox{\hlnormalsizeboxunderscore}Intermediate.csv\usebox{\hlnormalsizeboxsinglequote}){\ }\usebox{\hlnormalsizeboxhash}}\hspace*{\fill}\\
+\hlstd{}\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }CSV{\ }write.dta(stuyear,file=\usebox{\hlnormalsizeboxsinglequote}data/Student\usebox{\hlnormalsizeboxunderscore}School\usebox{\hlnormalsizeboxunderscore}Year\usebox{\hlnormalsizeboxunderscore}Intermediate.dta\usebox{\hlnormalsizeboxsinglequote}){\ }\usebox{\hlnormalsizeboxhash}}\hspace*{\fill}\\
+\hlstd{}\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }STATA}\mbox{}
+\normalfont
+\end{flushleft}
+\end{kframe}
+\end{knitrout}
+
+
+
+
+
+
+
 
 
 \end{document}
