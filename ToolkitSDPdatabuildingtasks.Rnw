@@ -40,7 +40,7 @@
 
 <<echo=FALSE,results='hide'>>=
 #preliminaries
-setwd("C:/Users/Jared/Dropbox/GIS Data REL/SDP")
+setwd("C:/Users/Jared/GitHub/SDP")
 options(width=80)
 @
 
@@ -310,13 +310,12 @@ table(nvals)
 
 
 <<echo=TRUE,fig.keep='last',fig.width=8,fig.height=3,out.width='.8\\textwidth',out.height='.2\\paperheight',fig.align='center',fig.cap='Number of Values'>>=
-library(ggplot2)
 qplot(as.factor(nvals),geom='bar')+theme_bw()+xlab('Unique Race Codes')+ylab('Count')
 @
 
 Next, for students with more than one value for race\_ethnicity, assign the modal value as the student's race.
 
-<<echo=TRUE,results='markup',comment=NA>>=
+<<echo=TRUE,results='markup',comment=NA,cache=TRUE>>=
 # First we need to create a 'mode' function in R that mimics Stata
 # statamode creates a list of the modal values and assigns "."
 # If more than one mode exists
@@ -363,7 +362,7 @@ C. It appears that we now have 29 students with appended values for the race\_te
 race\_ethnicity has two or more modes, so none of the modes is selected as the variable mode in part B of this step.  For these 
 students, assign their most recently observed race value as their race\_ethnicity.
 
-<<echo=TRUE,results='markup',comment=NA>>=
+<<echo=TRUE,results='markup',comment=NA,cache=TRUE>>=
 # Create a variable indicating the latest school year
 modes<-ddply(stuatt,.(sid),summarize,race_temp=statamode(race_ethnicity),
              nvals=length(unique(race_ethnicity)),most_recent_year=max(school_year),
@@ -495,7 +494,7 @@ Create a binary indicator equal to 1 if the student was ever eligible for FRPL, 
 has a frpl value of 1 in any year, create a binary variable equal to 1 in all observations for that student; conversely, if a student 
 never appears as being FRPL, the binary variable would be equal to 0 in all observations for that student.
 
-<<echo=TRUE,results='markup'>>=
+<<echo=TRUE,results='markup',cache=TRUE>>=
 stu<-ddply(stuyear,.(sid),summarize,ever_frpl=max(frpl)) # Create variable by student
 stuyear<-merge(stuyear,stu) # merge back
 @
@@ -520,7 +519,7 @@ table(stuyear$dupes) # count them, TRUE is a duplicated element
 The SDP decision rule is to keep the highest grade\_level when a student has multiple 
 grade levels within the same year.
 
-<<echo=TRUE,results='markup'>>=
+<<echo=TRUE,results='markup',cache=TRUE>>=
 # In R it is faster to subset out the duplicated elements, fix them, and merge them back in
 dupes<-subset(stuyear,dupes==TRUE)
 for(i in dupes$sid){
@@ -555,9 +554,157 @@ head(stuyear,n=10)
 @
 
 
+\section{Task 3: IDENTIFYING THE NINTH-GRADE COHORT}
+\subsection{PURPOSE}
+Through \textbf{Task 3}: Identifying the Ninth Grade Cohort, you will identify the school year in which each student first appeared in ninth 
+grade using your now cleaned Student_School_Year research file from the last task. This is an essential step in our analyses as it 
+allows you to form student cohorts and examine longitudinal college-going outcomes within these cohorts.\\
+
+\noindent The core assignments of this task are to:
+\begin{enumerate}
+\item Discover all first-time 9th graders. Thsee students form the primary sample for analyses of students' transitioning from 9th to 10th grade.
+\item Identify students who transferred to district high schools after 9th grade. Along with the first-time 9th graders, these transfer students form the primary analyses for high school graduation, college enrollment, and college persistence outcomes.
+\item Ascertain the year in which students were, or, in the case of transfer students--would have been, in grade 9. THis is the student's assigned ninth grade cohort.
+\end{enumerate}
+
+Upon completing this and the previous task, you will be have a clean Student\_School\_Year file that identifies first-time 9th 
+graders.  This file can then be used to assemble the analysis file in \textbf{Connect} and complete \textbf{Task 4}, in which you will examine 
+school enrollment periods and attribute a first and last high school to each student.
+
+\subsection{HOW TO START}
+
+To begin, open the provided Student\_School\_Year\_Intermediate practice file in Stata.
+
+<<echo=TRUE,results='markup'>>=
+stuschyearI<-read.csv('data/Student_School_Year_Intermediate.csv')
+@
+
+This practice file contains data detailing student grade level progression from school years 2000-01 to 2006-07. The file is unique by student 
+and school year—that is, it contains only one observation per student per schoolyear. It is the same as the output from Task 2.\\
+
+If this is your first time going through the task, we recommend starting with the practice file, rather than your agency’s own 
+data file.  Doing so will help you learn SDP’s cleaning methodology and allow you to easily check your answers from a common 
+dataset.  You may then apply these methods to your agency’s own Student\_School\_Year data with confidence.  To learn more 
+about the data you will need to collect in your agency, refer to \textbf{Identify}: Data Specification Guide and the \textbf{DATA DESCRIPTION}
+section of this document.
+
+In addition to the practice file, you may also find it useful to complete the data snapshot exercises provided in the task.  These 
+exercises will allow you to visualize changes to the data occurring in each step of the task.  Solutions for the exercises are 
+provided at the end of the task. 
+
+\subsection{DATA DESCRIPTION}
+The main purpose of this task is to define the ninth grade cohort.  To do so, we only need three variables, \textbf{sid}, \textbf{school\_year}, and 
+\textbf{grade\_level} and a file that is unique by \textbf{sid} and \textbf{school\_year}.  Other variables such as \textbf{frpl}, \textbf{iep}, or \textbf{gifted} remain in the cleaned 
+Student\_School\_Year file but do not play a role in identifying the ninth grade cohort.  The relevant variables and definitions you 
+will need to complete the task are illustrated below:
+
+<<echo=TRUE,results='markup'>>=
+str(stuschyearI)
+@
+
+Uniqueness: This dataset has been cleaned in Task 2 and is now unique by sid and school\_year, as per the Data Specification. 
+The file will remain unique by sid and school\_year for the remainder of the task. The primary result of this task is the creation of 
+the first9thschoolyear\_observed variable.
+
+\section{INSTRUCTIONS}
+
+\textbf{1.Examine your Student\_School\_Year\_Intermediate research file input dataset.  Make sure that it is unique by sid and school\_year.}\footnote{Note that there are no duplicate combinations of sid and school\_year.  The file is unique by sid and school\_year. There are, however, duplicate grade levels for the same sid in successive school years. This does not pose a problem as it indicates a repeated grade}
+
+<<echo=TRUE,results='markup'>>=
+head(stuschyearI[,1:3])
+@
+
+\textbf{2. Create four binary indicators flagging the first school year a student enrolls in grades 9, 10, 11, or 12.} Name these 
+variables first9\_flag, first10\_flag, first11\_flag, and first12\_flag. These variables will have a value of 1 only in the school year 
+in which the student was in the respective grade.  Also create variables populated with this binary indicator across all school 
+years for a given student. Name these variables  observed\_9, observed\_10, observed\_11, and observed\_12.
+
+<<echo=TRUE,results='markup',cache=TRUE>>=
+# To do this the Stata way
+# In R we may want to just use factors in R
+stuschyearI$observed_grade_9<-0
+stuschyearI$observed_grade_9[stuschyearI$grade==9]<-1
+stuschyearI$observed_grade_10<-0
+stuschyearI$observed_grade_10[stuschyearI$grade==10]<-1
+stuschyearI$observed_grade_11<-0
+stuschyearI$observed_grade_11[stuschyearI$grade==11]<-1
+stuschyearI$observed_grade_12<-0
+stuschyearI$observed_grade_12[stuschyearI$grade==12]<-1
 
 
+stuschyearI$first9_flag<-NA
+stuschyearI$first10_flag<-NA
+stuschyearI$first11_flag<-NA
+stuschyearI$first12_flag<-NA
 
+z<-stuschyearI$school_year[stuschyearI$sid==6 & stuschyearI$grade_level==9][1]
+# Make sure data is sorted on student, school year, grade
+
+test<-subset(stuschyearI,grade_level>8)
+for (i in test$sid)  {
+  z<-test$school_year[test$sid==i 
+                                 & test$grade_level==9][1]
+  
+  test$first9_flag[test$sid==i 
+                          & test$grade_level==9 
+                          & test$school_year==z]<-1  
+
+  z<-test$school_year[test$sid==i 
+                                 & test$grade_level==10][1]
+ 
+  
+  test$first10_flag[test$sid==i 
+                           & test$grade_level==10 
+                           & test$school_year==z]<-1
+  
+  z<-test$school_year[test$sid==i 
+                                 & test$grade_level==11][1]
+ 
+  
+  test$first11_flag[test$sid==i & 
+    test$grade_level==11 &
+    test$school_year==z]<-1
+  
+  z<-test$school_year[test$sid==i 
+                                 & test$grade_level==12][1]
+ 
+    test$first12_flag[test$sid==i & 
+    test$grade_level==12 &
+    test$school_year==z]<-1
+}
+
+stuschyearI<-rbind(test,subset(stuschyearI,grade_level<=8))
+stuschyearI<-stuschyearI[order(stuschyearI$sid,stuschyearI$school_year),]
+rm(test,i,z)
+@
+
+\textbf{Check:} How many students are identified as enrolled in high school grades 9, 10, 11, or 12?
+
+<<echo=TRUE,results='markup'>>=
+# Just test some conditionals
+# Want to write a pretty function for this soon
+length(unique(stuschyearI$sid[stuschyearI$observed_grade_9==1]))
+length(unique(stuschyearI$sid[stuschyearI$observed_grade_10==1]))
+length(unique(stuschyearI$sid[stuschyearI$observed_grade_11==1]))
+length(unique(stuschyearI$sid[stuschyearI$observed_grade_12==1]))
+@
+
+\subsection{Create a variable listing the firs tyear in which a student is observed as enrolled in grade 9.}
+Name this variable first9thschoolyear\_observed. The variable will have missing values for students who transferred into the district in 
+grades 10-12.
+<<echo=TRUE,results='markup'>>=
+# Here in R we use the split-apply approach again
+df<-ddply(stuschyearI,.(sid),summarize,
+          first9thschoolyear_observed=school_year[grade_level==9][1])
+stuschyearI<-merge(stuschyearI,df)
+head(stuschyearI[,c(1,2,3,5:13)])
+@
+
+\textbf{Check:} What is the distribution of first9thschoolyear\_observed across years?
+
+<<echo=TRUE,results='markup'>>=
+summary(as.factor(df$first9thschoolyear_observed))
+@
 
 
 

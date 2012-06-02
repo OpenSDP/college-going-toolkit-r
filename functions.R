@@ -1,3 +1,8 @@
+# Packages
+library(ggplot2)
+library(xtable)
+library(plyr)
+
 # R Function for Task 1
 statamode <- function(x) {
   z <- table(as.vector(x))

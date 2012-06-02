@@ -1,8 +1,8 @@
 .Rproj.user
 .Rhistory
 .RData
-cache
-figure
+cache/
+figure/
 .log
 .toc
 .synctex.gz

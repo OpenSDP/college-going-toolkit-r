@@ -748,7 +748,7 @@ Check:  What does the distribution of your race\_ethnicity variable look like? L
 \centering
 
 % latex table generated in R 2.15.0 by xtable 1.7-0 package
-% Sun May 13 15:24:11 2012
+% Sat Jun 02 00:02:44 2012
 \begin{tabular}{rr}
   Black & 67.48 \\ 
   Asian & 11.05 \\ 
@@ -766,7 +766,7 @@ Check:  What does the distribution of your race\_ethnicity variable look like? L
 \centering
 
 % latex table generated in R 2.15.0 by xtable 1.7-0 package
-% Sun May 13 15:24:11 2012
+% Sat Jun 02 00:02:44 2012
 \begin{tabular}{rr}
   Black & 4022000 \\ 
   Asian & 658800 \\ 
@@ -837,8 +837,7 @@ nvals
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{flushleft}
 \ttfamily\noindent
-\hlfunctioncall{library}\hlkeyword{(}\hlsymbol{ggplot2}\hlkeyword{)}\hspace*{\fill}\\
-\hlstd{}\hlfunctioncall{qplot}\hlkeyword{(}\hlfunctioncall{as.factor}\hlkeyword{(}\hlsymbol{nvals}\hlkeyword{)}\hlkeyword{,}{\ }\hlargument{geom}{\ }\hlargument{=}{\ }\hlstring{"{}bar"{}}\hlkeyword{)}{\ }\hlkeyword{+}{\ }\hlfunctioncall{theme\usebox{\hlnormalsizeboxunderscore}bw}\hlkeyword{(}\hlkeyword{)}{\ }\hlkeyword{+}{\ }\hlfunctioncall{xlab}\hlkeyword{(}\hlstring{"{}Unique{\ }Race{\ }Codes"{}}\hlkeyword{)}{\ }\hlkeyword{+}\hspace*{\fill}\\
+\hlfunctioncall{qplot}\hlkeyword{(}\hlfunctioncall{as.factor}\hlkeyword{(}\hlsymbol{nvals}\hlkeyword{)}\hlkeyword{,}{\ }\hlargument{geom}{\ }\hlargument{=}{\ }\hlstring{"{}bar"{}}\hlkeyword{)}{\ }\hlkeyword{+}{\ }\hlfunctioncall{theme\usebox{\hlnormalsizeboxunderscore}bw}\hlkeyword{(}\hlkeyword{)}{\ }\hlkeyword{+}{\ }\hlfunctioncall{xlab}\hlkeyword{(}\hlstring{"{}Unique{\ }Race{\ }Codes"{}}\hlkeyword{)}{\ }\hlkeyword{+}\hspace*{\fill}\\
 \hlstd{}{\ }{\ }{\ }{\ }\hlfunctioncall{ylab}\hlkeyword{(}\hlstring{"{}Count"{}}\hlkeyword{)}\mbox{}
 \normalfont
 \end{flushleft}
@@ -876,22 +875,27 @@ Next, for students with more than one value for race\_ethnicity, assign the moda
 \hlstd{}\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }Create{\ }new{\ }data{\ }frame{\ }for{\ }individual{\ }student{\ }Create{\ }nvals{\ }while{\ }we{\ }are{\ }at{\ }it}\hspace*{\fill}\\
 \hlstd{}\hlfunctioncall{library}\hlkeyword{(}\hlsymbol{plyr}\hlkeyword{)}{\ }{\ }\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }convenience{\ }functions{\ }for{\ }summarizing{\ }data{\ }in{\ }R}\hspace*{\fill}\\
 \hlstd{}\hlsymbol{modes}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{ddply}\hlkeyword{(}\hlsymbol{stuatt}\hlkeyword{,}{\ }\hlfunctioncall{.}\hlkeyword{(}\hlsymbol{sid}\hlkeyword{)}\hlkeyword{,}{\ }\hlsymbol{summarize}\hlkeyword{,}{\ }\hlargument{race\usebox{\hlnormalsizeboxunderscore}temp}{\ }\hlargument{=}{\ }\hlfunctioncall{statamode}\hlkeyword{(}\hlsymbol{race\usebox{\hlnormalsizeboxunderscore}ethnicity}\hlkeyword{)}\hlkeyword{,}\hspace*{\fill}\\
-\hlstd{}{\ }{\ }{\ }{\ }\hlargument{nvals}{\ }\hlargument{=}{\ }\hlfunctioncall{length}\hlkeyword{(}\hlfunctioncall{unique}\hlkeyword{(}\hlsymbol{race\usebox{\hlnormalsizeboxunderscore}ethnicity}\hlkeyword{)}\hlkeyword{)}\hlkeyword{)}\hspace*{\fill}\\
-\hlstd{}\hlsymbol{tab1}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{table}\hlkeyword{(}\hlsymbol{modes}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{race\usebox{\hlnormalsizeboxunderscore}temp}\hlkeyword{,}{\ }\hlsymbol{modes}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{nvals}\hlkeyword{)}\hspace*{\fill}\\
-\hlstd{}\hlfunctioncall{addmargins}\hlkeyword{(}\hlsymbol{tab1}\hlkeyword{,}{\ }\hlargument{FUN}{\ }\hlargument{=}{\ }\hlfunctioncall{list}\hlkeyword{(}\hlargument{Total}{\ }\hlargument{=}{\ }\hlsymbol{sum}\hlkeyword{)}\hlkeyword{,}{\ }\hlargument{quiet}{\ }\hlargument{=}{\ }\hlnumber{TRUE}\hlkeyword{)}\mbox{}
+\hlstd{}{\ }{\ }{\ }{\ }\hlargument{nvals}{\ }\hlargument{=}{\ }\hlfunctioncall{length}\hlkeyword{(}\hlfunctioncall{unique}\hlkeyword{(}\hlsymbol{race\usebox{\hlnormalsizeboxunderscore}ethnicity}\hlkeyword{)}\hlkeyword{)}\hlkeyword{)}\mbox{}
 \normalfont
 \end{flushleft}
 \begin{verbatim}
-                 
-                      1     2     3 Total
-  .                   0    28     1    29
-  Asian            1924    21     0  1945
-  Black           10576    35     2 10613
-  Hispanic         2396    14     0  2410
-  MultipleOther      20     6     0    26
-  Native American     7    29     2    38
-  White            1314    16     0  1330
-  Total           16237   149     5 16391
+Error: could not find function "statamode"
+\end{verbatim}
+\begin{flushleft}
+\ttfamily\noindent
+\hlsymbol{tab1}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{table}\hlkeyword{(}\hlsymbol{modes}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{race\usebox{\hlnormalsizeboxunderscore}temp}\hlkeyword{,}{\ }\hlsymbol{modes}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{nvals}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\begin{verbatim}
+Error: object 'modes' not found
+\end{verbatim}
+\begin{flushleft}
+\ttfamily\noindent
+\hlfunctioncall{addmargins}\hlkeyword{(}\hlsymbol{tab1}\hlkeyword{,}{\ }\hlargument{FUN}{\ }\hlargument{=}{\ }\hlfunctioncall{list}\hlkeyword{(}\hlargument{Total}{\ }\hlargument{=}{\ }\hlsymbol{sum}\hlkeyword{)}\hlkeyword{,}{\ }\hlargument{quiet}{\ }\hlargument{=}{\ }\hlnumber{TRUE}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\begin{verbatim}
+Error: object 'tab1' not found
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -904,21 +908,22 @@ students with more than one race value?
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{flushleft}
 \ttfamily\noindent
-\hlsymbol{df}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{as.data.frame}\hlkeyword{(}\hlsymbol{tab1}\hlkeyword{)}\hspace*{\fill}\\
-\hlstd{}\hlfunctioncall{qplot}\hlkeyword{(}\hlsymbol{Var1}\hlkeyword{,}{\ }\hlsymbol{Var2}\hlkeyword{,}{\ }\hlargument{geom}{\ }\hlargument{=}{\ }\hlstring{"{}point"{}}\hlkeyword{,}{\ }\hlargument{size}{\ }\hlargument{=}{\ }\hlfunctioncall{log}\hlkeyword{(}\hlsymbol{Freq}\hlkeyword{)}\hlkeyword{,}{\ }\hlargument{data}{\ }\hlargument{=}{\ }\hlsymbol{df}\hlkeyword{)}{\ }\hlkeyword{+}{\ }\hlfunctioncall{theme\usebox{\hlnormalsizeboxunderscore}bw}\hlkeyword{(}\hlkeyword{)}{\ }\hlkeyword{+}\hspace*{\fill}\\
+\hlsymbol{df}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{as.data.frame}\hlkeyword{(}\hlsymbol{tab1}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\begin{verbatim}
+Error: object 'tab1' not found
+\end{verbatim}
+\begin{flushleft}
+\ttfamily\noindent
+\hlfunctioncall{qplot}\hlkeyword{(}\hlsymbol{Var1}\hlkeyword{,}{\ }\hlsymbol{Var2}\hlkeyword{,}{\ }\hlargument{geom}{\ }\hlargument{=}{\ }\hlstring{"{}point"{}}\hlkeyword{,}{\ }\hlargument{size}{\ }\hlargument{=}{\ }\hlfunctioncall{log}\hlkeyword{(}\hlsymbol{Freq}\hlkeyword{)}\hlkeyword{,}{\ }\hlargument{data}{\ }\hlargument{=}{\ }\hlsymbol{df}\hlkeyword{)}{\ }\hlkeyword{+}{\ }\hlfunctioncall{theme\usebox{\hlnormalsizeboxunderscore}bw}\hlkeyword{(}\hlkeyword{)}{\ }\hlkeyword{+}\hspace*{\fill}\\
 \hlstd{}{\ }{\ }{\ }{\ }\hlfunctioncall{xlab}\hlkeyword{(}\hlstring{"{}Nvals"{}}\hlkeyword{)}{\ }\hlkeyword{+}{\ }\hlfunctioncall{ylab}\hlkeyword{(}\hlstring{"{}Modal{\ }Race"{}}\hlkeyword{)}\mbox{}
 \normalfont
 \end{flushleft}
-\end{kframe}\begin{figure}[]
-
-
-{\centering \includegraphics[width=.8\textwidth,height=.2\paperheight]{figure/dotplot} 
-
-}
-
-\caption[Distribution of Race and NVALS]{Distribution of Race and NVALS\label{fig:dotplot}}
-\end{figure}
-
+\begin{verbatim}
+Error: ggplot2 doesn't know how to deal with data of class function
+\end{verbatim}
+\end{kframe}
 \end{knitrout}
 
 
@@ -1394,8 +1399,264 @@ FALSE  TRUE
 
 
 
+\section{Task 3: IDENTIFYING THE NINTH-GRADE COHORT}
+\subsection{PURPOSE}
+Through \textbf{Task 3}: Identifying the Ninth Grade Cohort, you will identify the school year in which each student first appeared in ninth 
+grade using your now cleaned Student_School_Year research file from the last task. This is an essential step in our analyses as it 
+allows you to form student cohorts and examine longitudinal college-going outcomes within these cohorts.\\
+
+\noindent The core assignments of this task are to:
+\begin{enumerate}
+\item Discover all first-time 9th graders. Thsee students form the primary sample for analyses of students' transitioning from 9th to 10th grade.
+\item Identify students who transferred to district high schools after 9th grade. Along with the first-time 9th graders, these transfer students form the primary analyses for high school graduation, college enrollment, and college persistence outcomes.
+\item Ascertain the year in which students were, or, in the case of transfer students--would have been, in grade 9. THis is the student's assigned ninth grade cohort.
+\end{enumerate}
+
+Upon completing this and the previous task, you will be have a clean Student\_School\_Year file that identifies first-time 9th 
+graders.  This file can then be used to assemble the analysis file in \textbf{Connect} and complete \textbf{Task 4}, in which you will examine 
+school enrollment periods and attribute a first and last high school to each student.
+
+\subsection{HOW TO START}
+
+To begin, open the provided Student\_School\_Year\_Intermediate practice file in Stata.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{flushleft}
+\ttfamily\noindent
+\hlsymbol{stuschyearI}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{read.csv}\hlkeyword{(}\hlstring{"{}data/Student\usebox{\hlnormalsizeboxunderscore}School\usebox{\hlnormalsizeboxunderscore}Year\usebox{\hlnormalsizeboxunderscore}Intermediate.csv"{}}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\end{kframe}
+\end{knitrout}
 
 
+This practice file contains data detailing student grade level progression from school years 2000-01 to 2006-07. The file is unique by student 
+and school year—that is, it contains only one observation per student per schoolyear. It is the same as the output from Task 2.\\
+
+If this is your first time going through the task, we recommend starting with the practice file, rather than your agency’s own 
+data file.  Doing so will help you learn SDP’s cleaning methodology and allow you to easily check your answers from a common 
+dataset.  You may then apply these methods to your agency’s own Student\_School\_Year data with confidence.  To learn more 
+about the data you will need to collect in your agency, refer to \textbf{Identify}: Data Specification Guide and the \textbf{DATA DESCRIPTION}
+section of this document.
+
+In addition to the practice file, you may also find it useful to complete the data snapshot exercises provided in the task.  These 
+exercises will allow you to visualize changes to the data occurring in each step of the task.  Solutions for the exercises are 
+provided at the end of the task. 
+
+\subsection{DATA DESCRIPTION}
+The main purpose of this task is to define the ninth grade cohort.  To do so, we only need three variables, \textbf{sid}, \textbf{school\_year}, and 
+\textbf{grade\_level} and a file that is unique by \textbf{sid} and \textbf{school\_year}.  Other variables such as \textbf{frpl}, \textbf{iep}, or \textbf{gifted} remain in the cleaned 
+Student\_School\_Year file but do not play a role in identifying the ninth grade cohort.  The relevant variables and definitions you 
+will need to complete the task are illustrated below:
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{flushleft}
+\ttfamily\noindent
+\hlfunctioncall{str}\hlkeyword{(}\hlsymbol{stuschyearI}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\begin{verbatim}
+'data.frame':	56026 obs. of  4 variables:
+ $ sid        : int  1 1 1 1 2 2 3 3 4 4 ...
+ $ school_year: int  2004 2005 2006 2007 2006 2007 2006 2007 2005 2006 ...
+ $ grade_level: int  9 9 10 11 10 11 10 9 11 10 ...
+ $ ever_frpl  : int  1 1 1 1 1 1 1 1 0 0 ...
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+Uniqueness: This dataset has been cleaned in Task 2 and is now unique by sid and school\_year, as per the Data Specification. 
+The file will remain unique by sid and school\_year for the remainder of the task. The primary result of this task is the creation of 
+the first9thschoolyear\_observed variable.
+
+\section{INSTRUCTIONS}
+
+\textbf{1.Examine your Student\_School\_Year\_Intermediate research file input dataset.  Make sure that it is unique by sid and school\_year.}\footnote{Note that there are no duplicate combinations of sid and school\_year.  The file is unique by sid and school\_year. There are, however, duplicate grade levels for the same sid in successive school years. This does not pose a problem as it indicates a repeated grade}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{flushleft}
+\ttfamily\noindent
+\hlfunctioncall{head}\hlkeyword{(}\hlsymbol{stuschyearI}\hlkeyword{[}\hlkeyword{,}{\ }\hlnumber{1}\hlkeyword{:}\hlnumber{3}\hlkeyword{]}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\begin{verbatim}
+  sid school_year grade_level
+1   1        2004           9
+2   1        2005           9
+3   1        2006          10
+4   1        2007          11
+5   2        2006          10
+6   2        2007          11
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\textbf{2. Create four binary indicators flagging the first school year a student enrolls in grades 9, 10, 11, or 12.} Name these 
+variables first9\_flag, first10\_flag, first11\_flag, and first12\_flag. These variables will have a value of 1 only in the school year 
+in which the student was in the respective grade.  Also create variables populated with this binary indicator across all school 
+years for a given student. Name these variables  observed\_9, observed\_10, observed\_11, and observed\_12.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{flushleft}
+\ttfamily\noindent
+\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }To{\ }do{\ }this{\ }the{\ }Stata{\ }way{\ }In{\ }R{\ }we{\ }may{\ }want{\ }to{\ }just{\ }use{\ }factors{\ }in{\ }R}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{observed\usebox{\hlnormalsizeboxunderscore}grade\usebox{\hlnormalsizeboxunderscore}9}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlnumber{0}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{observed\usebox{\hlnormalsizeboxunderscore}grade\usebox{\hlnormalsizeboxunderscore}9}\hlkeyword{[}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{grade}{\ }=={\ }\hlnumber{9}\hlkeyword{]}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlnumber{1}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{observed\usebox{\hlnormalsizeboxunderscore}grade\usebox{\hlnormalsizeboxunderscore}10}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlnumber{0}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{observed\usebox{\hlnormalsizeboxunderscore}grade\usebox{\hlnormalsizeboxunderscore}10}\hlkeyword{[}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{grade}{\ }=={\ }\hlnumber{10}\hlkeyword{]}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlnumber{1}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{observed\usebox{\hlnormalsizeboxunderscore}grade\usebox{\hlnormalsizeboxunderscore}11}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlnumber{0}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{observed\usebox{\hlnormalsizeboxunderscore}grade\usebox{\hlnormalsizeboxunderscore}11}\hlkeyword{[}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{grade}{\ }=={\ }\hlnumber{11}\hlkeyword{]}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlnumber{1}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{observed\usebox{\hlnormalsizeboxunderscore}grade\usebox{\hlnormalsizeboxunderscore}12}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlnumber{0}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{observed\usebox{\hlnormalsizeboxunderscore}grade\usebox{\hlnormalsizeboxunderscore}12}\hlkeyword{[}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{grade}{\ }=={\ }\hlnumber{12}\hlkeyword{]}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlnumber{1}\hspace*{\fill}\\
+\hlstd{}\hspace*{\fill}\\
+\hlstd{}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{first9\usebox{\hlnormalsizeboxunderscore}flag}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlnumber{NA}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{first10\usebox{\hlnormalsizeboxunderscore}flag}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlnumber{NA}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{first11\usebox{\hlnormalsizeboxunderscore}flag}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlnumber{NA}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{first12\usebox{\hlnormalsizeboxunderscore}flag}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlnumber{NA}\hspace*{\fill}\\
+\hlstd{}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{z}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{school\usebox{\hlnormalsizeboxunderscore}year}\hlkeyword{[}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{sid}{\ }=={\ }\hlnumber{6}{\ }\hlkeyword{\usebox{\hlnormalsizeboxand}}{\ }\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{grade\usebox{\hlnormalsizeboxunderscore}level}{\ }==\hspace*{\fill}\\
+\hlstd{}{\ }{\ }{\ }{\ }\hlnumber{9}\hlkeyword{]}\hlkeyword{[}\hlnumber{1}\hlkeyword{]}\hspace*{\fill}\\
+\hlstd{}\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }Make{\ }sure{\ }data{\ }is{\ }sorted{\ }on{\ }student,{\ }school{\ }year,{\ }grade}\hspace*{\fill}\\
+\hlstd{}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{test}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{subset}\hlkeyword{(}\hlsymbol{stuschyearI}\hlkeyword{,}{\ }\hlsymbol{grade\usebox{\hlnormalsizeboxunderscore}level}{\ }\hlkeyword{\usebox{\hlnormalsizeboxgreaterthan}}{\ }\hlnumber{8}\hlkeyword{)}\hspace*{\fill}\\
+\hlstd{}\hlkeyword{for}{\ }\hlkeyword{(}\hlsymbol{i}{\ }\hlkeyword{in}{\ }\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{sid}\hlkeyword{)}{\ }\hlkeyword{\usebox{\hlnormalsizeboxopenbrace}}\hspace*{\fill}\\
+\hlstd{}{\ }{\ }{\ }{\ }\hlsymbol{z}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{school\usebox{\hlnormalsizeboxunderscore}year}\hlkeyword{[}\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{sid}{\ }=={\ }\hlsymbol{i}{\ }\hlkeyword{\usebox{\hlnormalsizeboxand}}{\ }\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{grade\usebox{\hlnormalsizeboxunderscore}level}{\ }=={\ }\hlnumber{9}\hlkeyword{]}\hlkeyword{[}\hlnumber{1}\hlkeyword{]}\hspace*{\fill}\\
+\hlstd{}\hspace*{\fill}\\
+\hlstd{}{\ }{\ }{\ }{\ }\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{first9\usebox{\hlnormalsizeboxunderscore}flag}\hlkeyword{[}\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{sid}{\ }=={\ }\hlsymbol{i}{\ }\hlkeyword{\usebox{\hlnormalsizeboxand}}{\ }\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{grade\usebox{\hlnormalsizeboxunderscore}level}{\ }=={\ }\hlnumber{9}{\ }\hlkeyword{\usebox{\hlnormalsizeboxand}}{\ }\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{school\usebox{\hlnormalsizeboxunderscore}year}{\ }==\hspace*{\fill}\\
+\hlstd{}{\ }{\ }{\ }{\ }{\ }{\ }{\ }{\ }\hlsymbol{z}\hlkeyword{]}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlnumber{1}\hspace*{\fill}\\
+\hlstd{}\hspace*{\fill}\\
+\hlstd{}{\ }{\ }{\ }{\ }\hlsymbol{z}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{school\usebox{\hlnormalsizeboxunderscore}year}\hlkeyword{[}\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{sid}{\ }=={\ }\hlsymbol{i}{\ }\hlkeyword{\usebox{\hlnormalsizeboxand}}{\ }\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{grade\usebox{\hlnormalsizeboxunderscore}level}{\ }=={\ }\hlnumber{10}\hlkeyword{]}\hlkeyword{[}\hlnumber{1}\hlkeyword{]}\hspace*{\fill}\\
+\hlstd{}\hspace*{\fill}\\
+\hlstd{}\hspace*{\fill}\\
+\hlstd{}{\ }{\ }{\ }{\ }\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{first10\usebox{\hlnormalsizeboxunderscore}flag}\hlkeyword{[}\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{sid}{\ }=={\ }\hlsymbol{i}{\ }\hlkeyword{\usebox{\hlnormalsizeboxand}}{\ }\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{grade\usebox{\hlnormalsizeboxunderscore}level}{\ }=={\ }\hlnumber{10}{\ }\hlkeyword{\usebox{\hlnormalsizeboxand}}{\ }\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{school\usebox{\hlnormalsizeboxunderscore}year}{\ }==\hspace*{\fill}\\
+\hlstd{}{\ }{\ }{\ }{\ }{\ }{\ }{\ }{\ }\hlsymbol{z}\hlkeyword{]}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlnumber{1}\hspace*{\fill}\\
+\hlstd{}\hspace*{\fill}\\
+\hlstd{}{\ }{\ }{\ }{\ }\hlsymbol{z}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{school\usebox{\hlnormalsizeboxunderscore}year}\hlkeyword{[}\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{sid}{\ }=={\ }\hlsymbol{i}{\ }\hlkeyword{\usebox{\hlnormalsizeboxand}}{\ }\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{grade\usebox{\hlnormalsizeboxunderscore}level}{\ }=={\ }\hlnumber{11}\hlkeyword{]}\hlkeyword{[}\hlnumber{1}\hlkeyword{]}\hspace*{\fill}\\
+\hlstd{}\hspace*{\fill}\\
+\hlstd{}\hspace*{\fill}\\
+\hlstd{}{\ }{\ }{\ }{\ }\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{first11\usebox{\hlnormalsizeboxunderscore}flag}\hlkeyword{[}\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{sid}{\ }=={\ }\hlsymbol{i}{\ }\hlkeyword{\usebox{\hlnormalsizeboxand}}{\ }\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{grade\usebox{\hlnormalsizeboxunderscore}level}{\ }=={\ }\hlnumber{11}{\ }\hlkeyword{\usebox{\hlnormalsizeboxand}}{\ }\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{school\usebox{\hlnormalsizeboxunderscore}year}{\ }==\hspace*{\fill}\\
+\hlstd{}{\ }{\ }{\ }{\ }{\ }{\ }{\ }{\ }\hlsymbol{z}\hlkeyword{]}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlnumber{1}\hspace*{\fill}\\
+\hlstd{}\hspace*{\fill}\\
+\hlstd{}{\ }{\ }{\ }{\ }\hlsymbol{z}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{school\usebox{\hlnormalsizeboxunderscore}year}\hlkeyword{[}\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{sid}{\ }=={\ }\hlsymbol{i}{\ }\hlkeyword{\usebox{\hlnormalsizeboxand}}{\ }\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{grade\usebox{\hlnormalsizeboxunderscore}level}{\ }=={\ }\hlnumber{12}\hlkeyword{]}\hlkeyword{[}\hlnumber{1}\hlkeyword{]}\hspace*{\fill}\\
+\hlstd{}\hspace*{\fill}\\
+\hlstd{}{\ }{\ }{\ }{\ }\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{first12\usebox{\hlnormalsizeboxunderscore}flag}\hlkeyword{[}\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{sid}{\ }=={\ }\hlsymbol{i}{\ }\hlkeyword{\usebox{\hlnormalsizeboxand}}{\ }\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{grade\usebox{\hlnormalsizeboxunderscore}level}{\ }=={\ }\hlnumber{12}{\ }\hlkeyword{\usebox{\hlnormalsizeboxand}}{\ }\hlsymbol{test}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{school\usebox{\hlnormalsizeboxunderscore}year}{\ }==\hspace*{\fill}\\
+\hlstd{}{\ }{\ }{\ }{\ }{\ }{\ }{\ }{\ }\hlsymbol{z}\hlkeyword{]}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlnumber{1}\hspace*{\fill}\\
+\hlstd{}\hlkeyword{\usebox{\hlnormalsizeboxclosebrace}}\hspace*{\fill}\\
+\hlstd{}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuschyearI}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{rbind}\hlkeyword{(}\hlsymbol{test}\hlkeyword{,}{\ }\hlfunctioncall{subset}\hlkeyword{(}\hlsymbol{stuschyearI}\hlkeyword{,}{\ }\hlsymbol{grade\usebox{\hlnormalsizeboxunderscore}level}{\ }\usebox{\hlnormalsizeboxlessthan}={\ }\hlnumber{8}\hlkeyword{)}\hlkeyword{)}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuschyearI}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlsymbol{stuschyearI}\hlkeyword{[}\hlfunctioncall{order}\hlkeyword{(}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{sid}\hlkeyword{,}{\ }\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{school\usebox{\hlnormalsizeboxunderscore}year}\hlkeyword{)}\hlkeyword{,}\hspace*{\fill}\\
+\hlstd{}{\ }{\ }{\ }{\ }\hlkeyword{]}\hspace*{\fill}\\
+\hlstd{}\hlfunctioncall{rm}\hlkeyword{(}\hlsymbol{test}\hlkeyword{,}{\ }\hlsymbol{i}\hlkeyword{,}{\ }\hlsymbol{z}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\end{kframe}
+\end{knitrout}
+
+
+\textbf{Check:} How many students are identified as enrolled in high school grades 9, 10, 11, or 12?
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{flushleft}
+\ttfamily\noindent
+\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }Just{\ }test{\ }some{\ }conditionals{\ }Want{\ }to{\ }write{\ }a{\ }pretty{\ }function{\ }for{\ }this{\ }soon}\hspace*{\fill}\\
+\hlstd{}\hlfunctioncall{length}\hlkeyword{(}\hlfunctioncall{unique}\hlkeyword{(}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{sid}\hlkeyword{[}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{observed\usebox{\hlnormalsizeboxunderscore}grade\usebox{\hlnormalsizeboxunderscore}9}{\ }=={\ }\hlnumber{1}\hlkeyword{]}\hlkeyword{)}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\begin{verbatim}
+[1] 5993
+\end{verbatim}
+\begin{flushleft}
+\ttfamily\noindent
+\hlfunctioncall{length}\hlkeyword{(}\hlfunctioncall{unique}\hlkeyword{(}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{sid}\hlkeyword{[}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{observed\usebox{\hlnormalsizeboxunderscore}grade\usebox{\hlnormalsizeboxunderscore}10}{\ }=={\ }\hlnumber{1}\hlkeyword{]}\hlkeyword{)}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\begin{verbatim}
+[1] 5402
+\end{verbatim}
+\begin{flushleft}
+\ttfamily\noindent
+\hlfunctioncall{length}\hlkeyword{(}\hlfunctioncall{unique}\hlkeyword{(}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{sid}\hlkeyword{[}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{observed\usebox{\hlnormalsizeboxunderscore}grade\usebox{\hlnormalsizeboxunderscore}11}{\ }=={\ }\hlnumber{1}\hlkeyword{]}\hlkeyword{)}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\begin{verbatim}
+[1] 4592
+\end{verbatim}
+\begin{flushleft}
+\ttfamily\noindent
+\hlfunctioncall{length}\hlkeyword{(}\hlfunctioncall{unique}\hlkeyword{(}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{sid}\hlkeyword{[}\hlsymbol{stuschyearI}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{observed\usebox{\hlnormalsizeboxunderscore}grade\usebox{\hlnormalsizeboxunderscore}12}{\ }=={\ }\hlnumber{1}\hlkeyword{]}\hlkeyword{)}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\begin{verbatim}
+[1] 3706
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\subsection{Create a variable listing the firs tyear in which a student is observed as enrolled in grade 9.}
+Name this variable first9thschoolyear\_observed. The variable will have missing values for students who transferred into the district in 
+grades 10-12.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{flushleft}
+\ttfamily\noindent
+\hlcomment{\usebox{\hlnormalsizeboxhash}{\ }Here{\ }in{\ }R{\ }we{\ }use{\ }the{\ }split-apply{\ }approach{\ }again}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{df}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{ddply}\hlkeyword{(}\hlsymbol{stuschyearI}\hlkeyword{,}{\ }\hlfunctioncall{.}\hlkeyword{(}\hlsymbol{sid}\hlkeyword{)}\hlkeyword{,}{\ }\hlsymbol{summarize}\hlkeyword{,}{\ }\hlargument{first9thschoolyear\usebox{\hlnormalsizeboxunderscore}observed}{\ }\hlargument{=}{\ }\hlsymbol{school\usebox{\hlnormalsizeboxunderscore}year}\hlkeyword{[}\hlsymbol{grade\usebox{\hlnormalsizeboxunderscore}level}{\ }==\hspace*{\fill}\\
+\hlstd{}{\ }{\ }{\ }{\ }\hlnumber{9}\hlkeyword{]}\hlkeyword{[}\hlnumber{1}\hlkeyword{]}\hlkeyword{)}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{stuschyearI}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{merge}\hlkeyword{(}\hlsymbol{stuschyearI}\hlkeyword{,}{\ }\hlsymbol{df}\hlkeyword{)}\hspace*{\fill}\\
+\hlstd{}\hlfunctioncall{head}\hlkeyword{(}\hlsymbol{stuschyearI}\hlkeyword{[}\hlkeyword{,}{\ }\hlfunctioncall{c}\hlkeyword{(}\hlnumber{1}\hlkeyword{,}{\ }\hlnumber{2}\hlkeyword{,}{\ }\hlnumber{3}\hlkeyword{,}{\ }\hlnumber{5}\hlkeyword{:}\hlnumber{13}\hlkeyword{)}\hlkeyword{]}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\begin{verbatim}
+  sid school_year grade_level observed_grade_9 observed_grade_10
+1   1        2004           9                1                 0
+2   1        2005           9                1                 0
+3   1        2006          10                0                 1
+4   1        2007          11                0                 0
+5   2        2006          10                0                 1
+6   2        2007          11                0                 0
+  observed_grade_11 observed_grade_12 first9_flag first10_flag first11_flag
+1                 0                 0           1           NA           NA
+2                 0                 0          NA           NA           NA
+3                 0                 0          NA            1           NA
+4                 1                 0          NA           NA            1
+5                 0                 0          NA            1           NA
+6                 1                 0          NA           NA            1
+  first12_flag first9thschoolyear_observed
+1           NA                        2004
+2           NA                        2004
+3           NA                        2004
+4           NA                        2004
+5           NA                          NA
+6           NA                          NA
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\textbf{Check:} What is the distribution of first9thschoolyear\_observed across years?
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{flushleft}
+\ttfamily\noindent
+\hlfunctioncall{summary}\hlkeyword{(}\hlfunctioncall{as.factor}\hlkeyword{(}\hlsymbol{df}\hlkeyword{\usebox{\hlnormalsizeboxdollar}}\hlsymbol{first9thschoolyear\usebox{\hlnormalsizeboxunderscore}observed}\hlkeyword{)}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\begin{verbatim}
+2001 2002 2003 2004 2005 2006 2007 NA's 
+ 963  958  814  841  851  808  758 9898 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
 
 
 
