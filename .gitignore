@@ -3,6 +3,6 @@
 .RData
 cache/
 figure/
-.log
-.toc
-.synctex.gz
+*.log
+*.toc
+*.synctex.gz
