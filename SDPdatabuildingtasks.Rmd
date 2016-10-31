@@ -11,9 +11,10 @@ output: html_document
 
 ```{r, echo = FALSE, error = FALSE, message = FALSE, comment = NA}
 # Set options for knitr
+library(knitr)
 opts_knit$set(comment = NA, warning = FALSE, error = FALSE, message = FALSE, 
               fig.path = "figure/task3-", dev = c('pdf', 'png'))
-options(width=80)
+options(width=120)
 ```
 
 ## Overview
@@ -182,8 +183,8 @@ library(haven) # required for .dta files
 
 # To read data from a zip file we create a connection to the path of the 
 # zip file
-tmpfileName <- "clean/Student_Attributes.dta"
-con <- unz(description = "data/clean.zip", filename = tmpfileName, 
+tmpfileName <- "raw/Student_Demographics_Raw.dta"
+con <- unz(description = "data/raw.zip", filename = tmpfileName, 
            open = "rb")
 stuatt <- read_stata(con) # read data in the data subdirectory
 ```
@@ -208,7 +209,9 @@ visualize changes to the data occurring in each step of the task.  Solutions for
 the exercises are provided at the end of the task. 
 
 ### DATA DESCRIPTION
-In Identify: Data Specification Guide, we specify the data elements included in the `Student_Attributes` research file.[^You may be wondering how  this specification 
+
+In Identify: Data Specification Guide, we specify the data elements included in 
+the `Student_Attributes` research file.[^You may be wondering how  this specification 
 compares to the  version in Identify: Data Specification Guide. Here are the 
 primary changes: First, the `race_ethnicity` variable is coded as a string rather 
 than being numeric, as specified in the Data Specification Guide.  You will 
@@ -235,3 +238,295 @@ variables such as `male`, `hs_diploma`, `hs_diploma_type`, or `hs_diploma_date`.
 The relevant variables and definitions you will need to complete the task are 
 illustrated below:
 
+```{r echo=TRUE}
+str(stuatt)
+```
+
+**Uniqueness:** ideally, the data in its raw form would be unique by `sid`.  
+However, this may not be the case as some agencies might record `race_ethnicity` 
+in a time-variant manner, such as by school year. To address this, we explain 
+how to take the raw research file from being unique by `sid` and `school_year` 
+to being unique by `sid` alone.  Once the file is unique by `sid` alone, it is 
+ready to be incorporated into the analysis file in the Connect stage.
+
+Examine  your `Student_Attributes` raw research file input dataset.  According to 
+the data specification, the file should be unique by `sid`.  Examine the snapshot 
+below to determine if it is unique as described.  
+
+```{r echo=TRUE}
+head(stuatt)
+# A quick way to test this in R
+length(unique(stuatt$sid)) == nrow(stuatt)
+```
+
+```{r note1, include=FALSE}
+# Optional--consider removing since R does not need factors to be recoded as 
+# numeric. Recode the raw race\_ethnicity variable as numeric. Race\_ethnicity is 
+# currently coded as a string variable, which is how some  agencies may store 
+# this data . Replace the string values with numeric values as shown below. 
+# This numeric race variable will be easier to use in later stages of the task. 
+```
+
+#### Step 0: Read in the Data
+
+```{r echo=TRUE, results='asis'}
+# Read in Stata
+library(haven) # required for .dta files
+
+# To read data from a zip file we create a connection to the path of the 
+# zip file
+tmpfileName <- "raw/Student_Demographics_Raw.dta"
+con <- unz(description = "data/raw.zip", filename = tmpfileName, 
+           open = "rb")
+stuatt <- read_stata(con) # read data in the data subdirectory
+stuatt <- as.data.frame(stuatt)
+```
+
+
+Now drop the `first_9th_school_year_reported` variable. You will create a 
+`first_9th_school_year_reported` variable in Task 3 that also imputes this 
+variable for transfer-ins. 
+
+```{r echo=TRUE, results='asis'}
+stuatt$first_9th_school_year_reported <- NULL
+head(stuatt)
+```
+
+#### Step 1 
+*Create one consistent value for gender for each student across years*
+
+```{r echo=TRUE, results='asis'}
+library(dplyr)
+idx <- c(8552, 12506) # Specify which SIDs are interesting
+stuatt %>% arrange(sid, school_year) %>% 
+  select(sid, school_year, male) %>% 
+  filter(sid %in% idx)
+
+```
+
+
+Define the modal gender. For students who have a mode, replace male with the 
+modal value (male_mode will be missing if there is no single mode). 
+
+```{r}
+stuatt %>% group_by(sid) %>% 
+  mutate(nvals_male = length(unique(male))) %>% ungroup() %>% 
+  select(nvals_male) %>% 
+  table
+```
+
+#### Step 2 
+*Identify the modal gender. If multiple modes exist for a student, report the 
+most recent gender recorded*
+
+```{r}
+# First we need to create a 'mode' function in R that mimics Stata
+# statamode creates a list of the modal values and assigns "."
+# If more than one mode exists
+statamode <- function(x) {
+  z <- table(as.vector(x))
+  m<-names(z)[z == max(z)]
+  if(length(m)==1){
+    return(m)
+  }
+  return(".")
+}
+
+stuatt %>% group_by(sid) %>% 
+  mutate(nvals_male = length(unique(male)), 
+         mode_male = statamode(male)) %>% ungroup() %>% 
+  select(sid, male, mode_male, nvals_male) %>% 
+  filter(sid %in% idx)
+
+```
+
+
+
+
+- 1 = African American, not Hispanic
+- 2 = Asian American
+- 3 = Hispanic
+- 4 = American Indian
+- 5 = White, not Hispanic
+- 6 = Multiple / Other
+
+```{r echo=TRUE}
+# When R reads in Stata files using haven it creates a data type called 
+# labelled, for compatibility with Stata and most R functions, we convert 
+# this into a more standard factor variable
+
+# Create a copy
+stuatt$race_num <- stuatt$race_ethnicity
+stuatt$race_ethnicity <- as_factor(stuatt$race_ethnicity)
+
+table(stuatt$race_ethnicity) #check current values
+
+stuatt$race_num <- NA
+stuatt$race_num[stuatt$race_ethnicity=='B'] <- 1
+stuatt$race_num[stuatt$race_ethnicity=='A'] <- 2
+stuatt$race_num[stuatt$race_ethnicity=='H'] <- 3
+stuatt$race_num[stuatt$race_ethnicity=='NA'] <- 4
+stuatt$race_num[stuatt$race_ethnicity=='W'] <- 5
+stuatt$race_num[stuatt$race_ethnicity=='M/O'] <- 6
+table(stuatt$race_num)
+```
+
+```{r echo=TRUE,results='markup'}
+# In R categorical variables are best represented as factors
+# Factors can have values, and labels
+# Create a labeled factor for the new race_num variable
+
+stuatt$race_num2 <- factor(stuatt$race_num, 
+                           labels = c('Black', 'Asian', 'Hispanic', 
+                                    'Native American', 'White', 'MultipleOther'))
+
+# Compare them to check using a cross-tabulation
+table(stuatt$race_ethnicity, stuatt$race_num2)
+# Replace them
+stuatt$race_num <- NULL
+stuatt$race_ethnicity <- stuatt$race_num2
+stuatt$race_num2 <- NULL
+
+table(stuatt$race_ethnicity) # counts
+prop.table(table(stuatt$race_ethnicity))*100 #percentages
+```
+
+
+Check:  What does the distribution of your `race_ethnicity` variable look like? 
+Let's redraw the tables above in a more readable format.
+
+```{r echo=TRUE, results="markup"}
+library(pander) # library to beautify output
+pander(prop.table(table(stuatt$race_ethnicity))*100, style = "rmarkdown")
+pander(table(stuatt$race_ethnicity), style = "rmarkdown")
+```
+
+
+Let's also draw a figure to show this distribution.
+
+```{r echo=TRUE, fig.align='center'}
+library(ggplot2) # the best R library for plotting
+
+qplot(stuatt$race_ethnicity,geom='bar') + 
+  theme_bw() + labs(x = 'Race/Ethnicity', y = 'Count', 
+                    title = "Frequency of Student Race")
+```
+
+### Consistent Value of Race & Ethnicity Within Student
+
+First, create a variable indicating how many unique values `race_ethnicity` 
+assumes for each student called `nvals_race`.
+
+```{r benchmark,echo=FALSE,eval=FALSE}
+library(dplyr) # The state of the art in R data manipulation
+
+stuatt <- stuatt %>% group_by(sid) %>% 
+  mutate(nvals_race = length(unique(race_ethnicity)))
+
+table(stuatt$nvals_race)
+```
+
+```{r echo=TRUE}
+qplot(as.factor(stuatt$nvals_race), geom='bar') + theme_bw() + 
+  xlab('Unique Race Codes') + ylab('Count')
+
+```
+
+Next, for students with more than one value for `race_ethnicity`, assign the 
+modal value as the student's race. 
+
+To do this in R we will need to create a custom function that does waht we want 
+in the case of ties. 
+
+```{r echo=TRUE, results='markup'}
+# First we need to create a 'mode' function in R that mimics Stata
+# statamode creates a list of the modal values and assigns "."
+# If more than one mode exists
+statamode <- function(x) {
+  z <- table(as.vector(x))
+  m<-names(z)[z == max(z)]
+  if(length(m)==1){
+    return(m)
+  }
+  return(".")
+}
+
+# Create new data frame for individual student
+# Create nvals while we are at it
+
+modes <- stuatt %>% group_by(sid) %>% 
+  summarize(race_temp = statamode(race_ethnicity), 
+            nvals = length(unique(race_ethnicity)))
+tab1 <- table(modes$race_temp,modes$nvals)
+addmargins(tab1, FUN=list(Total=sum), quiet=TRUE)
+```
+
+Check:  What does the distribution of the temporary race variable look like for 
+students with only one unique race value and for students with more than one 
+race value?
+
+```{r dotplot,echo=TRUE,fig.width=8,fig.height=3,fig.cap='Distribution of Race and NVALS'}
+
+df <- as.data.frame(tab1)
+
+qplot(Var1, Var2, geom='point', size=log(Freq), data=df) + 
+  theme_bw() + xlab('Nvals') + ylab('Modal Race')
+```
+
+Note, thanks to the power of R, we can create a function to do this for us for 
+other variables in the future and on other datasets:
+
+```{r echo=TRUE,results='markup',comment=NA,cache=TRUE}
+source('functions.R') # Read in the functions we have written
+# All functions are available in the Appendix
+
+tmp <- stuatt %>% arrange(sid, school_year) %>% 
+  group_by(sid) %>% 
+  mutate(race_mode = statamode(race_ethnicity), 
+         nvals_race = length(unique(race_ethnicity)), 
+         most_recent_year = max(school_year), 
+         most_recent_race = last(race_ethnicity))
+
+head(tmp)
+```
+
+C. It appears that we now have 29 students with appended values for the race\_temp variable. This occurs because these students'
+race\_ethnicity has two or more modes, so none of the modes is selected as the variable mode in part B of this step.  For these 
+students, assign their most recently observed race value as their race\_ethnicity.
+
+<<echo=TRUE,results='markup',comment=NA,cache=TRUE>>=
+# Create a variable indicating the latest school year
+modes<-ddply(stuatt,.(sid),summarize,race_temp=statamode(race_ethnicity),
+             nvals=length(unique(race_ethnicity)),most_recent_year=max(school_year),
+              most_recent_race=tail(race_ethnicity,1))
+modes$race2[modes$race_temp!="."]<-modes$race_temp[modes$race_temp!="."]
+modes$race2[modes$race_temp=="."]<-as.character(modes$most_recent_race[modes$race_temp=="."])
+head(modes)
+# Delete old vars on stuatt
+stuatt<-subset(stuatt,select=c('sid','school_year','race_ethnicity'))
+# Assign the value associated with the most recent year as the permanent race_ethnicity for the students with missing race
+stuatt<-merge(stuatt,modes)
+rm(modes)
+stuatt$race_ethnicity<-stuatt$race2
+stuatt<-subset(stuatt,select=c('sid','school_year','race_ethnicity'))
+head(stuatt,n=20)
+@
+
+Check: What is the distribution of the race\_ethnicity in the final file? If all steps were completed correctly, the distributions 
+should look exactly the same as in the Check steps for the final  race\_ethnicity variable in 3C.
+
+<<histogramfinal,echo=TRUE,fig.keep='last',fig.width=9,fig.height=5,out.width='.85\\textwidth',out.height='.25\\paperheight',fig.align='center',fig.cap='Student Race'>>=
+qplot(race_ethnicity,data=stuatt,geom='histogram')+theme_bw()+ stat_bin(geom="text", aes(label=..count.., vjust=-.5))
+@
+
+Note we can automate all of Task 1 for the future, again using the power of functions:
+<<echo=TRUE,results='markup',comment=NA,cache=TRUE>>=
+# The Task 1 function starts with our raw data
+# It performs all the tasks above
+# And gives us back cleaned data that just needs variable
+# renaming.
+a<-task1(df="stuatt",id="sid",year="school_year",var="race_ethnicity")
+head(a)
+@
+
+## Task 2: STUDENT SCHOOL YEAR
