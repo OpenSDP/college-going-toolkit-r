@@ -5,3 +5,7 @@ Need to describe:
 
 
 Brief description of major data types in R and why you should use them
+
+Brief description of RStudio layout and RStudio commands you can use
+
+Brief description of differences and similarities between NA and "."

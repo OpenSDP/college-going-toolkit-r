@@ -239,7 +239,7 @@ The relevant variables and definitions you will need to complete the task are
 illustrated below:
 
 ```{r echo=TRUE}
-str(stuatt)
+dplyr::glimpse(stuatt)
 ```
 
 **Uniqueness:** ideally, the data in its raw form would be unique by `sid`.  
@@ -267,7 +267,7 @@ length(unique(stuatt$sid)) == nrow(stuatt)
 # This numeric race variable will be easier to use in later stages of the task. 
 ```
 
-#### Step 0: Read in the Data
+### Step 0: Read in the Data
 
 ```{r echo=TRUE, results='asis'}
 # Read in Stata
@@ -289,34 +289,44 @@ variable for transfer-ins.
 
 ```{r echo=TRUE, results='asis'}
 stuatt$first_9th_school_year_reported <- NULL
-head(stuatt)
+idx <- c(2, 8552, 12506) # Specify which SIDs are interesting
+stuatt[stuatt$sid %in% idx,]
 ```
 
 #### Step 1 
 *Create one consistent value for gender for each student across years*
 
 ```{r echo=TRUE, results='asis'}
-library(dplyr)
-idx <- c(8552, 12506) # Specify which SIDs are interesting
+library(dplyr) # this is the state-of-the-art in data manipulation in R
+library(magrittr) # to improve code readability
 stuatt %>% arrange(sid, school_year) %>% 
   select(sid, school_year, male) %>% 
   filter(sid %in% idx)
 
 ```
 
+1. *Create a variable that shows how many unique values male assumes for each 
+student. Name this variable `nvals_male`. Tabulate the variable and browse 
+the relevant data.*
 
-Define the modal gender. For students who have a mode, replace male with the 
-modal value (male_mode will be missing if there is no single mode). 
 
 ```{r}
-stuatt %>% group_by(sid) %>% 
-  mutate(nvals_male = length(unique(male))) %>% ungroup() %>% 
-  select(nvals_male) %>% 
-  table
+stuatt <- stuatt %>% group_by(sid) %>% 
+  mutate(nvals_male = length(unique(male))) %>% ungroup() 
+table(stuatt$nvals_male)
+
+stuatt %>% select(sid, school_year, male, nvals_male) %>% 
+  filter(nvals_male > 1) 
+
+# Or in RStudio
+stuatt %>% select(sid, school_year, male, nvals_male) %>% 
+  filter(nvals_male > 1) %>% View
+
+
 ```
 
-#### Step 2 
-*Identify the modal gender. If multiple modes exist for a student, report the 
+
+2. *Identify the modal gender. If multiple modes exist for a student, report the 
 most recent gender recorded*
 
 ```{r}
@@ -325,22 +335,87 @@ most recent gender recorded*
 # If more than one mode exists
 statamode <- function(x) {
   z <- table(as.vector(x))
-  m<-names(z)[z == max(z)]
-  if(length(m)==1){
+  m <- names(z)[z == max(z)]
+  if(length(m) == 1){
+    if(class(x) %in% c("numeric", "integer", "logical")){
+      class(m) <- class(x)
+    } else {
+      class(m) <- "character"
+    }
+    
     return(m)
   }
-  return(".")
+  return(NA)
 }
 
-stuatt %>% group_by(sid) %>% 
+stuatt <- stuatt %>% group_by(sid) %>% 
   mutate(nvals_male = length(unique(male)), 
-         mode_male = statamode(male)) %>% ungroup() %>% 
-  select(sid, male, mode_male, nvals_male) %>% 
+         male_mode = statamode(male)) %>% ungroup() 
+
+stuatt %>% select(sid, male, male_mode, nvals_male) %>% 
   filter(sid %in% idx)
+
+# In R, NA is equivalent to "." in Stata
+
+```
+
+```{r}
+# Replace male with male_mode where male_mode is not missing
+stuatt$male[!is.na(stuatt$male_mode)] <- stuatt$male_mode[!is.na(stuatt$male_mode)]
+# In R we replace by vector so both sides of the <- have to have the same filter 
+# so they are the same length
+
+idx <- c(8552, 12506)
+
+stuatt %>% select(sid, school_year, male, nvals_male, male_mode) %>% 
+  filter(sid %in% idx)
+
+
+# If multiple modes exist, report the most recent gender recorded
+
+stuatt %<>% arrange(sid, school_year) %>% 
+  group_by(sid) %>% 
+  mutate(temp_male_last = male[school_year == max(school_year)])
+
+# Show sid 12506
+stuatt %>% select(sid, school_year, male, nvals_male, male_mode, temp_male_last) %>% 
+  filter(sid == 12506)
+
+# Assing temp_male_last to the male variable in cases where no mode exists
+stuatt$male[is.na(stuatt$male_mode)] <- stuatt$temp_male_last[is.na(stuatt$male_mode)]
+
+
+stuatt %>% select(sid, school_year, male, nvals_male, male_mode, temp_male_last) %>% 
+  filter(sid == 12506)
+
+# Drop temporary variables
+
+stuatt %<>% select(-nvals_male, -male_mode, -temp_male_last)
+
+```
+
+Let's check we got it right
+
+```{r}
+table(stuatt$male)
+
+# Check nvals without creating the variable
+
+stuatt %>% ungroup %>% 
+  group_by(sid) %>% 
+  summarize(nvals = length(unique(male))) %>% select(nvals) %>% 
+  table
+
+length(unique(stuatt$sid))
 
 ```
 
 
+##### Step 2
+*Create one consistent value for race_ethnicicty for each student across years*
+
+1. Recode the raw `race_ethnicity` variable as a numeric variable and label it. 
+Replace the string race_ethnicity variable with the numeric one.
 
 
 - 1 = African American, not Hispanic
@@ -369,6 +444,12 @@ stuatt$race_num[stuatt$race_ethnicity=='NA'] <- 4
 stuatt$race_num[stuatt$race_ethnicity=='W'] <- 5
 stuatt$race_num[stuatt$race_ethnicity=='M/O'] <- 6
 table(stuatt$race_num)
+
+idx <- c(8552)
+
+stuatt %>% filter(sid %in% idx) %>% 
+  select(sid, school_year, race_ethnicity, race_num)
+
 ```
 
 ```{r echo=TRUE,results='markup'}
@@ -383,7 +464,6 @@ stuatt$race_num2 <- factor(stuatt$race_num,
 # Compare them to check using a cross-tabulation
 table(stuatt$race_ethnicity, stuatt$race_num2)
 # Replace them
-stuatt$race_num <- NULL
 stuatt$race_ethnicity <- stuatt$race_num2
 stuatt$race_num2 <- NULL
 
@@ -412,14 +492,11 @@ qplot(stuatt$race_ethnicity,geom='bar') +
                     title = "Frequency of Student Race")
 ```
 
-### Consistent Value of Race & Ethnicity Within Student
 
-First, create a variable indicating how many unique values `race_ethnicity` 
-assumes for each student called `nvals_race`.
+*2. Create a variable indicating how many unique values `race_ethnicity` 
+assumes for each student called `nvals_race`.*
 
-```{r benchmark,echo=FALSE,eval=FALSE}
-library(dplyr) # The state of the art in R data manipulation
-
+```{r echo=TRUE, eval=TRUE}
 stuatt <- stuatt %>% group_by(sid) %>% 
   mutate(nvals_race = length(unique(race_ethnicity)))
 
@@ -432,101 +509,120 @@ qplot(as.factor(stuatt$nvals_race), geom='bar') + theme_bw() +
 
 ```
 
-Next, for students with more than one value for `race_ethnicity`, assign the 
-modal value as the student's race. 
+*3. Create a variable that shows how many unique values `race_ethnicity` 
+assumes for each student and `school_year`. Name this variable `nvals_race_yr`. 
+Tabulate the variable and browse the relevant data.*
 
-To do this in R we will need to create a custom function that does waht we want 
-in the case of ties. 
+```{r echo=TRUE, eval=TRUE}
+stuatt <- stuatt %>% group_by(sid, school_year) %>% 
+  mutate(nvals_race_yr = length(unique(race_ethnicity)))
+
+table(stuatt$nvals_race_yr)
+
+stuatt %>% select(sid, school_year, race_ethnicity, nvals_race, nvals_race_yr) %>%
+  filter(nvals_race_yr > 1)
+
+```
+
+
+4. If more than one race is reported in the same school_year, report students as 
+multiracial, unless one of their reported race_ethnicity values is Hispanic. 
+Report the student as Hispanic in that case.
+
+```{r}
+# Generate a temporary hispanic variable
+stuatt$temp_ishispanic <- ifelse(stuatt$race_num == 3 & stuatt$nvals_race_yr > 1, 1, 0)
+
+stuatt %>% select(sid, school_year, race_ethnicity, nvals_race, nvals_race_yr, 
+                  temp_ishispanic) %>%
+  filter(nvals_race_yr > 1)
+
+stuatt %<>% group_by(sid, school_year) %>% 
+  mutate(ishispanic = max(temp_ishispanic, na.rm=TRUE))
+
+stuatt %>% select(sid, school_year, race_ethnicity, nvals_race, nvals_race_yr, 
+                  temp_ishispanic, ishispanic) %>%
+  filter(nvals_race_yr > 1)
+
+# Replace hispanic values
+
+stuatt$race_num[stuatt$nvals_race_yr > 1 & stuatt$ishispanic == 1] <- 3
+stuatt$race_ethnicity[stuatt$nvals_race_yr > 1 & stuatt$ishispanic == 1] <- "Hispanic"
+stuatt$race_num[stuatt$nvals_race_yr > 1 & stuatt$ishispanic != 1] <- 6
+stuatt$race_ethnicity[stuatt$nvals_race_yr > 1 & stuatt$ishispanic != 1] <- "MultipleOther"
+
+# Drop the temporary variables
+stuatt <- select(stuatt, -ishispanic, -temp_ishispanic)
+
+# Drop the duplicates resulting from fixing student with different race_ethnicity
+# within a school year
+
+stuatt <- bind_rows(stuatt %>% filter(nvals_race_yr < 2), 
+                    stuatt %>% filter(nvals_race_yr > 1) %>% 
+                      distinct(sid, school_year, race_ethnicity, .keep_all=TRUE))
+stuatt <- select(stuatt, -nvals_race_yr)
+# Re arrange
+stuatt %<>% arrange(sid, school_year)
+```
+
+##- TODO -## Check that this worked
+
+*5 Report the modal race. If multiple modes exist for a student, report the most 
+recent race recorded.*
 
 ```{r echo=TRUE, results='markup'}
-# First we need to create a 'mode' function in R that mimics Stata
-# statamode creates a list of the modal values and assigns "."
-# If more than one mode exists
-statamode <- function(x) {
-  z <- table(as.vector(x))
-  m<-names(z)[z == max(z)]
-  if(length(m)==1){
-    return(m)
-  }
-  return(".")
-}
-
 # Create new data frame for individual student
 # Create nvals while we are at it
 
-modes <- stuatt %>% group_by(sid) %>% 
-  summarize(race_temp = statamode(race_ethnicity), 
-            nvals = length(unique(race_ethnicity)))
-tab1 <- table(modes$race_temp,modes$nvals)
-addmargins(tab1, FUN=list(Total=sum), quiet=TRUE)
+stuatt %<>% group_by(sid) %>% 
+  mutate(race_mode = statamode(race_ethnicity))
+
+# tab1 <- table(modes$race_temp,modes$nvals)
+# addmargins(tab1, FUN=list(Total=sum), quiet=TRUE)
+
+stuatt %>% filter(sid == 8552) %>% 
+  select(sid, school_year, race_ethnicity, nvals_race, race_mode)
+
+stuatt$race_ethnicity[!is.na(stuatt$race_mode)] <- stuatt$race_mode[!is.na(stuatt$race_mode)]
+
+stuatt %>% filter(sid == 8552) %>% 
+  select(sid, school_year, race_ethnicity, nvals_race, race_mode)
+
+
+# Consider cases where the mode is not unique
+stuatt %>% filter(sid == 2) %>% 
+  select(sid, school_year, race_ethnicity, nvals_race, race_mode)
+
 ```
 
-Check:  What does the distribution of the temporary race variable look like for 
-students with only one unique race value and for students with more than one 
-race value?
 
-```{r dotplot,echo=TRUE,fig.width=8,fig.height=3,fig.cap='Distribution of Race and NVALS'}
+```{r}
+# If multiple modes exist report th emost recent race recorded
 
-df <- as.data.frame(tab1)
+stuatt %<>% group_by(sid) %>% 
+  mutate(race_last = race_ethnicity[school_year == max(school_year)])
 
-qplot(Var1, Var2, geom='point', size=log(Freq), data=df) + 
-  theme_bw() + xlab('Nvals') + ylab('Modal Race')
+stuatt %>% filter(sid == 2) %>% 
+  select(sid, school_year, race_ethnicity, nvals_race, race_mode, race_last)
+
+stuatt$race_ethnicity[is.na(stuatt$race_mode)] <- stuatt$race_last[is.na(stuatt$race_mode)]
+
+stuatt %>% filter(sid %in% c(8552, 2)) %>% 
+  select(sid, school_year, race_ethnicity)
+
+# Drop temporary variables
+
+stuatt %<>% select(-nvals_race, -race_mode, -race_last, -race_num)
 ```
 
-Note, thanks to the power of R, we can create a function to do this for us for 
-other variables in the future and on other datasets:
 
-```{r echo=TRUE,results='markup',comment=NA,cache=TRUE}
-source('functions.R') # Read in the functions we have written
-# All functions are available in the Appendix
-
-tmp <- stuatt %>% arrange(sid, school_year) %>% 
-  group_by(sid) %>% 
-  mutate(race_mode = statamode(race_ethnicity), 
-         nvals_race = length(unique(race_ethnicity)), 
-         most_recent_year = max(school_year), 
-         most_recent_race = last(race_ethnicity))
-
-head(tmp)
+```{r}
+table(stuatt$race_ethnicity)
 ```
 
-C. It appears that we now have 29 students with appended values for the race\_temp variable. This occurs because these students'
-race\_ethnicity has two or more modes, so none of the modes is selected as the variable mode in part B of this step.  For these 
-students, assign their most recently observed race value as their race\_ethnicity.
+#### Step 3
+*Create consistent values for high school diploma variables.*
 
-<<echo=TRUE,results='markup',comment=NA,cache=TRUE>>=
-# Create a variable indicating the latest school year
-modes<-ddply(stuatt,.(sid),summarize,race_temp=statamode(race_ethnicity),
-             nvals=length(unique(race_ethnicity)),most_recent_year=max(school_year),
-              most_recent_race=tail(race_ethnicity,1))
-modes$race2[modes$race_temp!="."]<-modes$race_temp[modes$race_temp!="."]
-modes$race2[modes$race_temp=="."]<-as.character(modes$most_recent_race[modes$race_temp=="."])
-head(modes)
-# Delete old vars on stuatt
-stuatt<-subset(stuatt,select=c('sid','school_year','race_ethnicity'))
-# Assign the value associated with the most recent year as the permanent race_ethnicity for the students with missing race
-stuatt<-merge(stuatt,modes)
-rm(modes)
-stuatt$race_ethnicity<-stuatt$race2
-stuatt<-subset(stuatt,select=c('sid','school_year','race_ethnicity'))
-head(stuatt,n=20)
-@
-
-Check: What is the distribution of the race\_ethnicity in the final file? If all steps were completed correctly, the distributions 
-should look exactly the same as in the Check steps for the final  race\_ethnicity variable in 3C.
-
-<<histogramfinal,echo=TRUE,fig.keep='last',fig.width=9,fig.height=5,out.width='.85\\textwidth',out.height='.25\\paperheight',fig.align='center',fig.cap='Student Race'>>=
-qplot(race_ethnicity,data=stuatt,geom='histogram')+theme_bw()+ stat_bin(geom="text", aes(label=..count.., vjust=-.5))
-@
-
-Note we can automate all of Task 1 for the future, again using the power of functions:
-<<echo=TRUE,results='markup',comment=NA,cache=TRUE>>=
-# The Task 1 function starts with our raw data
-# It performs all the tasks above
-# And gives us back cleaned data that just needs variable
-# renaming.
-a<-task1(df="stuatt",id="sid",year="school_year",var="race_ethnicity")
-head(a)
-@
-
-## Task 2: STUDENT SCHOOL YEAR
+// 1. Recode the `hs_diploma_type variable` as a numeric variable and 
+label it. Replace the string `hs_diploma_type` variable with the 
+numeric one. Use lower numbers for more competitive diploma types.
