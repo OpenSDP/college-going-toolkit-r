@@ -13,6 +13,12 @@ statamode <- function(x) {
   return(".")
 }
 
+# distinct values function
+nvals <- function(x){
+  length(unique(x))
+}
+
+
 # Assign one value
 # Task 1
 

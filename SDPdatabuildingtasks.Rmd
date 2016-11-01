@@ -623,6 +623,428 @@ table(stuatt$race_ethnicity)
 #### Step 3
 *Create consistent values for high school diploma variables.*
 
-// 1. Recode the `hs_diploma_type variable` as a numeric variable and 
-label it. Replace the string `hs_diploma_type` variable with the 
-numeric one. Use lower numbers for more competitive diploma types.
+1. Recode the `hs_diploma_type variable` as a numeric variable and label it.
+Replace the string `hs_diploma_type` variable with the numeric one. Use lower
+numbers for more competitive diploma types.
+
+```{r}
+# Generate a numeric diploma variable
+# Not strictly necessary in R
+
+stuatt$dipl_num <- 4
+stuatt$dipl_num <- ifelse(stuatt$hs_diploma_type == "College Prep Diploma", 
+                          1, stuatt$dipl_num)
+stuatt$dipl_num <- ifelse(stuatt$hs_diploma_type == "Standard Diploma", 
+                          2, stuatt$dipl_num)
+stuatt$dipl_num <- ifelse(stuatt$hs_diploma_type == "Alternative Diploma", 
+                          3, stuatt$dipl_num)
+
+
+stuatt %>% select(sid, school_year, hs_diploma, hs_diploma_date, 
+                  hs_diploma_type, dipl_num) %>% 
+  filter(sid == 16)
+
+stuatt$hs_diploma_type <- NULL
+stuatt$hs_diploma_type <- stuatt$dipl_num
+stuatt$dipl_num <- NULL
+
+stuatt %>% select(sid, school_year, hs_diploma, hs_diploma_date, 
+                  hs_diploma_type) %>% 
+  filter(sid == 16)
+
+# Now identify the first diploma date reported
+
+stuatt %<>% arrange(sid, hs_diploma_date)
+
+stuatt %<>% group_by(sid) %>% 
+  mutate(earliest_diploma_date = min(hs_diploma_date, na.rm=TRUE))
+
+
+stuatt %>% select(sid, school_year, hs_diploma, hs_diploma_date, 
+                  hs_diploma_type, earliest_diploma_date) %>% 
+  filter(sid == 16)
+
+#3 Create a variable that shows the earliest diploma type
+## This won't work because there may be ties
+# stuatt %<>% group_by(sid) %>% 
+#  mutate(earliest_dipl_type = hs_diploma_type[hs_diploma_date==earliest_diploma_date])
+
+stuatt %<>% group_by(sid) %>%
+ mutate(earliest_dipl_type_mode = statamode(hs_diploma_type[hs_diploma_date==earliest_diploma_date]))
+
+
+stuatt %>% select(sid, school_year, hs_diploma, hs_diploma_date, 
+                  hs_diploma_type, earliest_diploma_date, earliest_dipl_type_mode) %>% filter(sid == 16)
+
+
+#4 Create a variable that shows the number of unique diploma types recorded
+# for the first diploma date
+
+stuatt %<>% group_by(sid) %>%
+ mutate(nvals_dipl_type = 
+          length(unique(hs_diploma_type[hs_diploma_date==earliest_diploma_date])))
+
+
+stuatt %>% select(sid, school_year, hs_diploma_type, earliest_diploma_date, 
+                  earliest_dipl_type_mode, nvals_dipl_type) %>% 
+  filter(sid %in% c(16, 20, 80))
+
+
+# 5. Identify the modal diploma type. If multiple modes exist for a
+# student, report the diploma type in the earliest school year for 
+# the first diploma date
+
+stuatt %<>% group_by(sid) %>% 
+  mutate(earliest_dipl_type_syear = hs_diploma_type[school_year == min(school_year)])
+
+
+stuatt %>% select(sid, school_year, hs_diploma_type, earliest_diploma_date, 
+                  earliest_dipl_type_mode, nvals_dipl_type, 
+                  earliest_dipl_type_syear) %>% 
+  filter(sid %in% c(16, 20, 80))
+
+
+stuatt %<>% group_by(sid) %>%
+  mutate(earliest_dipl_type_syear_mode = statamode(earliest_dipl_type_syear))
+
+stuatt %>% 
+  select(sid, school_year, hs_diploma_type, earliest_diploma_date, 
+                  earliest_dipl_type_mode, nvals_dipl_type, 
+                  earliest_dipl_type_syear, 
+         earliest_dipl_type_syear_mode) %>% 
+  filter(sid %in% c(16, 20, 80))
+
+# 6. If multiple diploma types were recorded for the same school year and first 
+# diploma date, report the most competitive diploma type
+
+
+stuatt %<>% group_by(sid) %>%
+  mutate(temp_most_compet = min(earliest_dipl_type_syear))
+
+stuatt %>% 
+  select(sid, school_year, hs_diploma_type, earliest_diploma_date, 
+                  earliest_dipl_type_mode, nvals_dipl_type, 
+                  earliest_dipl_type_syear,  
+         earliest_dipl_type_syear_mode, temp_most_compet) %>% 
+  filter(sid %in% c(16, 20, 80)) %>% as.data.frame()
+
+
+# Replace original diploma type variable starting with most specific case, and 
+# working backward
+
+stuatt$nvals_dipl_type <- NULL
+
+stuatt$hs_diploma_type[!is.na(stuatt$temp_most_compet)] <- 
+  stuatt$temp_most_compet[!is.na(stuatt$temp_most_compet)]
+
+stuatt$hs_diploma_type[!is.na(stuatt$earliest_dipl_type_syear_mode)] <- 
+  stuatt$earliest_dipl_type_syear_mode[!is.na(stuatt$earliest_dipl_type_syear_mode)]
+
+stuatt$hs_diploma_type[!is.na(stuatt$earliest_dipl_type_mode)] <- 
+  stuatt$earliest_dipl_type_mode[!is.na(stuatt$earliest_dipl_type_mode)]
+
+stuatt %>% 
+    select(sid, school_year, hs_diploma_type, earliest_diploma_date, 
+           earliest_dipl_type_mode, 
+           earliest_dipl_type_syear,  
+           earliest_dipl_type_syear_mode, temp_most_compet) %>% 
+    filter(sid %in% c(16, 20, 80)) %>% as.data.frame()
+
+# 7. If there are any missing diploma types, mark these as an unknown 
+# diploma type
+
+stuatt$hs_diploma_type[is.na(stuatt$hs_diploma_type) &
+                         !is.na(stuatt$hs_dipoma_date)] <- 4
+
+# 8. Finally, replace hs_diploma_date with the first hs_diploma_date
+
+stuatt$hs_diploma_date <- stuatt$earliest_diploma_date
+
+# 9. Make sure that diploma is set to 1 if there is a diploma date reported
+
+stuatt$hs_diploma[!is.na(stuatt$hs_diploma_date)] <- 1
+
+# 10. Drop all temporary variables we created
+
+stuatt %<>% select(-earliest_diploma_date, -earliest_dipl_type_mode, 
+                   -earliest_dipl_type_syear, -earliest_dipl_type_syear_mode, 
+                   -temp_most_compet)
+
+
+```
+
+
+Step 4 Drop any unneeded variables, drop duplicates, check the data, and save 
+the file
+
+```{r}
+# Drop school year as you no longer need it
+stuatt %<>% select(-school_year, -birth_date)
+
+# Drop duplicate values
+
+tmp <- stuatt[!duplicated(stuatt),]
+
+# Check that the file is unique by sid
+
+nrow(tmp) == length(unique(stuatt$sid))
+
+# Deduplicate
+
+rm(tmp)
+stuatt <- stuatt[!duplicated(stuatt),]
+
+# Save the current file as Student_Attributes.rda
+
+# save(stuatt, file = "Student_Attributes.rda")
+
+# Clean up the workspace
+rm(con, idx, tmpfileName, stuatt)
+```
+
+
+## Task 2: STUDENT SCHOOL YEAR
+### PURPOSE
+
+In Task 2: Student School Year, you will take the `Student_Classifications_Raw` 
+file and generate a clean `Student_School_Year` output file that matches the
+specification in Identify with one observation per student and school year. To 
+do so, you will first ensure only one grade level is assigned per student per 
+school year. Then, you will process the free or reduced price lunch (FRPL)
+variable (a proxy for students’ poverty status), individualized education 
+program (IEP) variable, English language learner (ELL) variable, and gifted 
+variable. You will also examine the total days enrolled, days absent, and 
+days suspended variables. The core of this task:
+
+1. Resolve instances when students have more than one grade level in a school
+year
+2. Keep the highest value of FR PL reported by student by school year
+3. If a student has both “has IE P” and “no IE P” reported in a school year, 
+keep "has IEP"
+4. If a student has both "has ELL" and "no ELL"" reported in a school year, 
+keep "has ELL"
+5. If a student is observed as both gifted eligible and not eligible, report 
+eligible
+6. Explore `days_enrolled`, `days_absent` and `days_suspended`
+7. Drop duplicate observations to make the file unique by student and school 
+year After this, you will have a data set unique by student and school year 
+that allows you to assign students to the appropriate ninth grade cohort in 
+Task  3.
+
+### HOW TO START
+
+To begin, open the `Student_Classifications_Raw` file in Stata. If you do 
+not have Stata, you can follow the steps of the task by looking at the 
+instructions and data snippets we have provided.
+
+If this is your first time attempting Task 2, start with the provided raw 
+input file. This file teaches you SDP’s cleaning methodology and allows you to 
+check answers from a common dataset.
+
+```{r echo=TRUE, results='asis'}
+# Read in Stata
+library(haven) # required for .dta files
+
+# To read data from a zip file we create a connection to the path of the 
+# zip file
+tmpfileName <- "raw/Student_Classifications_Raw.dta"
+con <- unz(description = "data/raw.zip", filename = tmpfileName, 
+           open = "rb")
+stuclass <- read_stata(con) # read data in the data subdirectory
+glimpse(stuclass)
+```
+
+### Step 1 Create One Consistent Grade Level for Each Student Within the Same Year
+
+```{r}
+# Step 1: Create one consistent grade level for each student within the same year
+
+# Keep the highest grade_level when a student has multiple grade levels 
+# within the same year
+
+# distinct values function
+nvals <- function(x){
+  length(unique(x))
+}
+
+
+varIdx <- c("sid", "school_year", "grade_level", "nvals_grade", 
+            "max_grade_level")
+
+stuclass %<>% group_by(sid, school_year) %>% 
+  mutate(nvals_grade = nvals(grade_level), 
+         max_grade_level = max(grade_level))
+
+
+stuclass %>% select(one_of(varIdx)) %>% 
+  filter(sid == 3)
+
+stuclass$grade_level[stuclass$nvals_grade > 1] <- stuclass$max_grade_level[stuclass$nvals_grade > 1]
+
+stuclass %>% select(one_of(varIdx)) %>% 
+  filter(sid == 3)
+
+
+stuclass %<>% select(-nvals_grade, -max_grade_level)
+
+```
+
+Step 2: Create one consistent FRPL value for each student in the same student-year
+
+```{r}
+# 1. Recode raw frpl variable with string type to numeric type
+
+stuclass$frpl_num <- NA
+stuclass$frpl_num[stuclass$frpl == "N"] <- 0
+stuclass$frpl_num[stuclass$frpl == "R"] <- 1
+stuclass$frpl_num[stuclass$frpl == "F"] <- 2
+
+stuclass %>% select(sid, school_year, grade_level, frpl, frpl_num) %>% 
+  filter(sid == 80)
+
+
+stuclass$frpl <- NULL
+stuclass$frpl <- stuclass$frpl_num
+stuclass$frpl_num <- NULL
+
+stuclass %>% select(sid, school_year, grade_level, frpl) %>% 
+  filter(sid == 80)
+
+# 2. Ensure that frpl is consistent by sid and school_year. In cases where 
+#  multiple values exist, report the highest value. Follow the same procedure 
+#  as Step 1 for grade_level.
+
+# Check if there are any cases where different values of frpl status are reported
+#  in a year
+
+stuclass %<>% group_by(sid, school_year) %>% 
+  mutate(nvals_frpl = nvals(frpl))
+
+table(stuclass$nvals_frpl)
+
+# Report the highest value of frpl by year for each student, selecting 
+# free over reduced over not participating
+
+stuclass %<>% group_by(sid, school_year) %>% 
+  mutate(highest_frpl = max(frpl))
+
+stuclass$frpl <- stuclass$highest_frpl
+
+# Label the values so they are easy to understand
+
+# drop the temporary values we created
+
+stuclass %<>% select(-nvals_frpl, -highest_frpl)
+
+```
+
+
+** Step 3: Create one consistent IEP value for each student within the same year. **
+
+```{r}
+# Follow the same procedure as Step 1 for grade_level.
+# Report the highest value of iep by year for each student, 
+#  selecting has iep over not iep.
+
+stuclass %<>% group_by(sid, school_year) %>% 
+  mutate(highest_iep = max(iep)) %>% 
+  ungroup() %>% 
+  mutate(iep = highest_iep) %>% 
+  select(-highest_iep)
+```
+
+```{r}
+# /*** Step 4: Create one consistent ELL value for each student within the same year. ***/
+# Follow the same procedure as Step 1 for grade_level.
+# // Report the highest value of ell by year for each student, selecting is ell over not ell.
+stuclass %<>% group_by(sid, school_year) %>% 
+  mutate(highest_ell = max(ell)) %>% 
+  ungroup() %>% 
+  mutate(ell = highest_ell) %>% 
+  select(-highest_ell)
+```
+
+
+```{r}
+# /*** Step 5: Create one consistent gifted value for each student within the same year. ***/
+# Follow the same procedure as Step 1 for grade_level.
+# // Report the highest value of gifted by year for each student, selecting is enrolled in gifted program over not enrolled.
+
+stuclass %<>% group_by(sid, school_year) %>% 
+  mutate(highest_gifted = max(gifted)) %>% 
+  ungroup() %>% 
+  mutate(gifted = highest_gifted) %>% 
+  select(-highest_gifted)
+
+```
+
+```{r}
+# /**** Step 6: Drop any unneeded variables, drop duplicates, and save the file ****/
+# // 1. Drop duplicate observations
+
+stuclass <- stuclass[!duplicated(stuclass),]
+
+# // 2. Make sure your file is now unique by student and school year
+
+nrow(stuclass) == nvals(paste0(stuclass$sid, stuclass$school_year))
+
+# // 3. Save the current file as Student_School_Year.dta which you will need for Task 3.
+
+# save(stuclass, file = "Student_School_Year.rda")
+
+# Clean up the workspace
+rm(con, idx, tmpfileName, stuclass, varIdx)
+```
+
+
+## Task 3: IDENTIFYING THE NINTH-GRADE COHORT
+### PURPOSE
+
+In Task 3: Identifying the Ninth Grade Cohort, you will identify the school 
+year students first appear in ninth grade using the clean 
+`Student_School_Year` research file from Task 2. This essential step allows 
+you to form student cohorts and examine longitudinal college-going outcomes.
+
+The core of this task:
+1. Flag the first school year a student enrolls in grades 9, 10, 11, or 12.
+2. Identify the school year in which the student was first observed in 9th
+grade.
+3. Impute the school year in which transfer students would have been in grade 9.
+4. Replace the first_9th_school_year_observed with the correctly imputed values.
+After completing this task, you will have a clean Student_School_Year file that
+identifies first-time ninth graders. This file is used both to assemble the
+analysis file in Connect and to complete Task 4.
+
+### HOW TO START
+
+To begin, open the `Student_School_Year` file, just created in Task 2, in Stata.
+If you do not have Stata, you can follow the steps of the task by looking at 
+the instructions and data snippets we have provided.If this is your first 
+time attempting Task 3, start with the cleaned output file from Task 2. This 
+file teaches you SDP’s cleaning methodology and allows you to check 
+answers from a common dataset.
+
+### DATA DESCRIPTION
+
+The input file in this case, `Student_School_Year`, also the output from Task 2,
+now follows the structure of `Student_School_Year` in Identify so it is 
+unique by `sid` and `school_year`. The aim of this task will be to create a 
+`first_9th_school_year_observed` variable using the variables in the file.
+
+Uniqueness: This dataset was cleaned in Task 2 and is now unique by `sid` 
+and `school_year`.
+
+```{r}
+# Read in Stata
+library(haven) # required for .dta files
+
+# To read data from a zip file we create a connection to the path of the 
+# zip file
+tmpfileName <- "clean/Student_School_Year.dta"
+con <- unz(description = "data/clean.zip", filename = tmpfileName, 
+           open = "rb")
+stusy <- read_stata(con) # read data in the data subdirectory
+glimpse(stusy)
+```
+
+
