@@ -993,7 +993,7 @@ nrow(stuclass) == nvals(paste0(stuclass$sid, stuclass$school_year))
 # save(stuclass, file = "Student_School_Year.rda")
 
 # Clean up the workspace
-rm(con, idx, tmpfileName, stuclass, varIdx)
+rm(con, tmpfileName, stuclass, varIdx)
 ```
 
 
@@ -1036,7 +1036,7 @@ and `school_year`.
 
 ```{r}
 # Read in Stata
-library(haven) # required for .dta files
+library(haven) # required for .dta f;iles
 
 # To read data from a zip file we create a connection to the path of the 
 # zip file
@@ -1047,4 +1047,268 @@ stusy <- read_stata(con) # read data in the data subdirectory
 glimpse(stusy)
 ```
 
+
+## - TODO - ## 
+Check on p. 35-36 of the guide, incosistency on whether observed_g indicator 
+is unique by student, or by student-grade. I've coded it unique by student.
+
+```{r}
+# /*** Step 1: Flag the first school year a student enrolls in grades 9, 10, 11, or 12. ***/
+# // Create four binary indicators to flag the first school year a student enrolls in grades 9, 10, 11, or 12.
+
+stusy %>% filter(sid == 1) %>% select(sid, school_year, grade_level)
+
+stusy %<>% group_by(sid, grade_level) %>% 
+  mutate(tmpG = ifelse(school_year == min(school_year), 1, NA),
+         observed_g = 1)
+
+stusy %>% filter(sid == 1) %>% select(sid, school_year, grade_level, 
+                                      tmpG, observed_g)
+# Use tidyr to spread first_flag and observed_g out
+
+stusy$first_flag <- stusy$grade_level
+
+
+stusy <- spread(stusy, key = first_flag, value = tmpG, sep = "") %>% 
+  select(-one_of("first_flag3", "first_flag5", "first_flag6", "first_flag7", 
+                 "first_flag8", "first_flag13", "first_flag17"))
+
+stusy$observed <- stusy$grade_level
+
+# Fill in a 1 because we want the observed vectors to populate all values 
+# for a student
+stusy <- spread(stusy, key = observed, value = observed_g, sep = "_") %>% 
+  select(-one_of("observed_3", "observed_5", "observed_6", 
+                 "observed_7", "observed_8", "observed_13", 
+                 "observed_17")) %>% 
+  group_by(sid) %>% 
+  mutate(observed_9 = max(observed_9, na.rm=TRUE), 
+         observed_10 = max(observed_10, na.rm=TRUE), 
+         observed_11 = max(observed_11, na.rm=TRUE), 
+         observed_12 = max(observed_12, na.rm=TRUE)) %>% 
+  mutate(observed_9 = ifelse(is.finite(observed_9), 1, 0),
+         observed_10 = ifelse(is.finite(observed_10), 1, 0),
+         observed_11 = ifelse(is.finite(observed_11), 1, 0),
+         observed_12 = ifelse(is.finite(observed_12), 1, 0))
+
+# Check how many students are identified as enrolled in grades 9, 10, 11, or 12
+
+tmp <- stusy %>% 
+  select(num_range(prefix= "observed_", range = 9:12)) %>% 
+  distinct(.keep_all=TRUE)
+
+table(tmp$observed_9)
+table(tmp$observed_10)
+table(tmp$observed_11)
+table(tmp$observed_12)
+rm(tmp)
+
+```
+
+** Step 2: Identify the school year in which the student was first observed in 9th grade. **
+
+```{r}
+# // Create a variable that lists the first school year a student is observed as enrolled in grade 9.
+
+stusy %<>% group_by(sid) %>% 
+  mutate(first_9th_schyear_obs = min(school_year[grade_level == 9]))
+
+# work around weird way R handles minimum of an empty vector
+
+stusy$first_9th_schyear_obs[!is.finite(stusy$first_9th_schyear_obs)] <- NA
+
+stusy %>% filter(sid == 1) %>% 
+  select(sid, school_year, grade_level, first_flag9, observed_9, first_9th_schyear_obs)
+
+stusy %>% ungroup %>% distinct(sid, first_9th_schyear_obs) %>% 
+  select(first_9th_schyear_obs) %>% unlist %>% table
+
+
+# Say something about missing values in the list...
+
+```
+
+** Step 3: Impute the school year in which transfer students would have been in grade 9. **
+
+```{r}
+# // Impute first_9th_school_year_observed as school_year - 1, school_year - 2, or school_year - 3 for students first observed in 10th, 11th or 12th grade as transfer-ins
+
+stusy$first_flag10[!is.finite(stusy$first_flag10)] <- 0
+stusy$first_flag11[!is.finite(stusy$first_flag11)] <- 0
+stusy$first_flag12[!is.finite(stusy$first_flag12)] <- 0
+
+stusy$tempfirst9year <- ifelse(stusy$first_flag10 == 1, 
+                               stusy$school_year - 1, 
+                               ifelse(stusy$first_flag11 == 1, 
+                               stusy$school_year - 2, 
+                               ifelse(stusy$first_flag12 == 1, 
+                               stusy$school_year - 3, 
+                               NA)))
+
+stusy %>% filter(sid == 2) %>% 
+  select(sid, school_year, grade_level, first_9th_schyear_obs, 
+         tempfirst9year)
+
+# What is up with 2003 in the table here in Stata documentation
+
+stusy %<>% group_by(sid) %>% 
+  mutate(tempfirst9year = min(tempfirst9year, na.rm=TRUE))
+
+stusy$first_9th_schyear_obs[is.na(stusy$first_9th_schyear_obs) & !is.na(stusy$tempfirst9year)] <- stusy$tempfirst9year[is.na(stusy$first_9th_schyear_obs) & !is.na(stusy$tempfirst9year)]
+
+stusy$tempfirst9year <- NULL
+
+# 
+# stusy <- bind_rows(stusy %>% filter(observed_9 == 0), 
+#                    stusy %<>% filter(observed_9 == 1) %>%
+#   group_by(sid) %>%
+#   mutate(first_9th_schyear_obs = max(first_9th_schyear_obs))
+# )
+# stusy %<>% arrange(sid, school_year)
+
+ 
+# // Review the distribution of first_9th_school_year_observed for students who transferred in grades 10-12
+
+stusy %>% ungroup %>% 
+  filter(first_flag10 > 0) %>% 
+  filter(observed_9 == 0) %>% 
+  distinct(sid, first_9th_schyear_obs) %>% 
+  select(first_9th_schyear_obs) %>% unlist %>% table
+
+
+stusy %>% ungroup %>% 
+  filter(first_flag11 ==1) %>% 
+  filter(observed_9 == 0 & observed_10 == 0 & observed_11 == 1) %>% 
+  distinct(sid, first_9th_schyear_obs) %>% 
+  select(first_9th_schyear_obs) %>% unlist %>% table
+
+
+stusy %>% ungroup %>% 
+  filter(first_flag12 ==1) %>% 
+  filter(observed_9 == 0 & observed_10 == 0 & observed_11 == 0 & 
+           observed_12 == 1) %>% 
+  distinct(sid, first_9th_schyear_obs) %>% 
+  select(first_9th_schyear_obs) %>% unlist %>% table
+
+# Consider max of this?
+stusy %>% select(sid, school_year, grade_level, 
+                first_9th_schyear_obs, observed_9) %>% 
+ filter(sid == 3)
+
+
+
+# Should this be 2005 or 2007?
+
+
+```
+
+** Step 4: Adjust the imputation of first_9th_school_year_observed for students who appear in a lower grade in a later school year. **
+
+```{r}
+# // 1. Flag students who are observed to be in a lower grade in a subsequent school year.
+
+stusy %<>% arrange(sid, school_year) %>% 
+  group_by(sid) %>% 
+  mutate(grade_lag = lag(grade_level, order_by = school_year)) %>% 
+  mutate(grade_flag = ifelse(grade_lag > grade_level & !is.na(grade_lag > grade_level), 1, 0)) %>% 
+  mutate(grade_flag_max = max(grade_flag, na.rm=TRUE)) %>% 
+  select(-grade_lag)
+
+
+stusy %>% select(sid, school_year, grade_level, 
+                 first_9th_schyear_obs, grade_flag, grade_flag_max) %>% 
+  filter(sid == 3) 
+
+# // 2. Flag the first school year in which students appear in high school grades
+
+stusy %<>% group_by(sid) %>% 
+  mutate(first_9th_flag = ifelse(school_year == min(school_year[grade_level %in% c(9:12)]), 1, 0))
+
+
+stusy %>% select(sid, school_year, grade_level, 
+                 first_9th_schyear_obs, grade_flag, grade_flag_max, 
+                 first_9th_flag) %>% 
+  filter(sid == 3) 
+
+
+# // 4. Replace the first_9th_school_year_observed with the correctly imputed values.
+
+# Need to drop NAs
+stusy$temp4_first9year <- NA
+stusy$temp4_first9year[stusy$grade_flag_max == 1 & 
+                         stusy$first_9th_flag == 1 & 
+                         stusy$grade_level == 10] <- stusy$school_year[stusy$grade_flag_max == 1 & 
+                         stusy$first_9th_flag == 1 & 
+                         stusy$grade_level == 10] - 1
+
+stusy$temp4_first9year[stusy$grade_flag_max == 1 & 
+                         stusy$first_9th_flag == 1 & 
+                         stusy$grade_level == 11] <- stusy$school_year[stusy$grade_flag_max == 1 & 
+                         stusy$first_9th_flag == 1 & 
+                         stusy$grade_level == 11] - 2
+
+stusy$temp4_first9year[stusy$grade_flag_max == 1 & 
+                         stusy$first_9th_flag == 1 & 
+                         stusy$grade_level == 12] <- stusy$school_year[stusy$grade_flag_max == 1 & 
+                         stusy$first_9th_flag == 1 & 
+                         stusy$grade_level == 12] - 3
+
+stusy %<>% group_by(sid) %>% 
+  mutate(temp5_first9year = min(temp4_first9year, na.rm=TRUE))
+
+
+stusy %>% select(sid, school_year, grade_level, 
+                 first_9th_schyear_obs, grade_flag, grade_flag_max, 
+                 first_9th_flag, temp4_first9year, temp5_first9year) %>% 
+  filter(sid == 3) 
+
+
+stusy$first_9th_schyear_obs[stusy$grade_flag_max == 1 & 
+                              !is.na(stusy$temp5_first9year)] <- stusy$temp5_first9year[stusy$grade_flag_max == 1 & 
+                              !is.na(stusy$temp5_first9year)]
+
+
+stusy %>% ungroup %>% distinct(sid, first_9th_schyear_obs) %>% 
+  select(first_9th_schyear_obs) %>% unlist %>% table
+
+
+```
+
+** Step 5: Keep only variables relevant to future analyses, and save the file. **
+
+
+```{r}
+# // Keep relevant variables
+
+stusy %<>% select(sid, school_year, grade_level, frpl, iep, ell, gifted, 
+                  total_days_enrolled, total_days_absent, 
+                  days_suspended_out_of_school, first_9th_school_year_observed)
+
+# // Save the current file as Student_School_Year_Ninth.dta.
+# save “${clean}\Student_School_Year_Ninth.dta”, replace
+```
+
+
+## Task 4: STUDENT SCHOOL ENROLLMENT
+### PURPOSE
+
+In Task 4: Student School Enrollment, you will take the Student_School_Enrollment_Raw file and generate the Student_School_Enrollment file that matches the
+specification in Identify. After matching Identify, you will take your dataset a few steps further by consolidating overlapping enrollment spells and determining the
+last withdrawal code for each student to yield the file Student_School_Enrollment_Clean.
+The core of this task:
+1. Create a school_start and school_end variable.
+2. Remove abnormal enrollment observations with missing enrollment and withdrawal dates along with enrollment or withdrawal dates that are not in the right
+order.
+3. Consolidate overlapping enrollments by student by school.
+4. Update days_enrolled based on the consolidated enrollments using the new enrollment and withdrawal dates.
+5. Determine the last withdrawal code for each student. You will use this data in later analyses to determine a student’s end of high school outcomes.
+After completing this, you will have a clean Student_School_Enrollment file. This process sets up our analyses for high school graduation and college enrollment
+and persistence outcomes.
+
+### HOW TO START
+
+To begin, open the Student_School_Enrollment_Raw file in Stata. If you do not have Stata, you can follow the steps of the task by looking at the instructions and
+data snippets we have provided.
+If this is your first time attempting Task 4, start with the provided input file. This file teaches you SDP’s cleaning methodology and allows you to check answers
+from a common dataset.
 

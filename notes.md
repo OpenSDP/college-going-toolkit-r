@@ -10,4 +10,7 @@ Brief description of RStudio layout and RStudio commands you can use
 
 Brief description of differences and similarities between NA and "."
 
+Brief R code style guide
+ - Spaces after commas and assignment operators
+
 Why do we use numerics?
