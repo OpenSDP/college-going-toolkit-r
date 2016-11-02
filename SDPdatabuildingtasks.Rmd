@@ -2,18 +2,20 @@
 title: "SDP Data Building Tasks"
 author: "Strategic Data Project"
 date: "October 31, 2016"
-output: html_document
+output: 
+  html_document: 
+    toc: yes
 ---
 
 
 # SDP Data Building Tasks
 
 
-```{r, echo = FALSE, error = FALSE, message = FALSE, comment = NA}
+```{r, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, comment=NA}
 # Set options for knitr
 library(knitr)
-opts_knit$set(comment = NA, warning = FALSE, error = FALSE, message = FALSE, 
-              fig.path = "figure/task3-", dev = c('pdf', 'png'))
+knitr::opts_chunk$set(comment=NA, warning=FALSE, 
+                      error=FALSE, message=FALSE, fig.align='center')
 options(width=120)
 ```
 
@@ -177,7 +179,7 @@ Task 4.
 ### HOW TO START
 To begin, open the provided Student_Attributes practice file.
 
-```{r echo=TRUE, results='asis'}
+```{r echo=TRUE}
 # Read in Stata
 library(haven) # required for .dta files
 
@@ -269,7 +271,7 @@ length(unique(stuatt$sid)) == nrow(stuatt)
 
 ### Step 0: Read in the Data
 
-```{r echo=TRUE, results='asis'}
+```{r echo=TRUE}
 # Read in Stata
 library(haven) # required for .dta files
 
@@ -287,7 +289,7 @@ Now drop the `first_9th_school_year_reported` variable. You will create a
 `first_9th_school_year_reported` variable in Task 3 that also imputes this 
 variable for transfer-ins. 
 
-```{r echo=TRUE, results='asis'}
+```{r echo=TRUE}
 stuatt$first_9th_school_year_reported <- NULL
 idx <- c(2, 8552, 12506) # Specify which SIDs are interesting
 stuatt[stuatt$sid %in% idx,]
@@ -296,7 +298,7 @@ stuatt[stuatt$sid %in% idx,]
 #### Step 1 
 *Create one consistent value for gender for each student across years*
 
-```{r echo=TRUE, results='asis'}
+```{r echo=TRUE}
 library(dplyr) # this is the state-of-the-art in data manipulation in R
 library(magrittr) # to improve code readability
 stuatt %>% arrange(sid, school_year) %>% 
@@ -452,7 +454,7 @@ stuatt %>% filter(sid %in% idx) %>%
 
 ```
 
-```{r echo=TRUE,results='markup'}
+```{r echo=TRUE}
 # In R categorical variables are best represented as factors
 # Factors can have values, and labels
 # Create a labeled factor for the new race_num variable
@@ -841,7 +843,7 @@ If this is your first time attempting Task 2, start with the provided raw
 input file. This file teaches you SDP’s cleaning methodology and allows you to 
 check answers from a common dataset.
 
-```{r echo=TRUE, results='asis'}
+```{r echo=TRUE}
 # Read in Stata
 library(haven) # required for .dta files
 
@@ -1065,7 +1067,7 @@ stusy %<>% group_by(sid, grade_level) %>%
 stusy %>% filter(sid == 1) %>% select(sid, school_year, grade_level, 
                                       tmpG, observed_g)
 # Use tidyr to spread first_flag and observed_g out
-
+library(tidyr)
 stusy$first_flag <- stusy$grade_level
 
 
@@ -1274,6 +1276,8 @@ stusy %>% ungroup %>% distinct(sid, first_9th_schyear_obs) %>%
 
 ```
 
+##- TODO Task 3 Slightly Different Numbers than SDP ##-
+
 ** Step 5: Keep only variables relevant to future analyses, and save the file. **
 
 
@@ -1282,10 +1286,11 @@ stusy %>% ungroup %>% distinct(sid, first_9th_schyear_obs) %>%
 
 stusy %<>% select(sid, school_year, grade_level, frpl, iep, ell, gifted, 
                   total_days_enrolled, total_days_absent, 
-                  days_suspended_out_of_school, first_9th_school_year_observed)
+                  days_suspended_out_of_school, first_9th_schyear_obs)
 
 # // Save the current file as Student_School_Year_Ninth.dta.
 # save “${clean}\Student_School_Year_Ninth.dta”, replace
+rm(stusy)
 ```
 
 
@@ -1311,4 +1316,181 @@ To begin, open the Student_School_Enrollment_Raw file in Stata. If you do not ha
 data snippets we have provided.
 If this is your first time attempting Task 4, start with the provided input file. This file teaches you SDP’s cleaning methodology and allows you to check answers
 from a common dataset.
+
+```{r}
+# Read in Stata
+library(haven) # required for .dta f;iles
+
+# To read data from a zip file we create a connection to the path of the 
+# zip file
+tmpfileName <- "raw/Student_School_Enrollment_Raw.dta"
+con <- unz(description = "data/raw.zip", filename = tmpfileName, 
+           open = "rb")
+stuenr <- read_stata(con) # read data in the data subdirectory
+glimpse(stuenr)
+```
+
+
+```{r}
+# /*** Step 1: Create a school_start and school_end variable ***/
+# // In this example, school start is August 1, and school end is July 31 of each school year. This may be different in your agency.
+
+library(lubridate) # handle dates and times in R correctly
+
+stuenr$school_start <- mdy(paste0("08", "01", stuenr$school_year-1))
+stuenr$school_end <- mdy(paste0("07", "31", stuenr$school_year))
+
+# In R we have to create a character string that we convert to a date
+# Converting numerics to dates and times can introduce errors
+
+# /*** Step 2: Remove abnormal enrollment observations. ***/
+# // 1. Drop observations missing both enrollment and withdrawal dates.
+
+stuenr %<>% filter(!is.na(enrollment_date) & !is.na(withdrawal_date))
+
+# // 2. Drop observations with enrollment and withdrawal dates on same day.
+
+stuenr %<>% filter(!enrollment_date == withdrawal_date & !is.na(enrollment_date))
+
+# // 3. Drop observations with withdrawal date earlier than enrollment date.
+
+stuenr %<>% filter(!is.na(withdrawal_date) & !withdrawal_date < enrollment_date)
+
+# // 4. Drop observations with enrollment date after the end of the current school year.
+
+stuenr %<>% filter(school_end > enrollment_date)
+
+# // 5. Drop observations with enrollment date before the beginning of the current school year.
+
+stuenr %<>% filter(school_start <= enrollment_date)
+
+# // 6. Drop observations with withdrawal date more than one month after the end of the school year.
+
+stuenr %<>% filter(withdrawal_date <= (school_end + 31) & !is.na(withdrawal_date))
+
+# // 7. Check to make sure enrollment dates are in the correct school year.
+
+table(stuenr$enrollment_date >= stuenr$school_start)
+table(stuenr$enrollment_date <= stuenr$school_end)
+
+```
+
+/*** Step 3: Consolidate overlapping enrollments by student by school. ***/
+
+```{r}
+# // 1. Sort enrollment spells in ascending order and then check how many overlapping enrollment spells exist for a student at the same school.
+
+
+stuenr %<>% arrange(sid, school_code, enrollment_date)
+
+
+stuenr %<>% group_by(sid, school_code) %>% 
+  mutate(lag_withdrawal_date = lag(withdrawal_date)) %>% ungroup %>% 
+  group_by(sid, school_code, school_year) %>% 
+    mutate(min_enroll_date = min(enrollment_date))
+
+# table(stuenr$enrollment_date <= stuenr$lag_withdrawal_date & 
+        # !is.na(stuenr$lag_withdrawal_date))
+# 682?
+
+tmp <- stuenr %>% filter(sid == 2) %>% 
+  select(sid, school_year, school_code, enrollment_date, 
+         enrollment_code_desc, withdrawal_date, lag_withdrawal_date,
+         withdrawal_code_desc, min_enroll_date)
+
+# // 2. For overlapping observations, replace the enrollment date and enrollment code description of all but the first enrollment spell with the earliest enrollment date
+
+stuenr$enrollment_date[stuenr$enrollment_date <= stuenr$lag_withdrawal_date & 
+                         !is.na(stuenr$lag_withdrawal_date)] <- stuenr$min_enroll_date[stuenr$enrollment_date <= stuenr$lag_withdrawal_date & 
+                         !is.na(stuenr$lag_withdrawal_date)]
+
+stuenr %>% filter(sid == 2) %>% 
+  select(sid, school_year, school_code, enrollment_date, 
+         enrollment_code_desc, withdrawal_date,
+         withdrawal_code_desc)
+```
+
+**// 3. Replace the withdrawal date and withdrawal code description of the earliest enrollment spell with the latest withdrawal date.**
+
+
+```{r}
+# // Sort the data first so that latest withdrawal
+# information appears as the first record.
+
+stuenr %<>% arrange(sid, school_code, enrollment_date, withdrawal_date)
+
+stuenr %>% filter(sid == 2) %>% 
+  select(sid, school_year, school_code, enrollment_date, 
+         enrollment_code_desc, withdrawal_date,
+         withdrawal_code_desc)
+
+# // Replace withdrawal_date
+# // Replace withdrawal_code_description
+
+stuenr %<>% group_by(sid, school_code, enrollment_date) %>%
+  mutate(withdrawal_date = last(withdrawal_date), 
+         withdrawal_code_desc = last(withdrawal_code_desc))
+
+```
+
+** Step 4: Update days_enrolled based on the consolidated enrollments using the new enrollment and withdrawal dates. **
+
+```{r}
+
+stuenr$days_enrolled <- stuenr$withdrawal_date - stuenr$enrollment_date
+
+stuenr %>% filter(sid == 2) %>% 
+  select(sid, school_year, school_code, enrollment_date, 
+         enrollment_code_desc, withdrawal_date,
+         withdrawal_code_desc, days_enrolled)
+
+
+```
+
+
+** Step 5: Determine the last withdrawal code for each student. You will use this data in later analyses to determine a student's end of high school outcomes. **
+
+```{r}
+
+stuenr %<>% arrange(sid, withdrawal_date)
+
+stuenr %>% filter(sid == 16) %>% 
+  select(sid, school_year, school_code, enrollment_date, 
+         enrollment_code_desc, withdrawal_date,
+         withdrawal_code_desc)
+
+# p.46 withdrawal date wrong in table, or needs to be updated
+
+stuenr %<>% group_by(sid) %>% 
+  mutate(last_withdrawal_reason = last(withdrawal_code_desc))
+
+stuenr %>% filter(sid == 16) %>% 
+  select(sid, school_year, school_code, enrollment_date, 
+         enrollment_code_desc, withdrawal_date,
+         withdrawal_code_desc, last_withdrawal_reason)
+
+```
+
+
+** Step 6: Drop any unneeded variables, drop duplicates, and save the file **
+
+```{r}
+# // 1. Drop duplicate records
+
+stuenr %<>% select(-min_enroll_date, -lag_withdrawal_date)
+
+stuenr <- ungroup(stuenr) %>% distinct(sid, school_year, school_code, 
+                                    enrollment_date, .keep_all = TRUE)
+
+# // 2. Confirm that file is unique by student, school_year, school_code, and enrollment_date
+
+nvals(paste0(stuenr$sid, stuenr$school_year, stuenr$school_code, 
+             stuenr$enrollment_date)) == nrow(stuenr)
+
+
+# // 3. Save the current file as Student_School_Enrollment_Clean
+# save “${clean}\Student_School_Enrollment_Clean.dta”, replace
+# save(stuenr, file = "clean/Student_School_Enrollment_Clean.rda")
+rm(tmp, stuenr); gc()
+```
 

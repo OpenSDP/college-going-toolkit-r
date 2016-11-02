@@ -123,10 +123,47 @@ $(document).ready(function () {
 
 </div>
 
+<div id="TOC">
+<ul>
+<li><a href="#sdp-data-building-tasks">SDP Data Building Tasks</a><ul>
+<li><a href="#overview">Overview</a><ul>
+<li><a href="#core-strategies">Core Strategies</a></li>
+<li><a href="#sdp-diagnostics">SDP DIAGNOSTICS</a></li>
+</ul></li>
+<li><a href="#introduction">Introduction</a><ul>
+<li><a href="#sdp-data-building-tasks-1">SDP Data Building Tasks</a></li>
+<li><a href="#the-tasks">THE TASKS</a></li>
+<li><a href="#task-structure">TASK STRUCTURE</a></li>
+</ul></li>
+<li><a href="#task-1-student-attributes">Task 1: STUDENT ATTRIBUTES</a><ul>
+<li><a href="#purpose">PURPOSE</a></li>
+<li><a href="#how-to-start">HOW TO START</a></li>
+<li><a href="#data-description">DATA DESCRIPTION</a></li>
+<li><a href="#step-0-read-in-the-data">Step 0: Read in the Data</a></li>
+</ul></li>
+<li><a href="#todo---check-that-this-worked">- TODO -## Check that this worked</a></li>
+<li><a href="#task-2-student-school-year">Task 2: STUDENT SCHOOL YEAR</a><ul>
+<li><a href="#purpose-1">PURPOSE</a></li>
+<li><a href="#how-to-start-1">HOW TO START</a></li>
+<li><a href="#step-1-create-one-consistent-grade-level-for-each-student-within-the-same-year">Step 1 Create One Consistent Grade Level for Each Student Within the Same Year</a></li>
+</ul></li>
+<li><a href="#task-3-identifying-the-ninth-grade-cohort">Task 3: IDENTIFYING THE NINTH-GRADE COHORT</a><ul>
+<li><a href="#purpose-2">PURPOSE</a></li>
+<li><a href="#how-to-start-2">HOW TO START</a></li>
+<li><a href="#data-description-1">DATA DESCRIPTION</a></li>
+</ul></li>
+<li><a href="#todo--">- TODO -</a></li>
+<li><a href="#todo-task-3-slightly-different-numbers-than-sdp--">- TODO Task 3 Slightly Different Numbers than SDP ##-</a></li>
+<li><a href="#task-4-student-school-enrollment">Task 4: STUDENT SCHOOL ENROLLMENT</a><ul>
+<li><a href="#purpose-3">PURPOSE</a></li>
+<li><a href="#how-to-start-3">HOW TO START</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
 
 <div id="sdp-data-building-tasks" class="section level1">
 <h1>SDP Data Building Tasks</h1>
-<pre><code>Warning: package 'knitr' was built under R version 3.2.5</code></pre>
 <div id="overview" class="section level2">
 <h2>Overview</h2>
 <p>Housed at the Center for Education Policy Research at Harvard University, the Strategic Data Project (SDP) partners with school districts, school networks, and state agencies across the US. <strong>Our mission is to transform the use of data in education to improve student achievement.</strong> We believe that with the right people, the right data, and the right analyses, we can significantly improve the quality of strategic policy and management decisions.</p>
@@ -195,9 +232,9 @@ Upon completing this stage, you will have produced clean research files that wil
 <h3>HOW TO START</h3>
 <p>To begin, open the provided Student_Attributes practice file.</p>
 <pre class="r"><code># Read in Stata
-library(haven) # required for .dta files</code></pre>
-<pre><code>## Warning: package 'haven' was built under R version 3.2.5</code></pre>
-<pre class="r"><code># To read data from a zip file we create a connection to the path of the 
+library(haven) # required for .dta files
+
+# To read data from a zip file we create a connection to the path of the 
 # zip file
 tmpfileName &lt;- &quot;raw/Student_Demographics_Raw.dta&quot;
 con &lt;- unz(description = &quot;data/raw.zip&quot;, filename = tmpfileName, 
@@ -215,42 +252,35 @@ In this instance, we deal with a case in which race is stored in a file unique b
 These variables are essential for later analyses but are left for you to complete as a further exercise.For guidance on cleaning these additional variables, refer to the DECISION RULES GLOSSARY at the end of this document and use this task as a reference.]</p>
 <p>In this task, we examine a partial version of the <code>Student_Attributes</code> file that includes only <code>sid</code>, <code>school_year</code>, and <code>race_ethnicity</code>. This partial version is presented to help you learn the <code>Student_Attributes</code> cleaning process to make a file unique by sid without having to worry about additional <code>Student_Attributes</code> variables such as <code>male</code>, <code>hs_diploma</code>, <code>hs_diploma_type</code>, or <code>hs_diploma_date</code>.<br />
 The relevant variables and definitions you will need to complete the task are illustrated below:</p>
-<pre class="r"><code>str(stuatt)</code></pre>
-<pre><code>## Classes 'tbl_df', 'tbl' and 'data.frame':    87534 obs. of  9 variables:
-##  $ sid                           : atomic  1 1 1 1 2 2 3 3 3 4 ...
-##   ..- attr(*, &quot;format.stata&quot;)= chr &quot;%9.0g&quot;
-##  $ school_year                   : atomic  2004 2005 2006 2007 2006 ...
-##   ..- attr(*, &quot;format.stata&quot;)= chr &quot;%10.0g&quot;
-##  $ male                          : atomic  1 1 1 1 0 0 1 1 1 0 ...
-##   ..- attr(*, &quot;format.stata&quot;)= chr &quot;%8.0g&quot;
-##  $ race_ethnicity                : atomic  B H H H ...
-##   ..- attr(*, &quot;format.stata&quot;)= chr &quot;%9s&quot;
-##  $ birth_date                    : atomic  10869 10869 10869 10869 11948 ...
-##   ..- attr(*, &quot;format.stata&quot;)= chr &quot;%9.0g&quot;
-##  $ first_9th_school_year_reported: atomic  2004 2004 2004 2004 NaN ...
-##   ..- attr(*, &quot;format.stata&quot;)= chr &quot;%10.0g&quot;
-##  $ hs_diploma                    : atomic  0 0 0 0 1 1 0 0 0 1 ...
-##   ..- attr(*, &quot;format.stata&quot;)= chr &quot;%8.0g&quot;
-##  $ hs_diploma_type               : atomic      ...
-##   ..- attr(*, &quot;format.stata&quot;)= chr &quot;%20s&quot;
-##  $ hs_diploma_date               : Date, format: NA NA NA NA ...</code></pre>
+<pre class="r"><code>dplyr::glimpse(stuatt)</code></pre>
+<pre><code>Observations: 87,534
+Variables: 9
+$ sid                            &lt;dbl&gt; 1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 5, 6, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 9...
+$ school_year                    &lt;dbl&gt; 2004, 2005, 2006, 2007, 2006, 2007, 2006, 2006, 2007, 2005, 2006, 2007, 2007...
+$ male                           &lt;dbl&gt; 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1...
+$ race_ethnicity                 &lt;chr&gt; &quot;B&quot;, &quot;H&quot;, &quot;H&quot;, &quot;H&quot;, &quot;W&quot;, &quot;B&quot;, &quot;H&quot;, &quot;B&quot;, &quot;B&quot;, &quot;B&quot;, &quot;B&quot;, &quot;B&quot;, &quot;B&quot;, &quot;H&quot;, &quot;H&quot;, &quot;...
+$ birth_date                     &lt;dbl&gt; 10869, 10869, 10869, 10869, 11948, 11948, 11724, 11724, 11724, 12717, 12717,...
+$ first_9th_school_year_reported &lt;dbl&gt; 2004, 2004, 2004, 2004, NaN, NaN, 2007, 2007, 2007, 2007, 2007, 2007, NaN, 2...
+$ hs_diploma                     &lt;dbl&gt; 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0...
+$ hs_diploma_type                &lt;chr&gt; &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;Standard Diploma&quot;, &quot;College Prep Diploma&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;Sta...
+$ hs_diploma_date                &lt;date&gt; NA, NA, NA, NA, 2008-06-05, 2009-05-24, NA, NA, NA, 2009-06-04, 2009-06-04,...</code></pre>
 <p><strong>Uniqueness:</strong> ideally, the data in its raw form would be unique by <code>sid</code>.<br />
 However, this may not be the case as some agencies might record <code>race_ethnicity</code> in a time-variant manner, such as by school year. To address this, we explain how to take the raw research file from being unique by <code>sid</code> and <code>school_year</code> to being unique by <code>sid</code> alone. Once the file is unique by <code>sid</code> alone, it is ready to be incorporated into the analysis file in the Connect stage.</p>
 <p>Examine your <code>Student_Attributes</code> raw research file input dataset. According to the data specification, the file should be unique by <code>sid</code>. Examine the snapshot below to determine if it is unique as described.</p>
 <pre class="r"><code>head(stuatt)</code></pre>
-<pre><code>## # A tibble: 6 × 9
-##     sid school_year  male race_ethnicity birth_date first_9th_school_year_reported hs_diploma      hs_diploma_type
-##   &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;          &lt;chr&gt;      &lt;dbl&gt;                          &lt;dbl&gt;      &lt;dbl&gt;                &lt;chr&gt;
-## 1     1        2004     1              B      10869                           2004          0                     
-## 2     1        2005     1              H      10869                           2004          0                     
-## 3     1        2006     1              H      10869                           2004          0                     
-## 4     1        2007     1              H      10869                           2004          0                     
-## 5     2        2006     0              W      11948                            NaN          1     Standard Diploma
-## 6     2        2007     0              B      11948                            NaN          1 College Prep Diploma
-## # ... with 1 more variables: hs_diploma_date &lt;date&gt;</code></pre>
+<pre><code># A tibble: 6 × 9
+    sid school_year  male race_ethnicity birth_date first_9th_school_year_reported hs_diploma      hs_diploma_type
+  &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;          &lt;chr&gt;      &lt;dbl&gt;                          &lt;dbl&gt;      &lt;dbl&gt;                &lt;chr&gt;
+1     1        2004     1              B      10869                           2004          0                     
+2     1        2005     1              H      10869                           2004          0                     
+3     1        2006     1              H      10869                           2004          0                     
+4     1        2007     1              H      10869                           2004          0                     
+5     2        2006     0              W      11948                            NaN          1     Standard Diploma
+6     2        2007     0              B      11948                            NaN          1 College Prep Diploma
+# ... with 1 more variables: hs_diploma_date &lt;date&gt;</code></pre>
 <pre class="r"><code># A quick way to test this in R
 length(unique(stuatt$sid)) == nrow(stuatt)</code></pre>
-<pre><code>## [1] FALSE</code></pre>
+<pre><code>[1] FALSE</code></pre>
 </div>
 <div id="step-0-read-in-the-data" class="section level3">
 <h3>Step 0: Read in the Data</h3>
@@ -268,58 +298,65 @@ stuatt &lt;- as.data.frame(stuatt)</code></pre>
 <pre class="r"><code>stuatt$first_9th_school_year_reported &lt;- NULL
 idx &lt;- c(2, 8552, 12506) # Specify which SIDs are interesting
 stuatt[stuatt$sid %in% idx,]</code></pre>
-<pre><code>    sid school_year male race_ethnicity birth_date hs_diploma      hs_diploma_type hs_diploma_date</code></pre>
-<p>5 2 2006 0 W 11948 1 Standard Diploma 2008-06-05 6 2 2007 0 B 11948 1 College Prep Diploma 2009-05-24 34290 8552 2005 1 W 12334 0 <NA> 34291 8552 2006 0 A 12334 0 <NA> 34292 8552 2006 1 W 12334 0 <NA> 34293 8552 2007 1 W 12334 0 <NA> 34294 8552 2009 1 W 12334 0 <NA> 50064 12506 2004 1 H 11803 0 <NA> 50065 12506 2005 0 H 11803 0 <NA></p>
+<pre><code>        sid school_year male race_ethnicity birth_date hs_diploma      hs_diploma_type hs_diploma_date
+5         2        2006    0              W      11948          1     Standard Diploma      2008-06-05
+6         2        2007    0              B      11948          1 College Prep Diploma      2009-05-24
+34290  8552        2005    1              W      12334          0                                 &lt;NA&gt;
+34291  8552        2006    0              A      12334          0                                 &lt;NA&gt;
+34292  8552        2006    1              W      12334          0                                 &lt;NA&gt;
+34293  8552        2007    1              W      12334          0                                 &lt;NA&gt;
+34294  8552        2009    1              W      12334          0                                 &lt;NA&gt;
+50064 12506        2004    1              H      11803          0                                 &lt;NA&gt;
+50065 12506        2005    0              H      11803          0                                 &lt;NA&gt;</code></pre>
 <div id="step-1" class="section level4">
 <h4>Step 1</h4>
 <p><em>Create one consistent value for gender for each student across years</em></p>
-<pre class="r"><code>library(dplyr) # this is the state-of-the-art in data manipulation in R</code></pre>
-<pre><code>## Warning: package 'dplyr' was built under R version 3.2.5</code></pre>
-<pre><code>## 
-## Attaching package: 'dplyr'</code></pre>
-<pre><code>## The following objects are masked from 'package:stats':
-## 
-##     filter, lag</code></pre>
-<pre><code>## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union</code></pre>
-<pre class="r"><code>library(magrittr) # to improve code readability
+<pre class="r"><code>library(dplyr) # this is the state-of-the-art in data manipulation in R
+library(magrittr) # to improve code readability
 stuatt %&gt;% arrange(sid, school_year) %&gt;% 
   select(sid, school_year, male) %&gt;% 
   filter(sid %in% idx)</code></pre>
-<pre><code>sid school_year male</code></pre>
-<p>1 2 2006 0 2 2 2007 0 3 8552 2005 1 4 8552 2006 0 5 8552 2006 1 6 8552 2007 1 7 8552 2009 1 8 12506 2004 1 9 12506 2005 0</p>
+<pre><code>    sid school_year male
+1     2        2006    0
+2     2        2007    0
+3  8552        2005    1
+4  8552        2006    0
+5  8552        2006    1
+6  8552        2007    1
+7  8552        2009    1
+8 12506        2004    1
+9 12506        2005    0</code></pre>
 <ol style="list-style-type: decimal">
 <li><em>Create a variable that shows how many unique values male assumes for each student. Name this variable <code>nvals_male</code>. Tabulate the variable and browse the relevant data.</em></li>
 </ol>
 <pre class="r"><code>stuatt &lt;- stuatt %&gt;% group_by(sid) %&gt;% 
   mutate(nvals_male = length(unique(male))) %&gt;% ungroup() 
 table(stuatt$nvals_male)</code></pre>
-<pre><code>## 
-##     1     2 
-## 87517    17</code></pre>
+<pre><code>
+    1     2 
+87517    17 </code></pre>
 <pre class="r"><code>stuatt %&gt;% select(sid, school_year, male, nvals_male) %&gt;% 
   filter(nvals_male &gt; 1) </code></pre>
-<pre><code>## # A tibble: 17 × 4
-##      sid school_year  male nvals_male
-##    &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;      &lt;int&gt;
-## 1      7        2004     1          2
-## 2      7        2005     1          2
-## 3      7        2006     1          2
-## 4      7        2007     0          2
-## 5      7        2008     1          2
-## 6   8078        2004     1          2
-## 7   8078        2005     0          2
-## 8   8078        2006     1          2
-## 9   8078        2007     1          2
-## 10  8078        2008     1          2
-## 11  8552        2005     1          2
-## 12  8552        2006     0          2
-## 13  8552        2006     1          2
-## 14  8552        2007     1          2
-## 15  8552        2009     1          2
-## 16 12506        2004     1          2
-## 17 12506        2005     0          2</code></pre>
+<pre><code># A tibble: 17 × 4
+     sid school_year  male nvals_male
+   &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;      &lt;int&gt;
+1      7        2004     1          2
+2      7        2005     1          2
+3      7        2006     1          2
+4      7        2007     0          2
+5      7        2008     1          2
+6   8078        2004     1          2
+7   8078        2005     0          2
+8   8078        2006     1          2
+9   8078        2007     1          2
+10  8078        2008     1          2
+11  8552        2005     1          2
+12  8552        2006     0          2
+13  8552        2006     1          2
+14  8552        2007     1          2
+15  8552        2009     1          2
+16 12506        2004     1          2
+17 12506        2005     0          2</code></pre>
 <pre class="r"><code># Or in RStudio
 stuatt %&gt;% select(sid, school_year, male, nvals_male) %&gt;% 
   filter(nvals_male &gt; 1) %&gt;% View</code></pre>
@@ -350,18 +387,18 @@ stuatt &lt;- stuatt %&gt;% group_by(sid) %&gt;%
 
 stuatt %&gt;% select(sid, male, male_mode, nvals_male) %&gt;% 
   filter(sid %in% idx)</code></pre>
-<pre><code>## # A tibble: 9 × 4
-##     sid  male male_mode nvals_male
-##   &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;      &lt;int&gt;
-## 1     2     0         0          1
-## 2     2     0         0          1
-## 3  8552     1         1          2
-## 4  8552     0         1          2
-## 5  8552     1         1          2
-## 6  8552     1         1          2
-## 7  8552     1         1          2
-## 8 12506     1        NA          2
-## 9 12506     0        NA          2</code></pre>
+<pre><code># A tibble: 9 × 4
+    sid  male male_mode nvals_male
+  &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;      &lt;int&gt;
+1     2     0         0          1
+2     2     0         0          1
+3  8552     1         1          2
+4  8552     0         1          2
+5  8552     1         1          2
+6  8552     1         1          2
+7  8552     1         1          2
+8 12506     1        NA          2
+9 12506     0        NA          2</code></pre>
 <pre class="r"><code># In R, NA is equivalent to &quot;.&quot; in Stata</code></pre>
 <pre class="r"><code># Replace male with male_mode where male_mode is not missing
 stuatt$male[!is.na(stuatt$male_mode)] &lt;- stuatt$male_mode[!is.na(stuatt$male_mode)]
@@ -372,16 +409,16 @@ idx &lt;- c(8552, 12506)
 
 stuatt %&gt;% select(sid, school_year, male, nvals_male, male_mode) %&gt;% 
   filter(sid %in% idx)</code></pre>
-<pre><code>## # A tibble: 7 × 5
-##     sid school_year  male nvals_male male_mode
-##   &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;      &lt;int&gt;     &lt;dbl&gt;
-## 1  8552        2005     1          2         1
-## 2  8552        2006     1          2         1
-## 3  8552        2006     1          2         1
-## 4  8552        2007     1          2         1
-## 5  8552        2009     1          2         1
-## 6 12506        2004     1          2        NA
-## 7 12506        2005     0          2        NA</code></pre>
+<pre><code># A tibble: 7 × 5
+    sid school_year  male nvals_male male_mode
+  &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;      &lt;int&gt;     &lt;dbl&gt;
+1  8552        2005     1          2         1
+2  8552        2006     1          2         1
+3  8552        2006     1          2         1
+4  8552        2007     1          2         1
+5  8552        2009     1          2         1
+6 12506        2004     1          2        NA
+7 12506        2005     0          2        NA</code></pre>
 <pre class="r"><code># If multiple modes exist, report the most recent gender recorded
 
 stuatt %&lt;&gt;% arrange(sid, school_year) %&gt;% 
@@ -391,45 +428,45 @@ stuatt %&lt;&gt;% arrange(sid, school_year) %&gt;%
 # Show sid 12506
 stuatt %&gt;% select(sid, school_year, male, nvals_male, male_mode, temp_male_last) %&gt;% 
   filter(sid == 12506)</code></pre>
-<pre><code>## Source: local data frame [2 x 6]
-## Groups: sid [1]
-## 
-##     sid school_year  male nvals_male male_mode temp_male_last
-##   &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;      &lt;int&gt;     &lt;dbl&gt;          &lt;dbl&gt;
-## 1 12506        2004     1          2        NA              0
-## 2 12506        2005     0          2        NA              0</code></pre>
+<pre><code>Source: local data frame [2 x 6]
+Groups: sid [1]
+
+    sid school_year  male nvals_male male_mode temp_male_last
+  &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;      &lt;int&gt;     &lt;dbl&gt;          &lt;dbl&gt;
+1 12506        2004     1          2        NA              0
+2 12506        2005     0          2        NA              0</code></pre>
 <pre class="r"><code># Assing temp_male_last to the male variable in cases where no mode exists
 stuatt$male[is.na(stuatt$male_mode)] &lt;- stuatt$temp_male_last[is.na(stuatt$male_mode)]
 
 
 stuatt %&gt;% select(sid, school_year, male, nvals_male, male_mode, temp_male_last) %&gt;% 
   filter(sid == 12506)</code></pre>
-<pre><code>## Source: local data frame [2 x 6]
-## Groups: sid [1]
-## 
-##     sid school_year  male nvals_male male_mode temp_male_last
-##   &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;      &lt;int&gt;     &lt;dbl&gt;          &lt;dbl&gt;
-## 1 12506        2004     0          2        NA              0
-## 2 12506        2005     0          2        NA              0</code></pre>
+<pre><code>Source: local data frame [2 x 6]
+Groups: sid [1]
+
+    sid school_year  male nvals_male male_mode temp_male_last
+  &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;      &lt;int&gt;     &lt;dbl&gt;          &lt;dbl&gt;
+1 12506        2004     0          2        NA              0
+2 12506        2005     0          2        NA              0</code></pre>
 <pre class="r"><code># Drop temporary variables
 
 stuatt %&lt;&gt;% select(-nvals_male, -male_mode, -temp_male_last)</code></pre>
 <p>Let’s check we got it right</p>
 <pre class="r"><code>table(stuatt$male)</code></pre>
-<pre><code>## 
-##     0     1 
-## 43660 43874</code></pre>
+<pre><code>
+    0     1 
+43660 43874 </code></pre>
 <pre class="r"><code># Check nvals without creating the variable
 
 stuatt %&gt;% ungroup %&gt;% 
   group_by(sid) %&gt;% 
   summarize(nvals = length(unique(male))) %&gt;% select(nvals) %&gt;% 
   table</code></pre>
-<pre><code>## .
-##     1 
-## 21803</code></pre>
+<pre><code>.
+    1 
+21803 </code></pre>
 <pre class="r"><code>length(unique(stuatt$sid))</code></pre>
-<pre><code>## [1] 21803</code></pre>
+<pre><code>[1] 21803</code></pre>
 <div id="step-2" class="section level5">
 <h5>Step 2</h5>
 <p><em>Create one consistent value for race_ethnicicty for each student across years</em></p>
@@ -453,9 +490,9 @@ stuatt$race_num &lt;- stuatt$race_ethnicity
 stuatt$race_ethnicity &lt;- as_factor(stuatt$race_ethnicity)
 
 table(stuatt$race_ethnicity) #check current values</code></pre>
-<pre><code>## 
-##     A     B     H   M/O    NA     W 
-##  7303 25321 30444  2809  1129 20528</code></pre>
+<pre><code>
+    A     B     H   M/O    NA     W 
+ 7303 25321 30444  2809  1129 20528 </code></pre>
 <pre class="r"><code>stuatt$race_num &lt;- NA
 stuatt$race_num[stuatt$race_ethnicity=='B'] &lt;- 1
 stuatt$race_num[stuatt$race_ethnicity=='A'] &lt;- 2
@@ -464,23 +501,23 @@ stuatt$race_num[stuatt$race_ethnicity=='NA'] &lt;- 4
 stuatt$race_num[stuatt$race_ethnicity=='W'] &lt;- 5
 stuatt$race_num[stuatt$race_ethnicity=='M/O'] &lt;- 6
 table(stuatt$race_num)</code></pre>
-<pre><code>## 
-##     1     2     3     4     5     6 
-## 25321  7303 30444  1129 20528  2809</code></pre>
+<pre><code>
+    1     2     3     4     5     6 
+25321  7303 30444  1129 20528  2809 </code></pre>
 <pre class="r"><code>idx &lt;- c(8552)
 
 stuatt %&gt;% filter(sid %in% idx) %&gt;% 
   select(sid, school_year, race_ethnicity, race_num)</code></pre>
-<pre><code>## Source: local data frame [5 x 4]
-## Groups: sid [1]
-## 
-##     sid school_year race_ethnicity race_num
-##   &lt;dbl&gt;       &lt;dbl&gt;         &lt;fctr&gt;    &lt;dbl&gt;
-## 1  8552        2005              W        5
-## 2  8552        2006              A        2
-## 3  8552        2006              W        5
-## 4  8552        2007              W        5
-## 5  8552        2009              W        5</code></pre>
+<pre><code>Source: local data frame [5 x 4]
+Groups: sid [1]
+
+    sid school_year race_ethnicity race_num
+  &lt;dbl&gt;       &lt;dbl&gt;         &lt;fctr&gt;    &lt;dbl&gt;
+1  8552        2005              W        5
+2  8552        2006              A        2
+3  8552        2006              W        5
+4  8552        2007              W        5
+5  8552        2009              W        5</code></pre>
 <pre class="r"><code># In R categorical variables are best represented as factors
 # Factors can have values, and labels
 # Create a labeled factor for the new race_num variable
@@ -491,30 +528,29 @@ stuatt$race_num2 &lt;- factor(stuatt$race_num,
 
 # Compare them to check using a cross-tabulation
 table(stuatt$race_ethnicity, stuatt$race_num2)</code></pre>
-<pre><code>##      
-##       Black Asian Hispanic Native American White MultipleOther
-##   A       0  7303        0               0     0             0
-##   B   25321     0        0               0     0             0
-##   H       0     0    30444               0     0             0
-##   M/O     0     0        0               0     0          2809
-##   NA      0     0        0            1129     0             0
-##   W       0     0        0               0 20528             0</code></pre>
+<pre><code>     
+      Black Asian Hispanic Native American White MultipleOther
+  A       0  7303        0               0     0             0
+  B   25321     0        0               0     0             0
+  H       0     0    30444               0     0             0
+  M/O     0     0        0               0     0          2809
+  NA      0     0        0            1129     0             0
+  W       0     0        0               0 20528             0</code></pre>
 <pre class="r"><code># Replace them
 stuatt$race_ethnicity &lt;- stuatt$race_num2
 stuatt$race_num2 &lt;- NULL
 
 table(stuatt$race_ethnicity) # counts</code></pre>
-<pre><code>## 
-##           Black           Asian        Hispanic Native American           White   MultipleOther 
-##           25321            7303           30444            1129           20528            2809</code></pre>
+<pre><code>
+          Black           Asian        Hispanic Native American           White   MultipleOther 
+          25321            7303           30444            1129           20528            2809 </code></pre>
 <pre class="r"><code>prop.table(table(stuatt$race_ethnicity))*100 #percentages</code></pre>
-<pre><code>## 
-##           Black           Asian        Hispanic Native American           White   MultipleOther 
-##       28.927045        8.343044       34.779628        1.289785       23.451459        3.209039</code></pre>
+<pre><code>
+          Black           Asian        Hispanic Native American           White   MultipleOther 
+      28.927045        8.343044       34.779628        1.289785       23.451459        3.209039 </code></pre>
 <p>Check: What does the distribution of your <code>race_ethnicity</code> variable look like? Let’s redraw the tables above in a more readable format.</p>
-<pre class="r"><code>library(pander) # library to beautify output</code></pre>
-<pre><code>## Warning: package 'pander' was built under R version 3.2.5</code></pre>
-<pre class="r"><code>pander(prop.table(table(stuatt$race_ethnicity))*100, style = &quot;rmarkdown&quot;)</code></pre>
+<pre class="r"><code>library(pander) # library to beautify output
+pander(prop.table(table(stuatt$race_ethnicity))*100, style = &quot;rmarkdown&quot;)</code></pre>
 <table>
 <caption>Table continues below</caption>
 <thead>
@@ -583,9 +619,9 @@ table(stuatt$race_ethnicity) # counts</code></pre>
 </tbody>
 </table>
 <p>Let’s also draw a figure to show this distribution.</p>
-<pre class="r"><code>library(ggplot2) # the best R library for plotting</code></pre>
-<pre><code>## Warning: package 'ggplot2' was built under R version 3.2.4</code></pre>
-<pre class="r"><code>qplot(stuatt$race_ethnicity,geom='bar') + 
+<pre class="r"><code>library(ggplot2) # the best R library for plotting
+
+qplot(stuatt$race_ethnicity,geom='bar') + 
   theme_bw() + labs(x = 'Race/Ethnicity', y = 'Count', 
                     title = &quot;Frequency of Student Race&quot;)</code></pre>
 <p><img src="data:image/png;base64,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ZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGgAgWZBoAJXJgyeUhBoAIFmQaACVyYMnlIQaACBZkGgAlcmDJ5SEGjgpkCr2zKDKzAEqnBlgoFKQaABBJoFgQpcmWCgUhBoAIFmQaACVyYYqBQEGkCgWRCowJUJBioFgQYQaBYEKnBlgoFKQaABBJoFgQpcmWCgUhBoAIFmQaACVyYYqBQEGvjLv96gui0z3FqPp/KHa0HViWZwZeJLfx4oPwkCdeHaoghU4coEA5WCQANM4bMwhRe4MmEOXApT+AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErEwxUCgININAsCFTgygQDlYJAAwg0CwIVuDLBQKUg0AACzYJABa5MMFApCDSAQLMgUIErE9JXuDJBoBEEmoUWFrgyIX2FKxMEGkGgWWhhgSsT0le4MkGgEQSahRYWuDIhfYUrEwQaQaBZaGGBKxPSV7gyWYNAd5sDH9tH+zsfDQq8tbDqgZHhwVynQwsLXJmQvsKVyesL9NsvmxM//Xp6uD0/+vBb8tGwwFuLqx4YGR7KNQMtLHBlQvoKVyYvL9A/v5zU+fXT5uffv5/2Rt/ueTQq8NbyqgdGhkdyTUELC1yZkL7C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" width="672" style="display: block; margin: auto;" /></p>
@@ -594,33 +630,33 @@ table(stuatt$race_ethnicity) # counts</code></pre>
   mutate(nvals_race = length(unique(race_ethnicity)))
 
 table(stuatt$nvals_race)</code></pre>
-<pre><code>## 
-##     1     2     3 
-## 87176   328    30</code></pre>
+<pre><code>
+    1     2     3 
+87176   328    30 </code></pre>
 <pre class="r"><code>qplot(as.factor(stuatt$nvals_race), geom='bar') + theme_bw() + 
   xlab('Unique Race Codes') + ylab('Count')</code></pre>
-<p><img src="data:image/png;base64,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J26BqtY70lHsdU7ETtwCVa13pKPY65yInbgFqlrvSEex1zkRO3ELVLXekY5ir3MiduIWqGq9Ix3FXudE7MQtUNV6RzqKvc6J2IlboKr1jnQUe50TsRO3QFXrHeko9jonYidugarWO9JR7HVOxE7cAlWtd6Sj2OuciJ24Bapa70hHsdc5ETtxC1S13pGOYq9zInbiFqhqvSMdxV7nROzELVDVekc6ir3OidiJW6Cq9Y50FHudE7ETt0BV6x3pKPY6J2InboGq1jvSUex1TsRO3AJVrXeko9jrnIiduAWqWu9IR7HXORE7cQtUtd6RjmKvcyJ24haoar0jHcVe50TsxC1Q1XpHOoq9zonYiVugqsAyRMsAABiWSURBVPWOdBR7nROxE7dAVesd6Sj2OidiJ26BqtY70lHsdU7ETtwCVa13pKPY65yInbgFqlrvSEex1zkRO3ELVLXekY5ir3MiduIWqGq9Ix3FXudE7MQtUNV6RzqKvc6J2IlboKr1jnQUe50TsRO3QFXrHeko9jonYidugarWO9JR7HVOxE7cAlWtd6Sj2OuciJ24Bapa70hHsdc5ETtxC1S13pGOYq9zInbiFqhqvSMdxV7nROzELVDVekc6ir3OidiJW6Cq9Y50FHudE7ETt0BV6x3pKPY6J2InboGq1jvSUex1TsRO3AJVrXeko9jrnIiduAWqWu9IR7HXORE7cQtUtd6RjmKvcyJ24haoar0jHcVe50TsxC1Q1XpHOoq9zonYiVugqvWOdBR7nROxE7dAVesd6Sj2OidiJ26BqtY70lHsdU7ETtwCVa13pKPY65yInbgFqlrvSEex1zkRO/H2Ar252viw//XfX6/2/vGv3e3bk997/tbJAS47jOnKYVk2g0jsdU7ETry5QL9/3jfmb3+c3joU6PX+xu9//qhunR7gsgOZrhyWZTOIxF7nROzEewt0c8m5rc5vH/eV+e3j4dJzZ3Nt+un+9567dXaAy45kunJYls0gEnudE7ET7y3Q28Ol56YJv+xunjwm31yOfrr/vedunR/gsiOZrhyWZTOIxF7nROzEewv0+nAFubkS3Vbnzb4W927vH61/eP7W+QEuO5LpymFZNoNI7HVOxE68u0A/nP7ien89evzS4eH5zbYtn7t1foDLjmS6cliWzSASe50TsRN/m7cx7R+Sf//8+z8/H19bP1yU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" width="672" /></p>
+<p><img src="data:image/png;base64,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J26BqtY70lHsdU7ETtwCVa13pKPY65yInbgFqlrvSEex1zkRO3ELVLXekY5ir3MiduIWqGq9Ix3FXudE7MQtUNV6RzqKvc6J2IlboKr1jnQUe50TsRO3QFXrHeko9jonYidugarWO9JR7HVOxE7cAlWtd6Sj2OuciJ24Bapa70hHsdc5ETtxC1S13pGOYq9zInbiFqhqvSMdxV7nROzELVDVekc6ir3OidiJW6Cq9Y50FHudE7ETt0BV6x3pKPY6J2InboGq1jvSUex1TsRO3AJVrXeko9jrnIiduAWqWu9IR7HXORE7cQtUtd6RjmKvcyJ24haoar0jHcVe50TsxC1Q1XpHOoq9zonYiVugqsAyRMsAABiWSURBVPWOdBR7nROxE7dAVesd6Sj2OidiJ26BqtY70lHsdU7ETtwCVa13pKPY65yInbgFqlrvSEex1zkRO3ELVLXekY5ir3MiduIWqGq9Ix3FXudE7MQtUNV6RzqKvc6J2IlboKr1jnQUe50TsRO3QFXrHeko9jonYidugarWO9JR7HVOxE7cAlWtd6Sj2OuciJ24Bapa70hHsdc5ETtxC1S13pGOYq9zInbiFqhqvSMdxV7nROzELVDVekc6ir3OidiJW6Cq9Y50FHudE7ETt0BV6x3pKPY6J2InboGq1jvSUex1TsRO3AJVrXeko9jrnIiduAWqWu9IR7HXORE7cQtUtd6RjmKvcyJ24haoar0jHcVe50TsxC1Q1XpHOoq9zonYiVugqvWOdBR7nROxE7dAVesd6Sj2OidiJ26BqtY70lHsdU7ETtwCVa13pKPY65yInbgFqlrvSEex1zkRO/H2Ar252viw//XfX6/2/vGv3e3bk997/tbJAS47jOnKYVk2g0jsdU7ETry5QL9/3jfmb3+c3joU6PX+xu9//qhunR7gsgOZrhyWZTOIxF7nROzEewt0c8m5rc5vH/eV+e3j4dJzZ3Nt+un+9567dXaAy45kunJYls0gEnudE7ET7y3Q28Ol56YJv+xunjwm31yOfrr/vedunR/gsiOZrhyWZTOIxF7nROzEewv0+nAFubkS3Vbnzb4W927vH61/eP7W+QEuO5LpymFZNoNI7HVOxE68u0A/nP7ien89evzS4eH5zbYtn7t1foDLjmS6cliWzSASe50TsRN/m7cx7R+Sf//8+z8/H19bP1yU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" width="672" style="display: block; margin: auto;" /></p>
 <p><em>3. Create a variable that shows how many unique values <code>race_ethnicity</code> assumes for each student and <code>school_year</code>. Name this variable <code>nvals_race_yr</code>. Tabulate the variable and browse the relevant data.</em></p>
 <pre class="r"><code>stuatt &lt;- stuatt %&gt;% group_by(sid, school_year) %&gt;% 
   mutate(nvals_race_yr = length(unique(race_ethnicity)))
 
 table(stuatt$nvals_race_yr)</code></pre>
-<pre><code>## 
-##     1     2 
-## 87528     6</code></pre>
+<pre><code>
+    1     2 
+87528     6 </code></pre>
 <pre class="r"><code>stuatt %&gt;% select(sid, school_year, race_ethnicity, nvals_race, nvals_race_yr) %&gt;%
   filter(nvals_race_yr &gt; 1)</code></pre>
-<pre><code>## Source: local data frame [6 x 5]
-## Groups: sid, school_year [3]
-## 
-##     sid school_year race_ethnicity nvals_race nvals_race_yr
-##   &lt;dbl&gt;       &lt;dbl&gt;         &lt;fctr&gt;      &lt;int&gt;         &lt;int&gt;
-## 1     3        2006       Hispanic          2             2
-## 2     3        2006          Black          2             2
-## 3  8552        2006          Asian          2             2
-## 4  8552        2006          White          2             2
-## 5 11382        2005       Hispanic          2             2
-## 6 11382        2005  MultipleOther          2             2</code></pre>
+<pre><code>Source: local data frame [6 x 5]
+Groups: sid, school_year [3]
+
+    sid school_year race_ethnicity nvals_race nvals_race_yr
+  &lt;dbl&gt;       &lt;dbl&gt;         &lt;fctr&gt;      &lt;int&gt;         &lt;int&gt;
+1     3        2006       Hispanic          2             2
+2     3        2006          Black          2             2
+3  8552        2006          Asian          2             2
+4  8552        2006          White          2             2
+5 11382        2005       Hispanic          2             2
+6 11382        2005  MultipleOther          2             2</code></pre>
 <ol start="4" style="list-style-type: decimal">
 <li>If more than one race is reported in the same school_year, report students as multiracial, unless one of their reported race_ethnicity values is Hispanic. Report the student as Hispanic in that case.</li>
 </ol>
@@ -630,34 +666,34 @@ stuatt$temp_ishispanic &lt;- ifelse(stuatt$race_num == 3 &amp; stuatt$nvals_race
 stuatt %&gt;% select(sid, school_year, race_ethnicity, nvals_race, nvals_race_yr, 
                   temp_ishispanic) %&gt;%
   filter(nvals_race_yr &gt; 1)</code></pre>
-<pre><code>## Source: local data frame [6 x 6]
-## Groups: sid, school_year [3]
-## 
-##     sid school_year race_ethnicity nvals_race nvals_race_yr temp_ishispanic
-##   &lt;dbl&gt;       &lt;dbl&gt;         &lt;fctr&gt;      &lt;int&gt;         &lt;int&gt;           &lt;dbl&gt;
-## 1     3        2006       Hispanic          2             2               1
-## 2     3        2006          Black          2             2               0
-## 3  8552        2006          Asian          2             2               0
-## 4  8552        2006          White          2             2               0
-## 5 11382        2005       Hispanic          2             2               1
-## 6 11382        2005  MultipleOther          2             2               0</code></pre>
+<pre><code>Source: local data frame [6 x 6]
+Groups: sid, school_year [3]
+
+    sid school_year race_ethnicity nvals_race nvals_race_yr temp_ishispanic
+  &lt;dbl&gt;       &lt;dbl&gt;         &lt;fctr&gt;      &lt;int&gt;         &lt;int&gt;           &lt;dbl&gt;
+1     3        2006       Hispanic          2             2               1
+2     3        2006          Black          2             2               0
+3  8552        2006          Asian          2             2               0
+4  8552        2006          White          2             2               0
+5 11382        2005       Hispanic          2             2               1
+6 11382        2005  MultipleOther          2             2               0</code></pre>
 <pre class="r"><code>stuatt %&lt;&gt;% group_by(sid, school_year) %&gt;% 
   mutate(ishispanic = max(temp_ishispanic, na.rm=TRUE))
 
 stuatt %&gt;% select(sid, school_year, race_ethnicity, nvals_race, nvals_race_yr, 
                   temp_ishispanic, ishispanic) %&gt;%
   filter(nvals_race_yr &gt; 1)</code></pre>
-<pre><code>## Source: local data frame [6 x 7]
-## Groups: sid, school_year [3]
-## 
-##     sid school_year race_ethnicity nvals_race nvals_race_yr temp_ishispanic ishispanic
-##   &lt;dbl&gt;       &lt;dbl&gt;         &lt;fctr&gt;      &lt;int&gt;         &lt;int&gt;           &lt;dbl&gt;      &lt;dbl&gt;
-## 1     3        2006       Hispanic          2             2               1          1
-## 2     3        2006          Black          2             2               0          1
-## 3  8552        2006          Asian          2             2               0          0
-## 4  8552        2006          White          2             2               0          0
-## 5 11382        2005       Hispanic          2             2               1          1
-## 6 11382        2005  MultipleOther          2             2               0          1</code></pre>
+<pre><code>Source: local data frame [6 x 7]
+Groups: sid, school_year [3]
+
+    sid school_year race_ethnicity nvals_race nvals_race_yr temp_ishispanic ishispanic
+  &lt;dbl&gt;       &lt;dbl&gt;         &lt;fctr&gt;      &lt;int&gt;         &lt;int&gt;           &lt;dbl&gt;      &lt;dbl&gt;
+1     3        2006       Hispanic          2             2               1          1
+2     3        2006          Black          2             2               0          1
+3  8552        2006          Asian          2             2               0          0
+4  8552        2006          White          2             2               0          0
+5 11382        2005       Hispanic          2             2               1          1
+6 11382        2005  MultipleOther          2             2               0          1</code></pre>
 <pre class="r"><code># Replace hispanic values
 
 stuatt$race_num[stuatt$nvals_race_yr &gt; 1 &amp; stuatt$ishispanic == 1] &lt;- 3
@@ -695,38 +731,38 @@ stuatt %&lt;&gt;% group_by(sid) %&gt;%
 
 stuatt %&gt;% filter(sid == 8552) %&gt;% 
   select(sid, school_year, race_ethnicity, nvals_race, race_mode)</code></pre>
-<pre><code>## Source: local data frame [4 x 5]
-## Groups: sid [1]
-## 
-##     sid school_year race_ethnicity nvals_race race_mode
-##   &lt;dbl&gt;       &lt;dbl&gt;         &lt;fctr&gt;      &lt;int&gt;     &lt;chr&gt;
-## 1  8552        2005          White          2     White
-## 2  8552        2006  MultipleOther          2     White
-## 3  8552        2007          White          2     White
-## 4  8552        2009          White          2     White</code></pre>
+<pre><code>Source: local data frame [4 x 5]
+Groups: sid [1]
+
+    sid school_year race_ethnicity nvals_race race_mode
+  &lt;dbl&gt;       &lt;dbl&gt;         &lt;fctr&gt;      &lt;int&gt;     &lt;chr&gt;
+1  8552        2005          White          2     White
+2  8552        2006  MultipleOther          2     White
+3  8552        2007          White          2     White
+4  8552        2009          White          2     White</code></pre>
 <pre class="r"><code>stuatt$race_ethnicity[!is.na(stuatt$race_mode)] &lt;- stuatt$race_mode[!is.na(stuatt$race_mode)]
 
 stuatt %&gt;% filter(sid == 8552) %&gt;% 
   select(sid, school_year, race_ethnicity, nvals_race, race_mode)</code></pre>
-<pre><code>## Source: local data frame [4 x 5]
-## Groups: sid [1]
-## 
-##     sid school_year race_ethnicity nvals_race race_mode
-##   &lt;dbl&gt;       &lt;dbl&gt;         &lt;fctr&gt;      &lt;int&gt;     &lt;chr&gt;
-## 1  8552        2005          White          2     White
-## 2  8552        2006          White          2     White
-## 3  8552        2007          White          2     White
-## 4  8552        2009          White          2     White</code></pre>
+<pre><code>Source: local data frame [4 x 5]
+Groups: sid [1]
+
+    sid school_year race_ethnicity nvals_race race_mode
+  &lt;dbl&gt;       &lt;dbl&gt;         &lt;fctr&gt;      &lt;int&gt;     &lt;chr&gt;
+1  8552        2005          White          2     White
+2  8552        2006          White          2     White
+3  8552        2007          White          2     White
+4  8552        2009          White          2     White</code></pre>
 <pre class="r"><code># Consider cases where the mode is not unique
 stuatt %&gt;% filter(sid == 2) %&gt;% 
   select(sid, school_year, race_ethnicity, nvals_race, race_mode)</code></pre>
-<pre><code>## Source: local data frame [2 x 5]
-## Groups: sid [1]
-## 
-##     sid school_year race_ethnicity nvals_race race_mode
-##   &lt;dbl&gt;       &lt;dbl&gt;         &lt;fctr&gt;      &lt;int&gt;     &lt;chr&gt;
-## 1     2        2006          White          2      &lt;NA&gt;
-## 2     2        2007          Black          2      &lt;NA&gt;</code></pre>
+<pre><code>Source: local data frame [2 x 5]
+Groups: sid [1]
+
+    sid school_year race_ethnicity nvals_race race_mode
+  &lt;dbl&gt;       &lt;dbl&gt;         &lt;fctr&gt;      &lt;int&gt;     &lt;chr&gt;
+1     2        2006          White          2      &lt;NA&gt;
+2     2        2007          Black          2      &lt;NA&gt;</code></pre>
 <pre class="r"><code># If multiple modes exist report th emost recent race recorded
 
 stuatt %&lt;&gt;% group_by(sid) %&gt;% 
@@ -734,39 +770,1023 @@ stuatt %&lt;&gt;% group_by(sid) %&gt;%
 
 stuatt %&gt;% filter(sid == 2) %&gt;% 
   select(sid, school_year, race_ethnicity, nvals_race, race_mode, race_last)</code></pre>
-<pre><code>## Source: local data frame [2 x 6]
-## Groups: sid [1]
-## 
-##     sid school_year race_ethnicity nvals_race race_mode race_last
-##   &lt;dbl&gt;       &lt;dbl&gt;         &lt;fctr&gt;      &lt;int&gt;     &lt;chr&gt;    &lt;fctr&gt;
-## 1     2        2006          White          2      &lt;NA&gt;     Black
-## 2     2        2007          Black          2      &lt;NA&gt;     Black</code></pre>
+<pre><code>Source: local data frame [2 x 6]
+Groups: sid [1]
+
+    sid school_year race_ethnicity nvals_race race_mode race_last
+  &lt;dbl&gt;       &lt;dbl&gt;         &lt;fctr&gt;      &lt;int&gt;     &lt;chr&gt;    &lt;fctr&gt;
+1     2        2006          White          2      &lt;NA&gt;     Black
+2     2        2007          Black          2      &lt;NA&gt;     Black</code></pre>
 <pre class="r"><code>stuatt$race_ethnicity[is.na(stuatt$race_mode)] &lt;- stuatt$race_last[is.na(stuatt$race_mode)]
 
 stuatt %&gt;% filter(sid %in% c(8552, 2)) %&gt;% 
   select(sid, school_year, race_ethnicity)</code></pre>
-<pre><code>## Source: local data frame [6 x 3]
-## Groups: sid [2]
-## 
-##     sid school_year race_ethnicity
-##   &lt;dbl&gt;       &lt;dbl&gt;         &lt;fctr&gt;
-## 1     2        2006          Black
-## 2     2        2007          Black
-## 3  8552        2005          White
-## 4  8552        2006          White
-## 5  8552        2007          White
-## 6  8552        2009          White</code></pre>
+<pre><code>Source: local data frame [6 x 3]
+Groups: sid [2]
+
+    sid school_year race_ethnicity
+  &lt;dbl&gt;       &lt;dbl&gt;         &lt;fctr&gt;
+1     2        2006          Black
+2     2        2007          Black
+3  8552        2005          White
+4  8552        2006          White
+5  8552        2007          White
+6  8552        2009          White</code></pre>
 <pre class="r"><code># Drop temporary variables
 
 stuatt %&lt;&gt;% select(-nvals_race, -race_mode, -race_last, -race_num)</code></pre>
 <pre class="r"><code>table(stuatt$race_ethnicity)</code></pre>
-<pre><code>## 
-##           Black           Asian        Hispanic Native American           White   MultipleOther 
-##           25323            7262           30443            1132           20553            2818</code></pre>
+<pre><code>
+          Black           Asian        Hispanic Native American           White   MultipleOther 
+          25323            7262           30443            1132           20553            2818 </code></pre>
 <div id="step-3" class="section level4">
 <h4>Step 3</h4>
 <p><em>Create consistent values for high school diploma variables.</em></p>
-<p>// 1. Recode the <code>hs_diploma_type variable</code> as a numeric variable and label it. Replace the string <code>hs_diploma_type</code> variable with the numeric one. Use lower numbers for more competitive diploma types.</p>
+<ol style="list-style-type: decimal">
+<li>Recode the <code>hs_diploma_type variable</code> as a numeric variable and label it. Replace the string <code>hs_diploma_type</code> variable with the numeric one. Use lower numbers for more competitive diploma types.</li>
+</ol>
+<pre class="r"><code># Generate a numeric diploma variable
+# Not strictly necessary in R
+
+stuatt$dipl_num &lt;- 4
+stuatt$dipl_num &lt;- ifelse(stuatt$hs_diploma_type == &quot;College Prep Diploma&quot;, 
+                          1, stuatt$dipl_num)
+stuatt$dipl_num &lt;- ifelse(stuatt$hs_diploma_type == &quot;Standard Diploma&quot;, 
+                          2, stuatt$dipl_num)
+stuatt$dipl_num &lt;- ifelse(stuatt$hs_diploma_type == &quot;Alternative Diploma&quot;, 
+                          3, stuatt$dipl_num)
+
+
+stuatt %&gt;% select(sid, school_year, hs_diploma, hs_diploma_date, 
+                  hs_diploma_type, dipl_num) %&gt;% 
+  filter(sid == 16)</code></pre>
+<pre><code>Source: local data frame [2 x 6]
+Groups: sid [1]
+
+    sid school_year hs_diploma hs_diploma_date      hs_diploma_type dipl_num
+  &lt;dbl&gt;       &lt;dbl&gt;      &lt;dbl&gt;          &lt;date&gt;                &lt;chr&gt;    &lt;dbl&gt;
+1    16        2007          1      2008-05-14     Standard Diploma        2
+2    16        2008          1      2008-05-14 College Prep Diploma        1</code></pre>
+<pre class="r"><code>stuatt$hs_diploma_type &lt;- NULL
+stuatt$hs_diploma_type &lt;- stuatt$dipl_num
+stuatt$dipl_num &lt;- NULL
+
+stuatt %&gt;% select(sid, school_year, hs_diploma, hs_diploma_date, 
+                  hs_diploma_type) %&gt;% 
+  filter(sid == 16)</code></pre>
+<pre><code>Source: local data frame [2 x 5]
+Groups: sid [1]
+
+    sid school_year hs_diploma hs_diploma_date hs_diploma_type
+  &lt;dbl&gt;       &lt;dbl&gt;      &lt;dbl&gt;          &lt;date&gt;           &lt;dbl&gt;
+1    16        2007          1      2008-05-14               2
+2    16        2008          1      2008-05-14               1</code></pre>
+<pre class="r"><code># Now identify the first diploma date reported
+
+stuatt %&lt;&gt;% arrange(sid, hs_diploma_date)
+
+stuatt %&lt;&gt;% group_by(sid) %&gt;% 
+  mutate(earliest_diploma_date = min(hs_diploma_date, na.rm=TRUE))
+
+
+stuatt %&gt;% select(sid, school_year, hs_diploma, hs_diploma_date, 
+                  hs_diploma_type, earliest_diploma_date) %&gt;% 
+  filter(sid == 16)</code></pre>
+<pre><code>Source: local data frame [2 x 6]
+Groups: sid [1]
+
+    sid school_year hs_diploma hs_diploma_date hs_diploma_type earliest_diploma_date
+  &lt;dbl&gt;       &lt;dbl&gt;      &lt;dbl&gt;          &lt;date&gt;           &lt;dbl&gt;                &lt;date&gt;
+1    16        2007          1      2008-05-14               2            2008-05-14
+2    16        2008          1      2008-05-14               1            2008-05-14</code></pre>
+<pre class="r"><code>#3 Create a variable that shows the earliest diploma type
+## This won't work because there may be ties
+# stuatt %&lt;&gt;% group_by(sid) %&gt;% 
+#  mutate(earliest_dipl_type = hs_diploma_type[hs_diploma_date==earliest_diploma_date])
+
+stuatt %&lt;&gt;% group_by(sid) %&gt;%
+ mutate(earliest_dipl_type_mode = statamode(hs_diploma_type[hs_diploma_date==earliest_diploma_date]))
+
+
+stuatt %&gt;% select(sid, school_year, hs_diploma, hs_diploma_date, 
+                  hs_diploma_type, earliest_diploma_date, earliest_dipl_type_mode) %&gt;% filter(sid == 16)</code></pre>
+<pre><code>Source: local data frame [2 x 7]
+Groups: sid [1]
+
+    sid school_year hs_diploma hs_diploma_date hs_diploma_type earliest_diploma_date earliest_dipl_type_mode
+  &lt;dbl&gt;       &lt;dbl&gt;      &lt;dbl&gt;          &lt;date&gt;           &lt;dbl&gt;                &lt;date&gt;                   &lt;dbl&gt;
+1    16        2007          1      2008-05-14               2            2008-05-14                      NA
+2    16        2008          1      2008-05-14               1            2008-05-14                      NA</code></pre>
+<pre class="r"><code>#4 Create a variable that shows the number of unique diploma types recorded
+# for the first diploma date
+
+stuatt %&lt;&gt;% group_by(sid) %&gt;%
+ mutate(nvals_dipl_type = 
+          length(unique(hs_diploma_type[hs_diploma_date==earliest_diploma_date])))
+
+
+stuatt %&gt;% select(sid, school_year, hs_diploma_type, earliest_diploma_date, 
+                  earliest_dipl_type_mode, nvals_dipl_type) %&gt;% 
+  filter(sid %in% c(16, 20, 80))</code></pre>
+<pre><code>Source: local data frame [8 x 6]
+Groups: sid [3]
+
+    sid school_year hs_diploma_type earliest_diploma_date earliest_dipl_type_mode nvals_dipl_type
+  &lt;dbl&gt;       &lt;dbl&gt;           &lt;dbl&gt;                &lt;date&gt;                   &lt;dbl&gt;           &lt;int&gt;
+1    16        2007               2            2008-05-14                      NA               2
+2    16        2008               1            2008-05-14                      NA               2
+3    20        2008               2            2008-05-14                      NA               2
+4    20        2008               1            2008-05-14                      NA               2
+5    80        2005               1            2008-05-14                       2               2
+6    80        2006               2            2008-05-14                       2               2
+7    80        2007               2            2008-05-14                       2               2
+8    80        2008               2            2008-05-14                       2               2</code></pre>
+<pre class="r"><code># 5. Identify the modal diploma type. If multiple modes exist for a
+# student, report the diploma type in the earliest school year for 
+# the first diploma date
+
+stuatt %&lt;&gt;% group_by(sid) %&gt;% 
+  mutate(earliest_dipl_type_syear = hs_diploma_type[school_year == min(school_year)])
+
+
+stuatt %&gt;% select(sid, school_year, hs_diploma_type, earliest_diploma_date, 
+                  earliest_dipl_type_mode, nvals_dipl_type, 
+                  earliest_dipl_type_syear) %&gt;% 
+  filter(sid %in% c(16, 20, 80))</code></pre>
+<pre><code>Source: local data frame [8 x 7]
+Groups: sid [3]
+
+    sid school_year hs_diploma_type earliest_diploma_date earliest_dipl_type_mode nvals_dipl_type
+  &lt;dbl&gt;       &lt;dbl&gt;           &lt;dbl&gt;                &lt;date&gt;                   &lt;dbl&gt;           &lt;int&gt;
+1    16        2007               2            2008-05-14                      NA               2
+2    16        2008               1            2008-05-14                      NA               2
+3    20        2008               2            2008-05-14                      NA               2
+4    20        2008               1            2008-05-14                      NA               2
+5    80        2005               1            2008-05-14                       2               2
+6    80        2006               2            2008-05-14                       2               2
+7    80        2007               2            2008-05-14                       2               2
+8    80        2008               2            2008-05-14                       2               2
+# ... with 1 more variables: earliest_dipl_type_syear &lt;dbl&gt;</code></pre>
+<pre class="r"><code>stuatt %&lt;&gt;% group_by(sid) %&gt;%
+  mutate(earliest_dipl_type_syear_mode = statamode(earliest_dipl_type_syear))
+
+stuatt %&gt;% 
+  select(sid, school_year, hs_diploma_type, earliest_diploma_date, 
+                  earliest_dipl_type_mode, nvals_dipl_type, 
+                  earliest_dipl_type_syear, 
+         earliest_dipl_type_syear_mode) %&gt;% 
+  filter(sid %in% c(16, 20, 80))</code></pre>
+<pre><code>Source: local data frame [8 x 8]
+Groups: sid [3]
+
+    sid school_year hs_diploma_type earliest_diploma_date earliest_dipl_type_mode nvals_dipl_type
+  &lt;dbl&gt;       &lt;dbl&gt;           &lt;dbl&gt;                &lt;date&gt;                   &lt;dbl&gt;           &lt;int&gt;
+1    16        2007               2            2008-05-14                      NA               2
+2    16        2008               1            2008-05-14                      NA               2
+3    20        2008               2            2008-05-14                      NA               2
+4    20        2008               1            2008-05-14                      NA               2
+5    80        2005               1            2008-05-14                       2               2
+6    80        2006               2            2008-05-14                       2               2
+7    80        2007               2            2008-05-14                       2               2
+8    80        2008               2            2008-05-14                       2               2
+# ... with 2 more variables: earliest_dipl_type_syear &lt;dbl&gt;, earliest_dipl_type_syear_mode &lt;dbl&gt;</code></pre>
+<pre class="r"><code># 6. If multiple diploma types were recorded for the same school year and first 
+# diploma date, report the most competitive diploma type
+
+
+stuatt %&lt;&gt;% group_by(sid) %&gt;%
+  mutate(temp_most_compet = min(earliest_dipl_type_syear))
+
+stuatt %&gt;% 
+  select(sid, school_year, hs_diploma_type, earliest_diploma_date, 
+                  earliest_dipl_type_mode, nvals_dipl_type, 
+                  earliest_dipl_type_syear,  
+         earliest_dipl_type_syear_mode, temp_most_compet) %&gt;% 
+  filter(sid %in% c(16, 20, 80)) %&gt;% as.data.frame()</code></pre>
+<pre><code>  sid school_year hs_diploma_type earliest_diploma_date earliest_dipl_type_mode nvals_dipl_type
+1  16        2007               2            2008-05-14                      NA               2
+2  16        2008               1            2008-05-14                      NA               2
+3  20        2008               2            2008-05-14                      NA               2
+4  20        2008               1            2008-05-14                      NA               2
+5  80        2005               1            2008-05-14                       2               2
+6  80        2006               2            2008-05-14                       2               2
+7  80        2007               2            2008-05-14                       2               2
+8  80        2008               2            2008-05-14                       2               2
+  earliest_dipl_type_syear earliest_dipl_type_syear_mode temp_most_compet
+1                        2                             2                2
+2                        2                             2                2
+3                        2                            NA                1
+4                        1                            NA                1
+5                        1                             1                1
+6                        1                             1                1
+7                        1                             1                1
+8                        1                             1                1</code></pre>
+<pre class="r"><code># Replace original diploma type variable starting with most specific case, and 
+# working backward
+
+stuatt$nvals_dipl_type &lt;- NULL
+
+stuatt$hs_diploma_type[!is.na(stuatt$temp_most_compet)] &lt;- 
+  stuatt$temp_most_compet[!is.na(stuatt$temp_most_compet)]
+
+stuatt$hs_diploma_type[!is.na(stuatt$earliest_dipl_type_syear_mode)] &lt;- 
+  stuatt$earliest_dipl_type_syear_mode[!is.na(stuatt$earliest_dipl_type_syear_mode)]
+
+stuatt$hs_diploma_type[!is.na(stuatt$earliest_dipl_type_mode)] &lt;- 
+  stuatt$earliest_dipl_type_mode[!is.na(stuatt$earliest_dipl_type_mode)]
+
+stuatt %&gt;% 
+    select(sid, school_year, hs_diploma_type, earliest_diploma_date, 
+           earliest_dipl_type_mode, 
+           earliest_dipl_type_syear,  
+           earliest_dipl_type_syear_mode, temp_most_compet) %&gt;% 
+    filter(sid %in% c(16, 20, 80)) %&gt;% as.data.frame()</code></pre>
+<pre><code>  sid school_year hs_diploma_type earliest_diploma_date earliest_dipl_type_mode earliest_dipl_type_syear
+1  16        2007               2            2008-05-14                      NA                        2
+2  16        2008               2            2008-05-14                      NA                        2
+3  20        2008               1            2008-05-14                      NA                        2
+4  20        2008               1            2008-05-14                      NA                        1
+5  80        2005               2            2008-05-14                       2                        1
+6  80        2006               2            2008-05-14                       2                        1
+7  80        2007               2            2008-05-14                       2                        1
+8  80        2008               2            2008-05-14                       2                        1
+  earliest_dipl_type_syear_mode temp_most_compet
+1                             2                2
+2                             2                2
+3                            NA                1
+4                            NA                1
+5                             1                1
+6                             1                1
+7                             1                1
+8                             1                1</code></pre>
+<pre class="r"><code># 7. If there are any missing diploma types, mark these as an unknown 
+# diploma type
+
+stuatt$hs_diploma_type[is.na(stuatt$hs_diploma_type) &amp;
+                         !is.na(stuatt$hs_dipoma_date)] &lt;- 4
+
+# 8. Finally, replace hs_diploma_date with the first hs_diploma_date
+
+stuatt$hs_diploma_date &lt;- stuatt$earliest_diploma_date
+
+# 9. Make sure that diploma is set to 1 if there is a diploma date reported
+
+stuatt$hs_diploma[!is.na(stuatt$hs_diploma_date)] &lt;- 1
+
+# 10. Drop all temporary variables we created
+
+stuatt %&lt;&gt;% select(-earliest_diploma_date, -earliest_dipl_type_mode, 
+                   -earliest_dipl_type_syear, -earliest_dipl_type_syear_mode, 
+                   -temp_most_compet)</code></pre>
+<p>Step 4 Drop any unneeded variables, drop duplicates, check the data, and save the file</p>
+<pre class="r"><code># Drop school year as you no longer need it
+stuatt %&lt;&gt;% select(-school_year, -birth_date)
+
+# Drop duplicate values
+
+tmp &lt;- stuatt[!duplicated(stuatt),]
+
+# Check that the file is unique by sid
+
+nrow(tmp) == length(unique(stuatt$sid))</code></pre>
+<pre><code>[1] TRUE</code></pre>
+<pre class="r"><code># Deduplicate
+
+rm(tmp)
+stuatt &lt;- stuatt[!duplicated(stuatt),]
+
+# Save the current file as Student_Attributes.rda
+
+# save(stuatt, file = &quot;Student_Attributes.rda&quot;)
+
+# Clean up the workspace
+rm(con, idx, tmpfileName, stuatt)</code></pre>
+</div>
+</div>
+<div id="task-2-student-school-year" class="section level2">
+<h2>Task 2: STUDENT SCHOOL YEAR</h2>
+<div id="purpose-1" class="section level3">
+<h3>PURPOSE</h3>
+<p>In Task 2: Student School Year, you will take the <code>Student_Classifications_Raw</code> file and generate a clean <code>Student_School_Year</code> output file that matches the specification in Identify with one observation per student and school year. To do so, you will first ensure only one grade level is assigned per student per school year. Then, you will process the free or reduced price lunch (FRPL) variable (a proxy for students’ poverty status), individualized education program (IEP) variable, English language learner (ELL) variable, and gifted variable. You will also examine the total days enrolled, days absent, and days suspended variables. The core of this task:</p>
+<ol style="list-style-type: decimal">
+<li>Resolve instances when students have more than one grade level in a school year</li>
+<li>Keep the highest value of FR PL reported by student by school year</li>
+<li>If a student has both “has IE P” and “no IE P” reported in a school year, keep “has IEP”</li>
+<li>If a student has both “has ELL” and “no ELL”&quot; reported in a school year, keep “has ELL”</li>
+<li>If a student is observed as both gifted eligible and not eligible, report eligible</li>
+<li>Explore <code>days_enrolled</code>, <code>days_absent</code> and <code>days_suspended</code></li>
+<li>Drop duplicate observations to make the file unique by student and school year After this, you will have a data set unique by student and school year that allows you to assign students to the appropriate ninth grade cohort in Task 3.</li>
+</ol>
+</div>
+<div id="how-to-start-1" class="section level3">
+<h3>HOW TO START</h3>
+<p>To begin, open the <code>Student_Classifications_Raw</code> file in Stata. If you do not have Stata, you can follow the steps of the task by looking at the instructions and data snippets we have provided.</p>
+<p>If this is your first time attempting Task 2, start with the provided raw input file. This file teaches you SDP’s cleaning methodology and allows you to check answers from a common dataset.</p>
+<pre class="r"><code># Read in Stata
+library(haven) # required for .dta files
+
+# To read data from a zip file we create a connection to the path of the 
+# zip file
+tmpfileName &lt;- &quot;raw/Student_Classifications_Raw.dta&quot;
+con &lt;- unz(description = &quot;data/raw.zip&quot;, filename = tmpfileName, 
+           open = &quot;rb&quot;)
+stuclass &lt;- read_stata(con) # read data in the data subdirectory
+glimpse(stuclass)</code></pre>
+<pre><code>Observations: 88,260
+Variables: 10
+$ sid                          &lt;dbl&gt; 1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, ...
+$ school_year                  &lt;dbl&gt; 2004, 2005, 2006, 2007, 2006, 2007, 2006, 2007, 2007, 2005, 2006, 2007, 2007, ...
+$ grade_level                  &lt;dbl&gt; 9, 9, 10, 11, 10, 11, 10, 8, 9, 11, 10, 9, 3, 2, 8, 9, 10, 8, 9, 10, 11, 12, 7...
+$ frpl                         &lt;chr&gt; &quot;N&quot;, &quot;N&quot;, &quot;R&quot;, &quot;R&quot;, &quot;F&quot;, &quot;F&quot;, &quot;F&quot;, &quot;F&quot;, &quot;F&quot;, &quot;N&quot;, &quot;N&quot;, &quot;N&quot;, &quot;R&quot;, &quot;R&quot;, &quot;R&quot;, &quot;R&quot;...
+$ iep                          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...
+$ ell                          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...
+$ gifted                       &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...
+$ total_days_enrolled          &lt;dbl&gt; 210, 210, 210, 210, 172, 172, 228, 228, 228, 184, 184, 184, 209, 209, 214, 261...
+$ total_days_absent            &lt;dbl&gt; 14, 6, 1, 5, 22, 57, 7, 15, 15, 7, 7, 60, 35, 35, 8, 7, 95, 16, 7, 7, 3, 17, 9...
+$ days_suspended_out_of_school &lt;dbl&gt; 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0,...</code></pre>
+</div>
+<div id="step-1-create-one-consistent-grade-level-for-each-student-within-the-same-year" class="section level3">
+<h3>Step 1 Create One Consistent Grade Level for Each Student Within the Same Year</h3>
+<pre class="r"><code># Step 1: Create one consistent grade level for each student within the same year
+
+# Keep the highest grade_level when a student has multiple grade levels 
+# within the same year
+
+# distinct values function
+nvals &lt;- function(x){
+  length(unique(x))
+}
+
+
+varIdx &lt;- c(&quot;sid&quot;, &quot;school_year&quot;, &quot;grade_level&quot;, &quot;nvals_grade&quot;, 
+            &quot;max_grade_level&quot;)
+
+stuclass %&lt;&gt;% group_by(sid, school_year) %&gt;% 
+  mutate(nvals_grade = nvals(grade_level), 
+         max_grade_level = max(grade_level))
+
+
+stuclass %&gt;% select(one_of(varIdx)) %&gt;% 
+  filter(sid == 3)</code></pre>
+<pre><code>Source: local data frame [3 x 5]
+Groups: sid, school_year [2]
+
+    sid school_year grade_level nvals_grade max_grade_level
+  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;int&gt;           &lt;dbl&gt;
+1     3        2006          10           1              10
+2     3        2007           8           2               9
+3     3        2007           9           2               9</code></pre>
+<pre class="r"><code>stuclass$grade_level[stuclass$nvals_grade &gt; 1] &lt;- stuclass$max_grade_level[stuclass$nvals_grade &gt; 1]
+
+stuclass %&gt;% select(one_of(varIdx)) %&gt;% 
+  filter(sid == 3)</code></pre>
+<pre><code>Source: local data frame [3 x 5]
+Groups: sid, school_year [2]
+
+    sid school_year grade_level nvals_grade max_grade_level
+  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;int&gt;           &lt;dbl&gt;
+1     3        2006          10           1              10
+2     3        2007           9           2               9
+3     3        2007           9           2               9</code></pre>
+<pre class="r"><code>stuclass %&lt;&gt;% select(-nvals_grade, -max_grade_level)</code></pre>
+<p>Step 2: Create one consistent FRPL value for each student in the same student-year</p>
+<pre class="r"><code># 1. Recode raw frpl variable with string type to numeric type
+
+stuclass$frpl_num &lt;- NA
+stuclass$frpl_num[stuclass$frpl == &quot;N&quot;] &lt;- 0
+stuclass$frpl_num[stuclass$frpl == &quot;R&quot;] &lt;- 1
+stuclass$frpl_num[stuclass$frpl == &quot;F&quot;] &lt;- 2
+
+stuclass %&gt;% select(sid, school_year, grade_level, frpl, frpl_num) %&gt;% 
+  filter(sid == 80)</code></pre>
+<pre><code>Source: local data frame [5 x 5]
+Groups: sid, school_year [4]
+
+    sid school_year grade_level  frpl frpl_num
+  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt; &lt;chr&gt;    &lt;dbl&gt;
+1    80        2005           9     N        0
+2    80        2005           9     R        1
+3    80        2006          10     N        0
+4    80        2007          11     N        0
+5    80        2008          12     N        0</code></pre>
+<pre class="r"><code>stuclass$frpl &lt;- NULL
+stuclass$frpl &lt;- stuclass$frpl_num
+stuclass$frpl_num &lt;- NULL
+
+stuclass %&gt;% select(sid, school_year, grade_level, frpl) %&gt;% 
+  filter(sid == 80)</code></pre>
+<pre><code>Source: local data frame [5 x 4]
+Groups: sid, school_year [4]
+
+    sid school_year grade_level  frpl
+  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;
+1    80        2005           9     0
+2    80        2005           9     1
+3    80        2006          10     0
+4    80        2007          11     0
+5    80        2008          12     0</code></pre>
+<pre class="r"><code># 2. Ensure that frpl is consistent by sid and school_year. In cases where 
+#  multiple values exist, report the highest value. Follow the same procedure 
+#  as Step 1 for grade_level.
+
+# Check if there are any cases where different values of frpl status are reported
+#  in a year
+
+stuclass %&lt;&gt;% group_by(sid, school_year) %&gt;% 
+  mutate(nvals_frpl = nvals(frpl))
+
+table(stuclass$nvals_frpl)</code></pre>
+<pre><code>
+    1     2     3 
+87773   430    57 </code></pre>
+<pre class="r"><code># Report the highest value of frpl by year for each student, selecting 
+# free over reduced over not participating
+
+stuclass %&lt;&gt;% group_by(sid, school_year) %&gt;% 
+  mutate(highest_frpl = max(frpl))
+
+stuclass$frpl &lt;- stuclass$highest_frpl
+
+# Label the values so they are easy to understand
+
+# drop the temporary values we created
+
+stuclass %&lt;&gt;% select(-nvals_frpl, -highest_frpl)</code></pre>
+<p>** Step 3: Create one consistent IEP value for each student within the same year. **</p>
+<pre class="r"><code># Follow the same procedure as Step 1 for grade_level.
+# Report the highest value of iep by year for each student, 
+#  selecting has iep over not iep.
+
+stuclass %&lt;&gt;% group_by(sid, school_year) %&gt;% 
+  mutate(highest_iep = max(iep)) %&gt;% 
+  ungroup() %&gt;% 
+  mutate(iep = highest_iep) %&gt;% 
+  select(-highest_iep)</code></pre>
+<pre class="r"><code># /*** Step 4: Create one consistent ELL value for each student within the same year. ***/
+# Follow the same procedure as Step 1 for grade_level.
+# // Report the highest value of ell by year for each student, selecting is ell over not ell.
+stuclass %&lt;&gt;% group_by(sid, school_year) %&gt;% 
+  mutate(highest_ell = max(ell)) %&gt;% 
+  ungroup() %&gt;% 
+  mutate(ell = highest_ell) %&gt;% 
+  select(-highest_ell)</code></pre>
+<pre class="r"><code># /*** Step 5: Create one consistent gifted value for each student within the same year. ***/
+# Follow the same procedure as Step 1 for grade_level.
+# // Report the highest value of gifted by year for each student, selecting is enrolled in gifted program over not enrolled.
+
+stuclass %&lt;&gt;% group_by(sid, school_year) %&gt;% 
+  mutate(highest_gifted = max(gifted)) %&gt;% 
+  ungroup() %&gt;% 
+  mutate(gifted = highest_gifted) %&gt;% 
+  select(-highest_gifted)</code></pre>
+<pre class="r"><code># /**** Step 6: Drop any unneeded variables, drop duplicates, and save the file ****/
+# // 1. Drop duplicate observations
+
+stuclass &lt;- stuclass[!duplicated(stuclass),]
+
+# // 2. Make sure your file is now unique by student and school year
+
+nrow(stuclass) == nvals(paste0(stuclass$sid, stuclass$school_year))</code></pre>
+<pre><code>[1] TRUE</code></pre>
+<pre class="r"><code># // 3. Save the current file as Student_School_Year.dta which you will need for Task 3.
+
+# save(stuclass, file = &quot;Student_School_Year.rda&quot;)
+
+# Clean up the workspace
+rm(con, tmpfileName, stuclass, varIdx)</code></pre>
+</div>
+</div>
+<div id="task-3-identifying-the-ninth-grade-cohort" class="section level2">
+<h2>Task 3: IDENTIFYING THE NINTH-GRADE COHORT</h2>
+<div id="purpose-2" class="section level3">
+<h3>PURPOSE</h3>
+<p>In Task 3: Identifying the Ninth Grade Cohort, you will identify the school year students first appear in ninth grade using the clean <code>Student_School_Year</code> research file from Task 2. This essential step allows you to form student cohorts and examine longitudinal college-going outcomes.</p>
+<p>The core of this task: 1. Flag the first school year a student enrolls in grades 9, 10, 11, or 12. 2. Identify the school year in which the student was first observed in 9th grade. 3. Impute the school year in which transfer students would have been in grade 9. 4. Replace the first_9th_school_year_observed with the correctly imputed values. After completing this task, you will have a clean Student_School_Year file that identifies first-time ninth graders. This file is used both to assemble the analysis file in Connect and to complete Task 4.</p>
+</div>
+<div id="how-to-start-2" class="section level3">
+<h3>HOW TO START</h3>
+<p>To begin, open the <code>Student_School_Year</code> file, just created in Task 2, in Stata. If you do not have Stata, you can follow the steps of the task by looking at the instructions and data snippets we have provided.If this is your first time attempting Task 3, start with the cleaned output file from Task 2. This file teaches you SDP’s cleaning methodology and allows you to check answers from a common dataset.</p>
+</div>
+<div id="data-description-1" class="section level3">
+<h3>DATA DESCRIPTION</h3>
+<p>The input file in this case, <code>Student_School_Year</code>, also the output from Task 2, now follows the structure of <code>Student_School_Year</code> in Identify so it is unique by <code>sid</code> and <code>school_year</code>. The aim of this task will be to create a <code>first_9th_school_year_observed</code> variable using the variables in the file.</p>
+<p>Uniqueness: This dataset was cleaned in Task 2 and is now unique by <code>sid</code> and <code>school_year</code>.</p>
+<pre class="r"><code># Read in Stata
+library(haven) # required for .dta f;iles
+
+# To read data from a zip file we create a connection to the path of the 
+# zip file
+tmpfileName &lt;- &quot;clean/Student_School_Year.dta&quot;
+con &lt;- unz(description = &quot;data/clean.zip&quot;, filename = tmpfileName, 
+           open = &quot;rb&quot;)
+stusy &lt;- read_stata(con) # read data in the data subdirectory
+glimpse(stusy)</code></pre>
+<pre><code>Observations: 87,530
+Variables: 10
+$ sid                          &lt;dbl&gt; 1, 1, 1, 1, 2, 2, 3, 3, 4, 4, 4, 5, 6, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, ...
+$ school_year                  &lt;dbl&gt; 2004, 2005, 2006, 2007, 2006, 2007, 2006, 2007, 2005, 2006, 2007, 2007, 2007, ...
+$ grade_level                  &lt;dbl&gt; 9, 9, 10, 11, 10, 11, 10, 9, 11, 10, 9, 3, 8, 9, 10, 8, 9, 10, 11, 12, 7, 8, 8...
+$ frpl                         &lt;dbl+lbl&gt; 0, 0, 1, 1, 2, 2, 2, 2, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,...
+$ iep                          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...
+$ ell                          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, ...
+$ gifted                       &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...
+$ total_days_enrolled          &lt;dbl&gt; 210, 210, 210, 210, 172, 172, 228, 228, 184, 184, 184, 209, 214, 261, 286, 286...
+$ total_days_absent            &lt;dbl&gt; 14, 6, 1, 5, 22, 57, 7, 15, 7, 7, 60, 35, 8, 7, 95, 16, 7, 7, 3, 17, 9, 0, 0, ...
+$ days_suspended_out_of_school &lt;dbl&gt; 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 11, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,...</code></pre>
+</div>
+</div>
+<div id="todo--" class="section level2">
+<h2>- TODO -</h2>
+<p>Check on p. 35-36 of the guide, incosistency on whether observed_g indicator is unique by student, or by student-grade. I’ve coded it unique by student.</p>
+<pre class="r"><code># /*** Step 1: Flag the first school year a student enrolls in grades 9, 10, 11, or 12. ***/
+# // Create four binary indicators to flag the first school year a student enrolls in grades 9, 10, 11, or 12.
+
+stusy %&gt;% filter(sid == 1) %&gt;% select(sid, school_year, grade_level)</code></pre>
+<pre><code># A tibble: 4 × 3
+    sid school_year grade_level
+  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;
+1     1        2004           9
+2     1        2005           9
+3     1        2006          10
+4     1        2007          11</code></pre>
+<pre class="r"><code>stusy %&lt;&gt;% group_by(sid, grade_level) %&gt;% 
+  mutate(tmpG = ifelse(school_year == min(school_year), 1, NA),
+         observed_g = 1)
+
+stusy %&gt;% filter(sid == 1) %&gt;% select(sid, school_year, grade_level, 
+                                      tmpG, observed_g)</code></pre>
+<pre><code>Source: local data frame [4 x 5]
+Groups: sid, grade_level [3]
+
+    sid school_year grade_level  tmpG observed_g
+  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;      &lt;dbl&gt;
+1     1        2004           9     1          1
+2     1        2005           9    NA          1
+3     1        2006          10     1          1
+4     1        2007          11     1          1</code></pre>
+<pre class="r"><code># Use tidyr to spread first_flag and observed_g out
+library(tidyr)
+stusy$first_flag &lt;- stusy$grade_level
+
+
+stusy &lt;- spread(stusy, key = first_flag, value = tmpG, sep = &quot;&quot;) %&gt;% 
+  select(-one_of(&quot;first_flag3&quot;, &quot;first_flag5&quot;, &quot;first_flag6&quot;, &quot;first_flag7&quot;, 
+                 &quot;first_flag8&quot;, &quot;first_flag13&quot;, &quot;first_flag17&quot;))
+
+stusy$observed &lt;- stusy$grade_level
+
+# Fill in a 1 because we want the observed vectors to populate all values 
+# for a student
+stusy &lt;- spread(stusy, key = observed, value = observed_g, sep = &quot;_&quot;) %&gt;% 
+  select(-one_of(&quot;observed_3&quot;, &quot;observed_5&quot;, &quot;observed_6&quot;, 
+                 &quot;observed_7&quot;, &quot;observed_8&quot;, &quot;observed_13&quot;, 
+                 &quot;observed_17&quot;)) %&gt;% 
+  group_by(sid) %&gt;% 
+  mutate(observed_9 = max(observed_9, na.rm=TRUE), 
+         observed_10 = max(observed_10, na.rm=TRUE), 
+         observed_11 = max(observed_11, na.rm=TRUE), 
+         observed_12 = max(observed_12, na.rm=TRUE)) %&gt;% 
+  mutate(observed_9 = ifelse(is.finite(observed_9), 1, 0),
+         observed_10 = ifelse(is.finite(observed_10), 1, 0),
+         observed_11 = ifelse(is.finite(observed_11), 1, 0),
+         observed_12 = ifelse(is.finite(observed_12), 1, 0))
+
+# Check how many students are identified as enrolled in grades 9, 10, 11, or 12
+
+tmp &lt;- stusy %&gt;% 
+  select(num_range(prefix= &quot;observed_&quot;, range = 9:12)) %&gt;% 
+  distinct(.keep_all=TRUE)
+
+table(tmp$observed_9)</code></pre>
+<pre><code>
+    0     1 
+ 2959 18844 </code></pre>
+<pre class="r"><code>table(tmp$observed_10)</code></pre>
+<pre><code>
+    0     1 
+ 6590 15213 </code></pre>
+<pre class="r"><code>table(tmp$observed_11)</code></pre>
+<pre><code>
+    0     1 
+12510  9293 </code></pre>
+<pre class="r"><code>table(tmp$observed_12)</code></pre>
+<pre><code>
+    0     1 
+16277  5526 </code></pre>
+<pre class="r"><code>rm(tmp)</code></pre>
+<p>** Step 2: Identify the school year in which the student was first observed in 9th grade. **</p>
+<pre class="r"><code># // Create a variable that lists the first school year a student is observed as enrolled in grade 9.
+
+stusy %&lt;&gt;% group_by(sid) %&gt;% 
+  mutate(first_9th_schyear_obs = min(school_year[grade_level == 9]))
+
+# work around weird way R handles minimum of an empty vector
+
+stusy$first_9th_schyear_obs[!is.finite(stusy$first_9th_schyear_obs)] &lt;- NA
+
+stusy %&gt;% filter(sid == 1) %&gt;% 
+  select(sid, school_year, grade_level, first_flag9, observed_9, first_9th_schyear_obs)</code></pre>
+<pre><code>Source: local data frame [4 x 6]
+Groups: sid [1]
+
+    sid school_year grade_level first_flag9 observed_9 first_9th_schyear_obs
+  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;      &lt;dbl&gt;                 &lt;dbl&gt;
+1     1        2004           9           1          1                  2004
+2     1        2005           9          NA          1                  2004
+3     1        2006          10          NA          1                  2004
+4     1        2007          11          NA          1                  2004</code></pre>
+<pre class="r"><code>stusy %&gt;% ungroup %&gt;% distinct(sid, first_9th_schyear_obs) %&gt;% 
+  select(first_9th_schyear_obs) %&gt;% unlist %&gt;% table</code></pre>
+<pre><code>.
+2004 2005 2006 2007 2008 2009 
+   1 4884 4405 4524 5018   12 </code></pre>
+<pre class="r"><code># Say something about missing values in the list...</code></pre>
+<p>** Step 3: Impute the school year in which transfer students would have been in grade 9. **</p>
+<pre class="r"><code># // Impute first_9th_school_year_observed as school_year - 1, school_year - 2, or school_year - 3 for students first observed in 10th, 11th or 12th grade as transfer-ins
+
+stusy$first_flag10[!is.finite(stusy$first_flag10)] &lt;- 0
+stusy$first_flag11[!is.finite(stusy$first_flag11)] &lt;- 0
+stusy$first_flag12[!is.finite(stusy$first_flag12)] &lt;- 0
+
+stusy$tempfirst9year &lt;- ifelse(stusy$first_flag10 == 1, 
+                               stusy$school_year - 1, 
+                               ifelse(stusy$first_flag11 == 1, 
+                               stusy$school_year - 2, 
+                               ifelse(stusy$first_flag12 == 1, 
+                               stusy$school_year - 3, 
+                               NA)))
+
+stusy %&gt;% filter(sid == 2) %&gt;% 
+  select(sid, school_year, grade_level, first_9th_schyear_obs, 
+         tempfirst9year)</code></pre>
+<pre><code>Source: local data frame [2 x 5]
+Groups: sid [1]
+
+    sid school_year grade_level first_9th_schyear_obs tempfirst9year
+  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;                 &lt;dbl&gt;          &lt;dbl&gt;
+1     2        2006          10                    NA           2005
+2     2        2007          11                    NA           2005</code></pre>
+<pre class="r"><code># What is up with 2003 in the table here in Stata documentation
+
+stusy %&lt;&gt;% group_by(sid) %&gt;% 
+  mutate(tempfirst9year = min(tempfirst9year, na.rm=TRUE))
+
+stusy$first_9th_schyear_obs[is.na(stusy$first_9th_schyear_obs) &amp; !is.na(stusy$tempfirst9year)] &lt;- stusy$tempfirst9year[is.na(stusy$first_9th_schyear_obs) &amp; !is.na(stusy$tempfirst9year)]
+
+stusy$tempfirst9year &lt;- NULL
+
+# 
+# stusy &lt;- bind_rows(stusy %&gt;% filter(observed_9 == 0), 
+#                    stusy %&lt;&gt;% filter(observed_9 == 1) %&gt;%
+#   group_by(sid) %&gt;%
+#   mutate(first_9th_schyear_obs = max(first_9th_schyear_obs))
+# )
+# stusy %&lt;&gt;% arrange(sid, school_year)
+
+ 
+# // Review the distribution of first_9th_school_year_observed for students who transferred in grades 10-12
+
+stusy %&gt;% ungroup %&gt;% 
+  filter(first_flag10 &gt; 0) %&gt;% 
+  filter(observed_9 == 0) %&gt;% 
+  distinct(sid, first_9th_schyear_obs) %&gt;% 
+  select(first_9th_schyear_obs) %&gt;% unlist %&gt;% table</code></pre>
+<pre><code>.
+2004 2005 2006 2007 2008 
+  16  400  321  380  444 </code></pre>
+<pre class="r"><code>stusy %&gt;% ungroup %&gt;% 
+  filter(first_flag11 ==1) %&gt;% 
+  filter(observed_9 == 0 &amp; observed_10 == 0 &amp; observed_11 == 1) %&gt;% 
+  distinct(sid, first_9th_schyear_obs) %&gt;% 
+  select(first_9th_schyear_obs) %&gt;% unlist %&gt;% table</code></pre>
+<pre><code>.
+2004 2005 2006 2007 
+   2  288  285  318 </code></pre>
+<pre class="r"><code>stusy %&gt;% ungroup %&gt;% 
+  filter(first_flag12 ==1) %&gt;% 
+  filter(observed_9 == 0 &amp; observed_10 == 0 &amp; observed_11 == 0 &amp; 
+           observed_12 == 1) %&gt;% 
+  distinct(sid, first_9th_schyear_obs) %&gt;% 
+  select(first_9th_schyear_obs) %&gt;% unlist %&gt;% table</code></pre>
+<pre><code>.
+2004 2005 2006 
+   2  137  145 </code></pre>
+<pre class="r"><code># Consider max of this?
+stusy %&gt;% select(sid, school_year, grade_level, 
+                first_9th_schyear_obs, observed_9) %&gt;% 
+ filter(sid == 3)</code></pre>
+<pre><code>Source: local data frame [2 x 5]
+Groups: sid [1]
+
+    sid school_year grade_level first_9th_schyear_obs observed_9
+  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;                 &lt;dbl&gt;      &lt;dbl&gt;
+1     3        2006          10                  2007          1
+2     3        2007           9                  2007          1</code></pre>
+<pre class="r"><code># Should this be 2005 or 2007?</code></pre>
+<p>** Step 4: Adjust the imputation of first_9th_school_year_observed for students who appear in a lower grade in a later school year. **</p>
+<pre class="r"><code># // 1. Flag students who are observed to be in a lower grade in a subsequent school year.
+
+stusy %&lt;&gt;% arrange(sid, school_year) %&gt;% 
+  group_by(sid) %&gt;% 
+  mutate(grade_lag = lag(grade_level, order_by = school_year)) %&gt;% 
+  mutate(grade_flag = ifelse(grade_lag &gt; grade_level &amp; !is.na(grade_lag &gt; grade_level), 1, 0)) %&gt;% 
+  mutate(grade_flag_max = max(grade_flag, na.rm=TRUE)) %&gt;% 
+  select(-grade_lag)
+
+
+stusy %&gt;% select(sid, school_year, grade_level, 
+                 first_9th_schyear_obs, grade_flag, grade_flag_max) %&gt;% 
+  filter(sid == 3) </code></pre>
+<pre><code>Source: local data frame [2 x 6]
+Groups: sid [1]
+
+    sid school_year grade_level first_9th_schyear_obs grade_flag grade_flag_max
+  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;                 &lt;dbl&gt;      &lt;dbl&gt;          &lt;dbl&gt;
+1     3        2006          10                  2007          0              1
+2     3        2007           9                  2007          1              1</code></pre>
+<pre class="r"><code># // 2. Flag the first school year in which students appear in high school grades
+
+stusy %&lt;&gt;% group_by(sid) %&gt;% 
+  mutate(first_9th_flag = ifelse(school_year == min(school_year[grade_level %in% c(9:12)]), 1, 0))
+
+
+stusy %&gt;% select(sid, school_year, grade_level, 
+                 first_9th_schyear_obs, grade_flag, grade_flag_max, 
+                 first_9th_flag) %&gt;% 
+  filter(sid == 3) </code></pre>
+<pre><code>Source: local data frame [2 x 7]
+Groups: sid [1]
+
+    sid school_year grade_level first_9th_schyear_obs grade_flag grade_flag_max first_9th_flag
+  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;                 &lt;dbl&gt;      &lt;dbl&gt;          &lt;dbl&gt;          &lt;dbl&gt;
+1     3        2006          10                  2007          0              1              1
+2     3        2007           9                  2007          1              1              0</code></pre>
+<pre class="r"><code># // 4. Replace the first_9th_school_year_observed with the correctly imputed values.
+
+# Need to drop NAs
+stusy$temp4_first9year &lt;- NA
+stusy$temp4_first9year[stusy$grade_flag_max == 1 &amp; 
+                         stusy$first_9th_flag == 1 &amp; 
+                         stusy$grade_level == 10] &lt;- stusy$school_year[stusy$grade_flag_max == 1 &amp; 
+                         stusy$first_9th_flag == 1 &amp; 
+                         stusy$grade_level == 10] - 1
+
+stusy$temp4_first9year[stusy$grade_flag_max == 1 &amp; 
+                         stusy$first_9th_flag == 1 &amp; 
+                         stusy$grade_level == 11] &lt;- stusy$school_year[stusy$grade_flag_max == 1 &amp; 
+                         stusy$first_9th_flag == 1 &amp; 
+                         stusy$grade_level == 11] - 2
+
+stusy$temp4_first9year[stusy$grade_flag_max == 1 &amp; 
+                         stusy$first_9th_flag == 1 &amp; 
+                         stusy$grade_level == 12] &lt;- stusy$school_year[stusy$grade_flag_max == 1 &amp; 
+                         stusy$first_9th_flag == 1 &amp; 
+                         stusy$grade_level == 12] - 3
+
+stusy %&lt;&gt;% group_by(sid) %&gt;% 
+  mutate(temp5_first9year = min(temp4_first9year, na.rm=TRUE))
+
+
+stusy %&gt;% select(sid, school_year, grade_level, 
+                 first_9th_schyear_obs, grade_flag, grade_flag_max, 
+                 first_9th_flag, temp4_first9year, temp5_first9year) %&gt;% 
+  filter(sid == 3) </code></pre>
+<pre><code>Source: local data frame [2 x 9]
+Groups: sid [1]
+
+    sid school_year grade_level first_9th_schyear_obs grade_flag grade_flag_max first_9th_flag temp4_first9year
+  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;                 &lt;dbl&gt;      &lt;dbl&gt;          &lt;dbl&gt;          &lt;dbl&gt;            &lt;dbl&gt;
+1     3        2006          10                  2007          0              1              1             2005
+2     3        2007           9                  2007          1              1              0               NA
+# ... with 1 more variables: temp5_first9year &lt;dbl&gt;</code></pre>
+<pre class="r"><code>stusy$first_9th_schyear_obs[stusy$grade_flag_max == 1 &amp; 
+                              !is.na(stusy$temp5_first9year)] &lt;- stusy$temp5_first9year[stusy$grade_flag_max == 1 &amp; 
+                              !is.na(stusy$temp5_first9year)]
+
+
+stusy %&gt;% ungroup %&gt;% distinct(sid, first_9th_schyear_obs) %&gt;% 
+  select(first_9th_schyear_obs) %&gt;% unlist %&gt;% table</code></pre>
+<pre><code>.
+2002 2003 2004 2005 2006 2007 2008 2009 
+   4    9   22 5706 5154 5217 5459   11 </code></pre>
+</div>
+<div id="todo-task-3-slightly-different-numbers-than-sdp--" class="section level2">
+<h2>- TODO Task 3 Slightly Different Numbers than SDP ##-</h2>
+<p>** Step 5: Keep only variables relevant to future analyses, and save the file. **</p>
+<pre class="r"><code># // Keep relevant variables
+
+stusy %&lt;&gt;% select(sid, school_year, grade_level, frpl, iep, ell, gifted, 
+                  total_days_enrolled, total_days_absent, 
+                  days_suspended_out_of_school, first_9th_schyear_obs)
+
+# // Save the current file as Student_School_Year_Ninth.dta.
+# save “${clean}\Student_School_Year_Ninth.dta”, replace
+rm(stusy)</code></pre>
+</div>
+<div id="task-4-student-school-enrollment" class="section level2">
+<h2>Task 4: STUDENT SCHOOL ENROLLMENT</h2>
+<div id="purpose-3" class="section level3">
+<h3>PURPOSE</h3>
+<p>In Task 4: Student School Enrollment, you will take the Student_School_Enrollment_Raw file and generate the Student_School_Enrollment file that matches the specification in Identify. After matching Identify, you will take your dataset a few steps further by consolidating overlapping enrollment spells and determining the last withdrawal code for each student to yield the file Student_School_Enrollment_Clean. The core of this task: 1. Create a school_start and school_end variable. 2. Remove abnormal enrollment observations with missing enrollment and withdrawal dates along with enrollment or withdrawal dates that are not in the right order. 3. Consolidate overlapping enrollments by student by school. 4. Update days_enrolled based on the consolidated enrollments using the new enrollment and withdrawal dates. 5. Determine the last withdrawal code for each student. You will use this data in later analyses to determine a student’s end of high school outcomes. After completing this, you will have a clean Student_School_Enrollment file. This process sets up our analyses for high school graduation and college enrollment and persistence outcomes.</p>
+</div>
+<div id="how-to-start-3" class="section level3">
+<h3>HOW TO START</h3>
+<p>To begin, open the Student_School_Enrollment_Raw file in Stata. If you do not have Stata, you can follow the steps of the task by looking at the instructions and data snippets we have provided. If this is your first time attempting Task 4, start with the provided input file. This file teaches you SDP’s cleaning methodology and allows you to check answers from a common dataset.</p>
+<pre class="r"><code># Read in Stata
+library(haven) # required for .dta f;iles
+
+# To read data from a zip file we create a connection to the path of the 
+# zip file
+tmpfileName &lt;- &quot;raw/Student_School_Enrollment_Raw.dta&quot;
+con &lt;- unz(description = &quot;data/raw.zip&quot;, filename = tmpfileName, 
+           open = &quot;rb&quot;)
+stuenr &lt;- read_stata(con) # read data in the data subdirectory
+glimpse(stuenr)</code></pre>
+<pre><code>Observations: 95,935
+Variables: 8
+$ sid                  &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3, 4, 4, 4, 4, 5, 5, 6, 6, 6, 7, 7, 7, 7, 7, 8, 8,...
+$ school_year          &lt;dbl&gt; 2004, 2004, 2005, 2005, 2006, 2006, 2007, 2007, 2006, 2007, 2007, 2006, 2007, 2005, 20...
+$ school_code          &lt;dbl&gt; 486, 486, 485, 486, 485, 485, 485, 485, 486, 486, 486, 480, 480, 475, 470, 470, 470, 4...
+$ enrollment_date      &lt;date&gt; 2003-06-25, 2003-08-29, 2005-01-28, 2004-09-02, 2005-08-28, 2005-08-28, 2006-08-28, 2...
+$ enrollment_code_desc &lt;chr&gt; &quot;Grade 9&quot;, &quot;Grade 9&quot;, &quot;Grade 9&quot;, &quot;Grade 9&quot;, &quot;Grade 10&quot;, &quot;Grade 10&quot;, &quot;Grade 11&quot;, &quot;Grade...
+$ withdrawal_date      &lt;date&gt; 2003-07-05, 2004-06-08, 2005-06-07, 2005-02-10, 2005-08-28, 2006-06-07, 2007-06-08, N...
+$ withdrawal_code_desc &lt;chr&gt; &quot;Promoted End Year&quot;, &quot;Retained in Grade&quot;, &quot;Transfer In District&quot;, &quot;Retained in Grade&quot;,...
+$ days_enrolled        &lt;dbl&gt; 10, 284, 130, 161, 0, 283, 284, NaN, 282, 191, 124, 361, 361, -822, 299, 330, 85, 171,...</code></pre>
+<pre class="r"><code># /*** Step 1: Create a school_start and school_end variable ***/
+# // In this example, school start is August 1, and school end is July 31 of each school year. This may be different in your agency.
+
+library(lubridate) # handle dates and times in R correctly
+
+stuenr$school_start &lt;- mdy(paste0(&quot;08&quot;, &quot;01&quot;, stuenr$school_year-1))
+stuenr$school_end &lt;- mdy(paste0(&quot;07&quot;, &quot;31&quot;, stuenr$school_year))
+
+# In R we have to create a character string that we convert to a date
+# Converting numerics to dates and times can introduce errors
+
+# /*** Step 2: Remove abnormal enrollment observations. ***/
+# // 1. Drop observations missing both enrollment and withdrawal dates.
+
+stuenr %&lt;&gt;% filter(!is.na(enrollment_date) &amp; !is.na(withdrawal_date))
+
+# // 2. Drop observations with enrollment and withdrawal dates on same day.
+
+stuenr %&lt;&gt;% filter(!enrollment_date == withdrawal_date &amp; !is.na(enrollment_date))
+
+# // 3. Drop observations with withdrawal date earlier than enrollment date.
+
+stuenr %&lt;&gt;% filter(!is.na(withdrawal_date) &amp; !withdrawal_date &lt; enrollment_date)
+
+# // 4. Drop observations with enrollment date after the end of the current school year.
+
+stuenr %&lt;&gt;% filter(school_end &gt; enrollment_date)
+
+# // 5. Drop observations with enrollment date before the beginning of the current school year.
+
+stuenr %&lt;&gt;% filter(school_start &lt;= enrollment_date)
+
+# // 6. Drop observations with withdrawal date more than one month after the end of the school year.
+
+stuenr %&lt;&gt;% filter(withdrawal_date &lt;= (school_end + 31) &amp; !is.na(withdrawal_date))
+
+# // 7. Check to make sure enrollment dates are in the correct school year.
+
+table(stuenr$enrollment_date &gt;= stuenr$school_start)</code></pre>
+<pre><code>
+ TRUE 
+93772 </code></pre>
+<pre class="r"><code>table(stuenr$enrollment_date &lt;= stuenr$school_end)</code></pre>
+<pre><code>
+ TRUE 
+93772 </code></pre>
+<p>/*** Step 3: Consolidate overlapping enrollments by student by school. ***/</p>
+<pre class="r"><code># // 1. Sort enrollment spells in ascending order and then check how many overlapping enrollment spells exist for a student at the same school.
+
+
+stuenr %&lt;&gt;% arrange(sid, school_code, enrollment_date)
+
+
+stuenr %&lt;&gt;% group_by(sid, school_code) %&gt;% 
+  mutate(lag_withdrawal_date = lag(withdrawal_date)) %&gt;% ungroup %&gt;% 
+  group_by(sid, school_code, school_year) %&gt;% 
+    mutate(min_enroll_date = min(enrollment_date))
+
+# table(stuenr$enrollment_date &lt;= stuenr$lag_withdrawal_date &amp; 
+        # !is.na(stuenr$lag_withdrawal_date))
+# 682?
+
+tmp &lt;- stuenr %&gt;% filter(sid == 2) %&gt;% 
+  select(sid, school_year, school_code, enrollment_date, 
+         enrollment_code_desc, withdrawal_date, lag_withdrawal_date,
+         withdrawal_code_desc, min_enroll_date)
+
+# // 2. For overlapping observations, replace the enrollment date and enrollment code description of all but the first enrollment spell with the earliest enrollment date
+
+stuenr$enrollment_date[stuenr$enrollment_date &lt;= stuenr$lag_withdrawal_date &amp; 
+                         !is.na(stuenr$lag_withdrawal_date)] &lt;- stuenr$min_enroll_date[stuenr$enrollment_date &lt;= stuenr$lag_withdrawal_date &amp; 
+                         !is.na(stuenr$lag_withdrawal_date)]
+
+stuenr %&gt;% filter(sid == 2) %&gt;% 
+  select(sid, school_year, school_code, enrollment_date, 
+         enrollment_code_desc, withdrawal_date,
+         withdrawal_code_desc)</code></pre>
+<pre><code>Source: local data frame [3 x 7]
+Groups: sid, school_code, school_year [2]
+
+    sid school_year school_code enrollment_date enrollment_code_desc withdrawal_date withdrawal_code_desc
+  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;          &lt;date&gt;                &lt;chr&gt;          &lt;date&gt;                &lt;chr&gt;
+1     2        2006         486      2005-08-27             Grade 10      2006-06-05    Promoted End Year
+2     2        2007         486      2006-08-29             Grade 11      2007-03-08    Retained in Grade
+3     2        2007         486      2006-08-29             Grade 11      2007-06-05    Promoted End Year</code></pre>
+<p><strong>// 3. Replace the withdrawal date and withdrawal code description of the earliest enrollment spell with the latest withdrawal date.</strong></p>
+<pre class="r"><code># // Sort the data first so that latest withdrawal
+# information appears as the first record.
+
+stuenr %&lt;&gt;% arrange(sid, school_code, enrollment_date, withdrawal_date)
+
+stuenr %&gt;% filter(sid == 2) %&gt;% 
+  select(sid, school_year, school_code, enrollment_date, 
+         enrollment_code_desc, withdrawal_date,
+         withdrawal_code_desc)</code></pre>
+<pre><code>Source: local data frame [3 x 7]
+Groups: sid, school_code, school_year [2]
+
+    sid school_year school_code enrollment_date enrollment_code_desc withdrawal_date withdrawal_code_desc
+  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;          &lt;date&gt;                &lt;chr&gt;          &lt;date&gt;                &lt;chr&gt;
+1     2        2006         486      2005-08-27             Grade 10      2006-06-05    Promoted End Year
+2     2        2007         486      2006-08-29             Grade 11      2007-03-08    Retained in Grade
+3     2        2007         486      2006-08-29             Grade 11      2007-06-05    Promoted End Year</code></pre>
+<pre class="r"><code># // Replace withdrawal_date
+# // Replace withdrawal_code_description
+
+stuenr %&lt;&gt;% group_by(sid, school_code, enrollment_date) %&gt;%
+  mutate(withdrawal_date = last(withdrawal_date), 
+         withdrawal_code_desc = last(withdrawal_code_desc))</code></pre>
+<p>** Step 4: Update days_enrolled based on the consolidated enrollments using the new enrollment and withdrawal dates. **</p>
+<pre class="r"><code>stuenr$days_enrolled &lt;- stuenr$withdrawal_date - stuenr$enrollment_date
+
+stuenr %&gt;% filter(sid == 2) %&gt;% 
+  select(sid, school_year, school_code, enrollment_date, 
+         enrollment_code_desc, withdrawal_date,
+         withdrawal_code_desc, days_enrolled)</code></pre>
+<pre><code>Source: local data frame [3 x 8]
+Groups: sid, school_code, enrollment_date [2]
+
+    sid school_year school_code enrollment_date enrollment_code_desc withdrawal_date withdrawal_code_desc days_enrolled
+  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;          &lt;date&gt;                &lt;chr&gt;          &lt;date&gt;                &lt;chr&gt;        &lt;time&gt;
+1     2        2006         486      2005-08-27             Grade 10      2006-06-05    Promoted End Year      282 days
+2     2        2007         486      2006-08-29             Grade 11      2007-06-05    Promoted End Year      280 days
+3     2        2007         486      2006-08-29             Grade 11      2007-06-05    Promoted End Year      280 days</code></pre>
+<p>** Step 5: Determine the last withdrawal code for each student. You will use this data in later analyses to determine a student’s end of high school outcomes. **</p>
+<pre class="r"><code>stuenr %&lt;&gt;% arrange(sid, withdrawal_date)
+
+stuenr %&gt;% filter(sid == 16) %&gt;% 
+  select(sid, school_year, school_code, enrollment_date, 
+         enrollment_code_desc, withdrawal_date,
+         withdrawal_code_desc)</code></pre>
+<pre><code>Source: local data frame [2 x 7]
+Groups: sid, school_code, enrollment_date [2]
+
+    sid school_year school_code enrollment_date enrollment_code_desc withdrawal_date   withdrawal_code_desc
+  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;          &lt;date&gt;                &lt;chr&gt;          &lt;date&gt;                  &lt;chr&gt;
+1    16        2007         450      2007-01-07             Grade 11      2007-05-22      Promoted End Year
+2    16        2008         450      2007-08-20             Grade 12      2008-05-28 Graduated with Diploma</code></pre>
+<pre class="r"><code># p.46 withdrawal date wrong in table, or needs to be updated
+
+stuenr %&lt;&gt;% group_by(sid) %&gt;% 
+  mutate(last_withdrawal_reason = last(withdrawal_code_desc))
+
+stuenr %&gt;% filter(sid == 16) %&gt;% 
+  select(sid, school_year, school_code, enrollment_date, 
+         enrollment_code_desc, withdrawal_date,
+         withdrawal_code_desc, last_withdrawal_reason)</code></pre>
+<pre><code>Source: local data frame [2 x 8]
+Groups: sid [1]
+
+    sid school_year school_code enrollment_date enrollment_code_desc withdrawal_date   withdrawal_code_desc
+  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;          &lt;date&gt;                &lt;chr&gt;          &lt;date&gt;                  &lt;chr&gt;
+1    16        2007         450      2007-01-07             Grade 11      2007-05-22      Promoted End Year
+2    16        2008         450      2007-08-20             Grade 12      2008-05-28 Graduated with Diploma
+# ... with 1 more variables: last_withdrawal_reason &lt;chr&gt;</code></pre>
+<p>** Step 6: Drop any unneeded variables, drop duplicates, and save the file **</p>
+<pre class="r"><code># // 1. Drop duplicate records
+
+stuenr %&lt;&gt;% select(-min_enroll_date, -lag_withdrawal_date)
+
+stuenr &lt;- ungroup(stuenr) %&gt;% distinct(sid, school_year, school_code, 
+                                    enrollment_date, .keep_all = TRUE)
+
+# // 2. Confirm that file is unique by student, school_year, school_code, and enrollment_date
+
+nvals(paste0(stuenr$sid, stuenr$school_year, stuenr$school_code, 
+             stuenr$enrollment_date)) == nrow(stuenr)</code></pre>
+<pre><code>[1] TRUE</code></pre>
+<pre class="r"><code># // 3. Save the current file as Student_School_Enrollment_Clean
+# save “${clean}\Student_School_Enrollment_Clean.dta”, replace
+# save(stuenr, file = &quot;clean/Student_School_Enrollment_Clean.rda&quot;)
+rm(tmp, stuenr); gc()</code></pre>
+<pre><code>         used (Mb) gc trigger (Mb) max used (Mb)
+Ncells 637232 34.1    1770749 94.6  1770749 94.6
+Vcells 996181  7.7    6873311 52.5 10087345 77.0</code></pre>
 </div>
 </div>
 </div>
