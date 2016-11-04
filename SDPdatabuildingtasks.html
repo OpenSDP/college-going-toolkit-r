@@ -158,6 +158,21 @@ $(document).ready(function () {
 <li><a href="#purpose-3">PURPOSE</a></li>
 <li><a href="#how-to-start-3">HOW TO START</a></li>
 </ul></li>
+<li><a href="#task-4-student-test-scores">Task 4: STUDENT TEST SCORES</a><ul>
+<li><a href="#purpose-4">PURPOSE</a></li>
+<li><a href="#how-to-start-4">HOW TO START</a></li>
+<li><a href="#data-description-2">DATA DESCRIPTION</a></li>
+</ul></li>
+<li><a href="#task-6-student-class-enrollment">Task 6: STUDENT CLASS ENROLLMENT</a><ul>
+<li><a href="#purpose-5">PURPOSE</a></li>
+<li><a href="#how-to-start-5">HOW TO START</a></li>
+<li><a href="#data-description-for-raw-file">DATA DESCRIPTION FOR RAW FILE</a></li>
+</ul></li>
+<li><a href="#task-7-student-nsc-enrollment">Task 7 STUDENT NSC ENROLLMENT</a><ul>
+<li><a href="#purpose-6">PURPOSE</a></li>
+<li><a href="#how-to-start-6">HOW TO START</a></li>
+<li><a href="#data-description-3">DATA DESCRIPTION</a></li>
+</ul></li>
 </ul></li>
 </ul>
 </div>
@@ -1784,9 +1799,895 @@ nvals(paste0(stuenr$sid, stuenr$school_year, stuenr$school_code,
 # save “${clean}\Student_School_Enrollment_Clean.dta”, replace
 # save(stuenr, file = &quot;clean/Student_School_Enrollment_Clean.rda&quot;)
 rm(tmp, stuenr); gc()</code></pre>
-<pre><code>         used (Mb) gc trigger (Mb) max used (Mb)
-Ncells 637232 34.1    1770749 94.6  1770749 94.6
-Vcells 996181  7.7    6873311 52.5 10087345 77.0</code></pre>
+<pre><code>          used (Mb) gc trigger (Mb) max used (Mb)
+Ncells  637935 34.1    1770749 94.6  1770749 94.6
+Vcells 1004619  7.7    5986777 45.7  9677436 73.9</code></pre>
+</div>
+</div>
+<div id="task-4-student-test-scores" class="section level2">
+<h2>Task 4: STUDENT TEST SCORES</h2>
+<div id="purpose-4" class="section level3">
+<h3>PURPOSE</h3>
+<p>structure of Identify. Through this task, you will generate three different clean output files that contain a single score and test-taking instance for each student: • Prior Achievement (one 8th grade state test score per student), • SAT scores (one SAT score per student), and • ACT scores (one ACT score per student). The file for Prior Achievement will contain students’ achievement on state standardized Math and English Language Arts tests in 8th grade. This will allow you to control for prior academic achievement when you examine college-going outcomes. The SAT and ACT score files will be used for defining highly qualified high school graduates. The core of this task: • Prior Achievement 1. Clean state test scores and resolve instances where students took the same test multiple times. 2. Standardize test scores to a mean of 0 and a standard deviation of 1. This allows you to compare across tests and years when different score scales were used. 3. Generate a composite math and English score for scaled and standardized test scores in eighth grade. • SAT 1. Clean SAT test scores and resolve instances where students took the same test multiple times. 2. Generate a total SAT score based on math, verbal, and writing scores. • ACT 1. Clean ACT test scores and resolve instances where students took the same test multiple times. After completing this, you will have a Prior_Achievement file with 8th grade test scores. You will also have SAT and ACT files. All three files will be used in Connect.</p>
+</div>
+<div id="how-to-start-4" class="section level3">
+<h3>HOW TO START</h3>
+<p>the steps of the task by looking at the instructions and data snippets we have provided. If this is your first time attempting Task 5, start with the provided input file. This file teaches you SDP’s cleaning methodology and allows you to check answers from a common dataset</p>
+</div>
+<div id="data-description-2" class="section level3">
+<h3>DATA DESCRIPTION</h3>
+<p>The input file, Student_Test_Scores, follows the structure of Student_Test_Scores in Identify so it is unique by sid, test_code, and test_date. The aim of this task will be to create three separate clean output files, Prior_Achievement, SAT, and ACT, that report only one test score per student. This means that for eight grade prior achievement duplicates of the same test taken in the same and different years will need to be resolved. Also any duplicates of SAT or ACT scores will need to be resolved as well.</p>
+<p>Prior Achievement (8th grade state test scores), Ideally, state test data in its raw form is unique by sid, test_subject, grade_level, and school_year. However, some students re-take the same test for the same grade in the same year. To fix this, you will make the 8th grade test score data in Student_Test_Scores unique by sid, test_subject, grade_level, and school_ year by removing any same year repeat test taking instances. Then, you will manipulate the data so tests for different subjects in the same grade_level fall on the same row so the data is unique by sid, test_subject, and grade_level. As a final step, if a student took the same test in different years (e.g. by repeating a grade), you will take the earliest instance. The data will finally be unique by sid and is considered a clean file and ready to be incorporated into the analysis file in Connect.</p>
+<p>SAT Ideally, SAT test data in its raw form is unique by sid. However, some students re-take the SAT. To fix this, you will take the data unique by sid, test_subject, and test_date and reshape it so the data will finally be unique by sid and is considered a clean file and ready to be incorporated into the analysis file in Connect.</p>
+<p>ACT Ideally, ACT test data in its raw form is unique by sid. However, some students re-take the ACT. To fix this, you will take the data unique by sid, test_subject, and test_date and reshape it so the data will finally be unique by sid and is considered a clean file and ready to be incorporated into the analysis file in Connect.</p>
+<p>** Part I: Clean Prior Achievement Scores **</p>
+<pre class="r"><code># Read in Stata
+library(haven) # required for .dta f;iles
+
+
+# // 0. Load the Student_Test_Scores data file.
+# To read data from a zip file we create a connection to the path of the 
+# zip file
+tmpfileName &lt;- &quot;raw/Student_Test_Scores.dta&quot;
+con &lt;- unz(description = &quot;data/raw.zip&quot;, filename = tmpfileName, 
+           open = &quot;rb&quot;)
+stutest &lt;- read_stata(con) # read data in the data subdirectory
+glimpse(stutest)</code></pre>
+<pre><code>Observations: 100,705
+Variables: 10
+$ sid                    &lt;dbl&gt; 6, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 10, 10, 10, 14, 14, ...
+$ test_type              &lt;chr&gt; &quot;State&quot;, &quot;State&quot;, &quot;State&quot;, &quot;State&quot;, &quot;State&quot;, &quot;State&quot;, &quot;State&quot;, &quot;State&quot;, &quot;State&quot;, &quot;St...
+$ school_year            &lt;dbl&gt; 2007, 2007, 2004, 2004, 2005, 2005, 2007, 2007, 2005, 2005, 2006, 2006, 2004, 2004, ...
+$ test_date              &lt;date&gt; 2007-04-15, 2007-04-15, 2004-04-15, 2004-04-15, 2005-04-15, 2005-04-15, 2007-04-15,...
+$ grade_level            &lt;dbl&gt; 8, 8, 8, 8, 9, 9, 10, 10, 8, 8, 8, 8, 7, 7, 8, 8, NaN, 8, 8, 9, 9, 10, 10, 6, 6, 7, ...
+$ test_subject           &lt;dbl+lbl&gt; 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 7, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2,...
+$ scaled_score           &lt;dbl&gt; 726, 678, 722, 728, 851, 729, 609, 616, 698, 779, 754, 676, 734, 756, 702, 717, 14, ...
+$ performance_level      &lt;dbl&gt; 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, NaN, 2, 2, 2, 3, 1, 1, 3, 3, 4, 4, 3...
+$ performance_level_desc &lt;chr&gt; &quot;On the Way to Proficient&quot;, &quot;On the Way to Proficient&quot;, &quot;On the Way to Proficient&quot;, ...
+$ raw_score              &lt;dbl&gt; 35, 31, 40, 36, 59, 41, 18, 19, 35, 46, 40, 32, 36, 43, 36, 35, NaN, 37, 38, 54, 50,...</code></pre>
+<pre class="r"><code># Convert to R style
+stutest$test_subject &lt;- as_factor(stutest$test_subject)
+stutest$test_subject &lt;- tolower(as.character(stutest$test_subject))</code></pre>
+<pre class="r"><code># // 1. Keep only the variables you need and limit the sample to state test scores in 8th grade.
+
+
+statetest &lt;- stutest %&gt;% 
+            select(sid, test_type, test_subject, school_year, 
+                   grade_level, scaled_score, raw_score, test_date) %&gt;% 
+    filter(test_type == &quot;State&quot; &amp; grade_level == 8)
+
+# Leave the original stutest, we will come back to this later. In R 
+# we can keep multiple datasets open in the workset at the same time.
+
+# // 2. Clean up raw and scaled scores.
+# // Change raw and scaled scores to missing if zero.
+
+for(var in c(&quot;raw_score&quot;, &quot;scaled_score&quot;)){
+  statetest[, var][statetest[,var] == 0] &lt;- NA
+}
+
+# //Drop observations missing both a raw and scaled test score.
+
+statetest %&lt;&gt;% filter(!is.na(raw_score) | !is.na(scaled_score))
+
+# 3. Identify same-year repeat test takers and take the highest test score.
+# For ties in scores, take the last date tested
+statetest %&lt;&gt;% arrange(sid, test_subject, 
+                       grade_level, school_year, scaled_score)
+
+statetest %&gt;% filter(sid == 595) %&gt;% 
+  select(sid, test_type, school_year, test_date, grade_level, 
+         test_subject, scaled_score, raw_score)</code></pre>
+<pre><code># A tibble: 3 × 8
+    sid test_type school_year  test_date grade_level test_subject scaled_score raw_score
+  &lt;dbl&gt;     &lt;chr&gt;       &lt;dbl&gt;     &lt;date&gt;       &lt;dbl&gt;        &lt;chr&gt;        &lt;dbl&gt;     &lt;dbl&gt;
+1   595     State        2007 2007-04-15           8          ela          789        49
+2   595     State        2007 2007-04-15           8          ela          799        50
+3   595     State        2007 2007-04-15           8         math          770        45</code></pre>
+<pre class="r"><code>statetest %&lt;&gt;% group_by(sid, test_subject, school_year, grade_level) %&gt;% 
+  mutate(keep_flag = scaled_score == max(scaled_score) &amp; 
+           test_date == max(test_date)) %&gt;% 
+  ungroup %&gt;% 
+  filter(keep_flag) %&gt;% 
+  select(-keep_flag)
+
+statetest %&gt;% filter(sid == 595) %&gt;% 
+  select(sid, test_type, school_year, test_date, grade_level, 
+         test_subject, scaled_score, raw_score)</code></pre>
+<pre><code># A tibble: 2 × 8
+    sid test_type school_year  test_date grade_level test_subject scaled_score raw_score
+  &lt;dbl&gt;     &lt;chr&gt;       &lt;dbl&gt;     &lt;date&gt;       &lt;dbl&gt;        &lt;chr&gt;        &lt;dbl&gt;     &lt;dbl&gt;
+1   595     State        2007 2007-04-15           8          ela          799        50
+2   595     State        2007 2007-04-15           8         math          770        45</code></pre>
+<pre class="r"><code># // Verify that each student has only one state test in a
+# subject in a school year.
+
+statetest %&gt;% distinct(sid, test_subject, grade_level, school_year) %&gt;%
+  nrow == nrow(statetest)</code></pre>
+<pre><code>[1] TRUE</code></pre>
+<pre class="r"><code># // 4. Reshape the data so math and ELA tests appear on the same row.
+
+statetest &lt;- reshape(as.data.frame(statetest), 
+               v.names = c(&quot;raw_score&quot;, &quot;scaled_score&quot;), 
+               timevar = c(&quot;test_subject&quot;), 
+               idvar = c(&quot;sid&quot;, &quot;test_type&quot;, &quot;test_date&quot;,
+                         &quot;school_year&quot;, &quot;grade_level&quot;),
+               direction = &quot;wide&quot;, 
+               sep = &quot;_&quot;)
+
+# // 5. Compute standardized test scores with mean 0 and standard deviation 1.
+
+statetest$scaled_math_std &lt;- scale(statetest$scaled_score_math)
+statetest$scaled_ela_std &lt;- scale(statetest$scaled_score_ela)
+
+
+# // 6. Identify different-year repeat test takers and take the earliest test score.
+# 
+# // First process ELA scores
+# preserve
+# drop *_math*
+# drop if scaled_score_ela==.
+# // Keep only the earliest instance in which the student
+# took the test
+# sort sid grade_level school_year
+# drop if sid==sid[_n-1] &amp; grade_level==grade_
+# level[_n-1] &amp; school_year&gt;= school_year[_n-1] &amp; scaled_
+# score_ela[_n-1]!=.
+# bys sid: gen count=_n
+# tab count
+# drop count
+# // Save the ela_scores as a tempfile to be merged on
+# tempfile ela_scores
+# save `ela_scores’
+# restore
+# 
+# // Next process math scores
+# drop *_ela*
+# drop if scaled_score_math==.
+# // Keep only the earliest instance in which the student took the test
+# sort sid grade_level school_year
+# drop if sid==sid[_n-1] &amp; grade_ level==grade_level[_n-1] &amp;
+# school_year&gt;= school_year[_n-1] &amp; scaled_score_math[_n-1]!=.
+# bys sid: gen count=_n
+# tab count
+# drop count
+# // Merge the ela_scores tempfile onto the math scores
+# merge 1:1 sid using `ela_scores’, nogen
+
+statetest %&lt;&gt;% group_by(sid) %&gt;% 
+  mutate(keep_flag = test_date == min(test_date)) %&gt;% 
+  filter(keep_flag) %&gt;% select(-keep_flag)
+
+# Not sure in R we need to process these separately at all!</code></pre>
+<pre class="r"><code># // 7. Verify that each student has only one state test, and drop unneeded variables.
+
+nrow(statetest) == nvals(statetest$sid)</code></pre>
+<pre><code>[1] TRUE</code></pre>
+<pre class="r"><code>statetest %&lt;&gt;% select(-test_date, -test_type)
+
+# // 8. Generate composite scaled and standardized scores that average ELA and math scores.
+
+statetest$scaled_score_composite &lt;- (statetest$scaled_score_ela + statetest$scaled_score_math) /2
+
+statetest$scaled_score_composite_std &lt;- (statetest$scaled_math_std + statetest$scaled_ela_std) /2
+
+# // 9. Save the current file as Prior_Achievement.dta.
+
+statetest %&lt;&gt;% arrange(sid, school_year, grade_level) %&gt;% 
+  select(sid, school_year, grade_level, raw_score_math, raw_score_ela,
+         scaled_score_math, scaled_score_ela, scaled_score_composite,
+         scaled_math_std, scaled_ela_std, scaled_score_composite_std)
+
+# save “${clean}/Prior_Achievement.dta”, replace</code></pre>
+<p>** Part II: Clean SAT Scores **</p>
+<pre class="r"><code># // 1. Keep only the variables and limit the sample to SAT.
+sattest &lt;- stutest %&gt;% filter(test_type == &quot;SAT&quot;)
+
+sattest %&lt;&gt;% select(sid, test_subject, test_date, scaled_score)
+# // 2. Drop duplicate observations and any observations missing test scores.
+
+sattest %&lt;&gt;% distinct()
+sattest %&lt;&gt;% filter(!is.na(scaled_score))
+
+# // 3. Reshape the data so that math, ELA, and writing scores appear on one row by student and test date.
+
+sattest &lt;- reshape(as.data.frame(sattest), 
+               v.names = c(&quot;scaled_score&quot;), 
+               timevar = c(&quot;test_subject&quot;), 
+               idvar = c(&quot;sid&quot;, &quot;test_date&quot;),
+               direction = &quot;wide&quot;, 
+               sep = &quot;_&quot;)
+
+# Rename for convenience
+names(sattest) &lt;- c(&quot;sid&quot;, &quot;sat_test_date&quot;, &quot;sat_math_score&quot;, 
+                    &quot;sat_verbal_score&quot;, &quot;sat_writing_score&quot;)
+
+sattest %&lt;&gt;% arrange(sid, sat_test_date)
+# // 4. Identify repeat test takers and take the earliest test score.
+
+sattest %&lt;&gt;% group_by(sid) %&gt;% 
+  mutate(keep_flag = sat_test_date == min(sat_test_date)) %&gt;% 
+  filter(keep_flag) %&gt;% select(-keep_flag)
+
+# // Verify that the file is now unique by student.
+
+nrow(sattest) == nvals(sattest$sid)</code></pre>
+<pre><code>[1] TRUE</code></pre>
+<pre class="r"><code># // 5. Verify that test scores from the component subjects are not missing and generate total scores.
+
+table(!is.na(sattest$sat_math_score) &amp; !is.na(sattest$sat_verbal_score))</code></pre>
+<pre><code>
+TRUE 
+ 271 </code></pre>
+<pre class="r"><code>sattest$sat_total_score &lt;- sattest$sat_math_score + sattest$sat_verbal_score
+
+table(!is.na(sattest$sat_math_score) &amp; !is.na(sattest$sat_verbal_score) &amp; 
+        !is.na(sattest$sat_writing_score))</code></pre>
+<pre><code>
+TRUE 
+ 271 </code></pre>
+<pre class="r"><code>sattest$sat_total_score_plus_writing &lt;- sattest$sat_math_score +
+  sattest$sat_verbal_score + sattest$sat_writing_score
+
+# // 6. Save the current file as SAT.dta.</code></pre>
+<p>** Part III: Clean ACT Scores **</p>
+<pre class="r"><code># // 1. Keep only the variables you need and limit the sample to ACT.
+
+acttest &lt;- stutest %&gt;% filter(test_type == &quot;ACT&quot;)
+acttest %&lt;&gt;% select(sid, test_subject, test_date, scaled_score)
+
+# // 2. Identify repeat test takers and take the earliest test score.
+
+acttest %&lt;&gt;% group_by(sid) %&gt;% 
+  mutate(keep_flag = test_date == min(test_date)) %&gt;% 
+  filter(keep_flag) %&gt;% select(-keep_flag)
+
+# // 3. Keep and rename the relevant variables.
+acttest %&gt;% select(sid, test_date, scaled_score)</code></pre>
+<pre><code>Source: local data frame [2,544 x 3]
+Groups: sid [2,544]
+
+     sid  test_date scaled_score
+   &lt;dbl&gt;     &lt;date&gt;        &lt;dbl&gt;
+1     10 2008-04-06           14
+2     16 2008-02-07           17
+3     30 2008-04-06           17
+4     38 2008-02-07           19
+5     40 2008-04-06           29
+6     67 2008-04-06           16
+7     73 2008-02-07           13
+8     74 2007-10-07           28
+9     77 2008-04-06           20
+10    80 2008-04-06           18
+# ... with 2,534 more rows</code></pre>
+<pre class="r"><code>names(acttest) &lt;- c(&quot;sid&quot;, &quot;act_test_date&quot;, &quot;act_composite_score&quot;)
+
+# // Verify that the file is now unique by student.
+nrow(acttest) == nvals(acttest$sid)</code></pre>
+<pre><code>[1] TRUE</code></pre>
+<pre class="r"><code># // 4. Save the current file as ACT.dta.
+rm(stutest, acttest, sattest, statetest)</code></pre>
+</div>
+</div>
+<div id="task-6-student-class-enrollment" class="section level2">
+<h2>Task 6: STUDENT CLASS ENROLLMENT</h2>
+<div id="purpose-5" class="section level3">
+<h3>PURPOSE</h3>
+<p>In Task 6: Student Class Enrollment, you will take the Class_Raw file and the Student_Class_Enrollment file to create the Student_Class_Enrollment_ Merged file that combines these two files together. The combined file will identify a unique observation by student and class id. To obtain this file, you will first clean the Class_Raw file to identify core courses in math and ELA based on the course description variable and match the specification in Identify. This will make the class file unique by class id. Second, you will merge the Class file and the Student Class Enrollment file and make it unique by student id and class id. The core of this task: 1. Using the Class file: a. Drop incomplete observations b. Flag core math and English courses based on the course description 2. Merging the Student Class Enrollment file: a. Merge the Class file onto the Student_Class_Enrollment_Raw file b. Evaluate course marks and drop courses with no record of completion c. Evaluate course enrollment so that each student has only one enrollment record for a course The Student_Class_Enrollment_Merged file will be used in Connect to create on-track indicators for students. On-track indicators explore year-byyear academic progress towards high school graduation and college readiness. For instance, using course credit and course grade information, one might ask what percent of students earn the minimum number of credits in their core courses to satisfy agency graduation requirements?</p>
+</div>
+<div id="how-to-start-5" class="section level3">
+<h3>HOW TO START</h3>
+<p>To begin, open the Class_Raw file in Stata. This file contains data linking students to teachers. If you do not have Stata, you can follow the steps of the task by looking at the instructions and data snippets we have provided. In the second part of this task, you will then use the Student_Class_Enrollment file. If this is your first time attempting Task 6, start with the provided input file. This file teaches you SDP’s cleaning methodology and allows you to check answers from a common dataset.</p>
+</div>
+<div id="data-description-for-raw-file" class="section level3">
+<h3>DATA DESCRIPTION FOR RAW FILE</h3>
+<p>The input file, Class_Raw, varies from Class in Identify in a number of key ways. Most importantly, the data is not unique by cid as shown in Identify. For instance, there may be more than one course description that describes the same course. Also, a tid is not included as it is not required for the questions later asked in this toolkit. Support for a Class file with tid will come with the Human Capital version of the toolkit. The aim of this task then is to eliminate any duplicate course code descriptions and match the Class file in Identify in its structure and uniqueness so it is unique by cid alone.</p>
+<pre class="r"><code># Read in Stata
+library(haven) # required for .dta f;iles
+
+# To read data from a zip file we create a connection to the path of the 
+# zip file
+tmpfileName &lt;- &quot;raw/Class_Raw.dta&quot;
+con &lt;- unz(description = &quot;data/raw.zip&quot;, filename = tmpfileName, 
+           open = &quot;rb&quot;)
+classRaw &lt;- read_stata(con) # read data in the data subdirectory
+glimpse(classRaw)</code></pre>
+<pre><code>Observations: 135,969
+Variables: 8
+$ cid                 &lt;dbl&gt; 541631401, 432349312, 802451252, 831688206, 34366305, 208062771, 31066135, 479293568, 3...
+$ credits_possible    &lt;dbl&gt; 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 3.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.0, 1.0, 1.0, 0.5, 0.5, 0....
+$ school_year         &lt;dbl&gt; 2007, 2005, 2007, 2009, 2007, 2008, 2008, 2008, 2008, 2008, 2008, 2007, 2007, 2008, 200...
+$ school_code         &lt;dbl&gt; NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, Na...
+$ section_code        &lt;dbl&gt; NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, Na...
+$ instructional_level &lt;dbl&gt; NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, Na...
+$ course_code_desc    &lt;chr&gt; &quot;ELECTIVE II&quot;, &quot;ELECTIVE II&quot;, &quot;ELECTIVE II&quot;, &quot;ELECTIVE II&quot;, &quot;ELECTIVE II&quot;, &quot;ELECTIVE II...
+$ course_code         &lt;dbl&gt; NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, Na...</code></pre>
+<pre class="r"><code># TODO - File is named incorrectly on p.59
+tmpfileName &lt;- &quot;raw/Student_Class_Enrollment.dta&quot;
+con &lt;- unz(description = &quot;data/raw.zip&quot;, filename = tmpfileName, 
+           open = &quot;rb&quot;)
+stuclass &lt;- read_stata(con) # read data in the data subdirectory
+glimpse(stuclass)</code></pre>
+<pre><code>Observations: 1,010,819
+Variables: 8
+$ sid                   &lt;dbl&gt; 13281, 18950, 18950, 17817, 4739, 4739, 6737, 4897, 19940, 1809, 2675, 2737, 7709, 94...
+$ cid                   &lt;dbl&gt; 227008230, 488826242, 441147758, 64721603, 592975099, 986162419, 479629938, 333323200...
+$ class_enrollment_date &lt;date&gt; 2006-08-13, 2007-08-13, 2007-08-13, 2005-08-12, 2005-08-12, 2005-08-12, 2005-08-12, ...
+$ class_withdrawal_date &lt;date&gt; 2007-07-01, 2008-06-30, 2008-06-30, 2006-07-01, 2006-07-01, 2006-07-01, 2006-07-01, ...
+$ marking_period        &lt;chr&gt; &quot;S2&quot;, &quot;S1&quot;, &quot;S2&quot;, &quot;S2&quot;, &quot;Q4&quot;, &quot;Q3&quot;, &quot;S2&quot;, &quot;S2&quot;, &quot;S1&quot;, &quot;S2&quot;, &quot;S1&quot;, &quot;S1&quot;, &quot;S2&quot;, &quot;S1&quot;, &quot;...
+$ final_grade_mark      &lt;chr&gt; &quot;B-&quot;, &quot;A&quot;, &quot;A&quot;, &quot;D&quot;, &quot;C&quot;, &quot;D&quot;, &quot;A-&quot;, &quot;C+&quot;, &quot;F&quot;, &quot;B+&quot;, &quot;F&quot;, &quot;B&quot;, &quot;F&quot;, &quot;A-&quot;, &quot;C-&quot;, &quot;C&quot;,...
+$ final_grade_mark_num  &lt;dbl&gt; 2.7, 4.0, 4.0, 1.0, 2.0, 1.0, 3.7, 2.3, 0.0, 3.3, 0.0, 3.0, 0.0, 3.7, 1.9, 2.0, 1.0, ...
+$ credits_earned        &lt;dbl&gt; 0.5, 0.5, 0.5, 1.0, 0.5, 0.5, 0.5, 0.5, 0.0, 0.5, 0.0, 0.5, 0.0, 0.5, 0.5, 0.5, 0.5, ...</code></pre>
+<p>** Part I: Clean the Class file **</p>
+<pre class="r"><code># // 1. Identify the critical variables that identify a class.
+
+local_ids &lt;- c(&quot;cid&quot;, &quot;school_year&quot;, &quot;school_code&quot;, &quot;section_code&quot;, 
+                     &quot;course_code&quot;)
+
+# // 2. Drop the observations where any of the critical variables are missing
+classRaw %&lt;&gt;% 
+  filter(complete.cases(.[, local_ids]))</code></pre>
+<p>** Step 1: Flag core math and English courses. **</p>
+<pre class="r"><code># // Note that agencies may have varying consistency in course
+# names and use different criteria to identify a core course
+# vs an elective.
+# // In some cases, other criteria may have to be applied to
+# identify core courses (e.g. the department the course is
+# listed in, or length of the course.)
+# // We provide a simplified version of the cleaning process
+# for the class file: work within your agency to determine the
+# best criteria.
+
+# // 1. Tabulate course names
+table(classRaw$course_code_desc)</code></pre>
+<pre><code>
+     ALGEBRA   ALGEBRA II     CALCULUS   ELECTIVE I  ELECTIVE II ELECTIVE III  ELECTIVE IV       ENG 10   ENGLISH 09 
+        6202           21          218        27468        23679        23702        32184          101         7799 
+  ENGLISH 10   ENGLISH 11   ENGLISH 12    ENGLISH 9         GEOM     GEOMETRY    OTHER ELA   OTHER MATH   STATISTICS 
+         177          418          287         7913         2444         2409          151          310           68 
+TRIGONOMETRY 
+          44 </code></pre>
+<pre class="r"><code># // 2. Flag math courses based on the tabulation results
+# // Generate a flag variable
+
+classRaw$math_flag &lt;- NA
+
+# // Use the regexm function to identify course names that contain common word stems, but slightly different spellings, e.g.
+# Algebra I and Algebra-I
+
+# In R the patterns need to not have spaces in the grep command
+# The spaces will be matched
+# | = OR
+# grep does partial matching
+# grpl returns TRUE/FALSE, as.numeric converts this to 1/0
+classRaw$math_flag &lt;- as.numeric(grepl(&quot;GEOM|ALGEBRA|MATH|STAT|CALC|TRIG&quot;, 
+                                        classRaw$course_code_desc))
+# // Check the results of flagging your variables
+
+table(classRaw$course_code_desc, classRaw$math_flag)</code></pre>
+<pre><code>              
+                   0     1
+  ALGEBRA          0  6202
+  ALGEBRA II       0    21
+  CALCULUS         0   218
+  ELECTIVE I   27468     0
+  ELECTIVE II  23679     0
+  ELECTIVE III 23702     0
+  ELECTIVE IV  32184     0
+  ENG 10         101     0
+  ENGLISH 09    7799     0
+  ENGLISH 10     177     0
+  ENGLISH 11     418     0
+  ENGLISH 12     287     0
+  ENGLISH 9     7913     0
+  GEOM             0  2444
+  GEOMETRY         0  2409
+  OTHER ELA      151     0
+  OTHER MATH       0   310
+  STATISTICS       0    68
+  TRIGONOMETRY     0    44</code></pre>
+<pre class="r"><code># // 3. Repeat this process for flagging ELA courses
+
+classRaw$ela_flag &lt;- NA
+
+# In R the patterns need to not have spaces in the grep command
+# The spaces will be matched
+# | = OR
+# grep does partial matching
+# grpl returns TRUE/FALSE, as.numeric converts this to 1/0
+classRaw$ela_flag &lt;- as.numeric(grepl(&quot;ENG|ELA&quot;, 
+                                        classRaw$course_code_desc))
+# // Check the results of flagging your variables
+
+table(classRaw$course_code_desc, classRaw$ela_flag)</code></pre>
+<pre><code>              
+                   0     1
+  ALGEBRA       6202     0
+  ALGEBRA II      21     0
+  CALCULUS       218     0
+  ELECTIVE I   27468     0
+  ELECTIVE II  23679     0
+  ELECTIVE III 23702     0
+  ELECTIVE IV  32184     0
+  ENG 10           0   101
+  ENGLISH 09       0  7799
+  ENGLISH 10       0   177
+  ENGLISH 11       0   418
+  ENGLISH 12       0   287
+  ENGLISH 9        0  7913
+  GEOM          2444     0
+  GEOMETRY      2409     0
+  OTHER ELA        0   151
+  OTHER MATH     310     0
+  STATISTICS      68     0
+  TRIGONOMETRY    44     0</code></pre>
+<p>*** Step 3: Drop any unneeded variables, drop duplicates, and save the temporary file **</p>
+<pre class="r"><code># // 1. Drop the course_code_desc, as it is no longer needed.
+
+classRaw %&lt;&gt;% select(-course_code_desc)
+classRaw %&lt;&gt;% distinct()
+
+# // 2. Verify that the data is unique by cid, and also unique by school year, school code, section code and course code.
+nrow(classRaw) == nvals(classRaw$cid)</code></pre>
+<pre><code>[1] TRUE</code></pre>
+<pre class="r"><code>classRaw %&gt;% distinct(school_year, school_code, 
+                      section_code, course_code) %&gt;% 
+  nrow == nrow(classRaw)</code></pre>
+<pre><code>[1] TRUE</code></pre>
+<p>** Part II: Clean the Student_Class_Enrollment file. **</p>
+<p>** Step 0: Load the Student_Class_Enrollment data file. **</p>
+<p>** Step 1: Merge on the temporary Class file you saved earlier to the Student_Class_Enrollment file **</p>
+<pre class="r"><code># Merging is fun
+# keep only files merged from both files
+stuclass &lt;- inner_join(stuclass, classRaw, by = &quot;cid&quot;)
+
+# /*** Step 2: Evaluate course marks. ***/
+
+
+table(stuclass$final_grade_mark, stuclass$credits_possible)</code></pre>
+<pre><code>      
+            0    0.1  0.125   0.13   0.17    0.2   0.25    0.3   0.33  0.333   0.34   0.35    0.4    0.5   0.58   0.65
+            0      0      0      0      0      0      0      0      0      0      0      0      0      7      0      0
+  A      3168      1      3      2      1      2   2176      2      4     18      0      0      2 184776      0      1
+  A-      397      0      0      0      0      0    654      0      1     25      0      0      0  84078      2      0
+  A+      591      0      1      0      0      0    884      3      0      1      0      0      0  56697      0      0
+  B       577      0      2      1      2      0    898      0      2     32      0      1      0 127798      0      0
+  B-      131      0      0      0      0      0    340      0      0      8      0      0      0  65004      0      0
+  B+      235      0      0      0      0      0    440      0      0     23      0      0      0  53348      3      0
+  C       311      0      1      1      3      0    466      0      3     12      1      0      1  93813      2      0
+  C-       66      0      0      0      0      0    160      0      0      2      0      0      0  46522      0      0
+  C+       69      0      0      1      0      0    182      0      0      5      0      0      0  40178      0      0
+  D       157      0      0      1      0      0    209      0      1      2      0      0      0  55659      1      0
+  D-       33      0      0      0      0      0     75      0      0      0      0      0      0  32917      0      0
+  D+       25      0      0      0      0      0     67      0      0      2      0      0      0  19732      0      0
+  DF        0      0      0      0      0      0      0      0      0      0      0      0      0      5      0      0
+  F       304      3      1      0      0      0    308      0      0      0      0      0      0  89928      0      0
+  NGPA   3773      0      0      0      0      0    107      0      0      1      0      0      0   9670      0      0
+  P      4942      1      1      0      0      0    870      0      0      0      0      0      0  10976      0      0
+      
+         0.75    0.9      1    1.2    1.5   1.67    1.8      2      3      5    130
+            0      0      0      0      0      0      0      0      0      0      0
+  A         4      0   3347      4    125      1      1      1      0      0      1
+  A-        0      0   1153      0     27      0      1      1      0      0      0
+  A+        1      0    634      0     15      0      0      2      0      0      0
+  B         2      1   2329      2     39      1      0      1      0      0      0
+  B-        0      0   1033      0      9      0      0      1      0      0      0
+  B+        0      0    874      0      9      0      0      1      1      0      0
+  C         0      0   1672      0     37      0      1      2      0      0      0
+  C-        0      0    786      0      5      0      0      0      0      0      0
+  C+        0      0    669      0      5      0      0      0      0      1      0
+  D         1      0    925      1      7      0      0      0      1      4      0
+  D-        0      0    510      0      3      0      0      0      0      0      0
+  D+        0      0    356      0      0      0      0      0      0      1      0
+  DF        0      0      0      0      0      0      0      0      0      0      0
+  F         0      0   1284      0     24      0      0      0      1      2      0
+  NGPA      0      0    163      0     12      0      0      0      0      0      0
+  P         0      0    396      0      2      0      0      0      0      0      0</code></pre>
+<pre class="r"><code>table(stuclass$final_grade_mark, stuclass$final_grade_mark_num)</code></pre>
+<pre><code>      
+            0    0.4    0.6    0.7      1    1.3    1.9      2    2.3    2.7      3    3.3    3.7      4    4.3
+            0      0      0      0      0      0      0      0      0      0      0      0      0      0      0
+  A         0      0      0      0      0      0      0      0      0      0      0      0      0 193640      0
+  A-        0      0      0      0      0      0      0      0      0      0      0      0  86339      0      0
+  A+        0      0      0      0      0      0      0      0      0      0      0      0      0      0  58829
+  B         0      0      0      0      0      0      0      0      0      0 131688      0      0      0      0
+  B-        0      0      0      0      0      0      0      0      0  66526      0      0      0      0      0
+  B+        0      0      0      0      0      0      0      0      0      0      0  54934      0      0      0
+  C         0      0      0      0      0      0      0  96326      0      0      0      0      0      0      0
+  C-        0      0      0      0      0      0  47541      0      0      0      0      0      0      0      0
+  C+        0      0      0      0      0      0      0      0  41110      0      0      0      0      0      0
+  D         0      0      0      0  56969      0      0      0      0      0      0      0      0      0      0
+  D-        0      0      0  33538      0      0      0      0      0      0      0      0      0      0      0
+  D+        0      0      0      0      0  20183      0      0      0      0      0      0      0      0      0
+  DF        0      0      5      0      0      0      0      0      0      0      0      0      0      0      0
+  F     91855      0      0      0      0      0      0      0      0      0      0      0      0      0      0
+  NGPA      0    687      0      0      0      0      0      0      0      0      0      0      0      0      0
+  P         0      0      0      0      0      0      0      0      0      0      0      0      0      0      0</code></pre>
+<pre class="r"><code># 
+# // Some letter marks (NGPA and P) indicate that they do not count toward GPA, so you may leave the numeric mark as missing.
+
+# ** Step 3: Evaluate course completion. **
+# // Drop observations that have no record of course completion
+
+stuclass %&lt;&gt;% filter(!is.na(final_grade_mark) &amp; 
+                       !is.na(final_grade_mark_num) &amp; 
+                       !is.na(credits_earned))
+
+# ** Step 4: Evaluate course enrollment. **
+# // Fix cases where a student has multiple observations for the same course with the same year and marking period (i.e. with overlapping enrollment dates)
+
+
+# // 1. Remove enrollment and withdrawal dates that are not in the current school year.
+
+
+library(lubridate) # handle dates and times in R correctly
+
+stuclass$school_start &lt;- mdy(paste0(&quot;08&quot;, &quot;01&quot;, stuclass$school_year-1))
+stuclass$school_end &lt;- mdy(paste0(&quot;07&quot;, &quot;31&quot;, stuclass$school_year))
+
+stuclass$class_enrollment_date[stuclass$class_enrollment_date &lt; 
+                                 stuclass$school_start | 
+                                 stuclass$class_enrollment_date &gt; 
+                                 stuclass$school_end] &lt;- NA
+stuclass$class_withdrawal_date[stuclass$class_withdrawal_date &lt; 
+                                 stuclass$school_start | 
+                                 stuclass$class_withdrawal_date &gt; 
+                                 stuclass$school_end] &lt;- NA
+
+
+stuclass %&lt;&gt;% select(-school_start, -school_end)
+
+
+stuclass %&gt;% filter(sid == 2251 &amp; cid == 78150780) %&gt;% 
+  select(sid, cid, school_code, school_year, class_enrollment_date, 
+         class_withdrawal_date)</code></pre>
+<pre><code># A tibble: 4 × 6
+    sid      cid school_code school_year class_enrollment_date class_withdrawal_date
+  &lt;dbl&gt;    &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;                &lt;date&gt;                &lt;date&gt;
+1  2251 78150780         540        2006            2005-08-12            2005-08-17
+2  2251 78150780         540        2006            2005-09-21            2005-11-02
+3  2251 78150780         540        2006            2005-12-23                  &lt;NA&gt;
+4  2251 78150780         540        2006            2005-09-13            2005-08-27</code></pre>
+<pre class="r"><code># // 2. Identify the variables that identify a course
+
+local_ids &lt;- c(&quot;sid&quot;, &quot;cid&quot;, &quot;school_year&quot;, &quot;marking_period&quot;)
+
+# // 3. Populate all enrollments with the earliest enrollment date
+
+# use group_by_ to pass character values to dplyr
+stuclass %&lt;&gt;% ungroup %&gt;% 
+  group_by(sid, cid, school_year, marking_period) %&gt;% 
+  arrange(class_enrollment_date) %&gt;%
+  mutate(first_enroll = min(class_enrollment_date, na.rm=TRUE)) 
+
+
+# There is a bug here in the enrollment date
+# If you use group_by_ and mutate without the underscore
+# in a pipe, and then calculate max or min of a date, you 
+# get the wrong time
+
+stuclass$class_enrollment_date &lt;- stuclass$first_enroll
+stuclass %&lt;&gt;% select(-first_enroll)
+
+stuclass %&gt;% ungroup %&gt;% filter(sid == 2251 &amp; cid == 78150780) %&gt;% 
+  select(sid, cid, school_code, school_year, class_enrollment_date, 
+         class_withdrawal_date)</code></pre>
+<pre><code># A tibble: 4 × 6
+    sid      cid school_code school_year class_enrollment_date class_withdrawal_date
+  &lt;dbl&gt;    &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;                &lt;date&gt;                &lt;date&gt;
+1  2251 78150780         540        2006            2005-08-12            2005-08-17
+2  2251 78150780         540        2006            2005-08-12            2005-08-27
+3  2251 78150780         540        2006            2005-08-12            2005-11-02
+4  2251 78150780         540        2006            2005-08-12                  &lt;NA&gt;</code></pre>
+<pre class="r"><code># // 4. Populate all enrollments with the latest withdrawal date
+
+stuclass %&lt;&gt;% ungroup %&gt;% 
+  arrange(sid, cid, school_year, marking_period, class_withdrawal_date) %&gt;%
+  group_by(sid, cid, school_year, marking_period) %&gt;% 
+  mutate(last_withdraw = max(class_withdrawal_date, na.rm=TRUE))
+
+stuclass %&gt;% ungroup %&gt;% filter(sid == 2251 &amp; cid == 78150780) %&gt;% 
+  select(sid, cid, class_enrollment_date, 
+         class_withdrawal_date, last_withdraw)</code></pre>
+<pre><code># A tibble: 4 × 5
+    sid      cid class_enrollment_date class_withdrawal_date last_withdraw
+  &lt;dbl&gt;    &lt;dbl&gt;                &lt;date&gt;                &lt;date&gt;        &lt;date&gt;
+1  2251 78150780            2005-08-12            2005-08-17    2005-11-02
+2  2251 78150780            2005-08-12            2005-08-27    2005-11-02
+3  2251 78150780            2005-08-12            2005-11-02    2005-11-02
+4  2251 78150780            2005-08-12                  &lt;NA&gt;    2005-11-02</code></pre>
+<pre class="r"><code>stuclass$class_withdrawal_date &lt;- stuclass$last_withdraw
+stuclass$last_withdraw &lt;- NULL
+
+stuclass %&gt;% ungroup %&gt;% filter(sid == 2251 &amp; cid == 78150780) %&gt;% 
+  select(sid, cid, school_code, school_year, marking_period, 
+         section_code, class_enrollment_date, 
+         class_withdrawal_date, class_withdrawal_date)</code></pre>
+<pre><code># A tibble: 4 × 8
+    sid      cid school_code school_year marking_period section_code class_enrollment_date class_withdrawal_date
+  &lt;dbl&gt;    &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;          &lt;chr&gt;        &lt;dbl&gt;                &lt;date&gt;                &lt;date&gt;
+1  2251 78150780         540        2006             S1            7            2005-08-12            2005-11-02
+2  2251 78150780         540        2006             S1            7            2005-08-12            2005-11-02
+3  2251 78150780         540        2006             S1            7            2005-08-12            2005-11-02
+4  2251 78150780         540        2006             S1            7            2005-08-12            2005-11-02</code></pre>
+<p>** Step 5: Drop any unneeded variables, drop duplicates, and save the file **</p>
+<pre class="r"><code># // 1. Drop duplicate values
+
+stuclass %&lt;&gt;% ungroup %&gt;% distinct()
+
+# // 2. Verify that the file is unique by sid and cid
+
+nrow(stuclass) == nvals(paste0(stuclass$sid, stuclass$cid, sep =&quot;_&quot;))</code></pre>
+<pre><code>[1] TRUE</code></pre>
+<pre class="r"><code># // 3. Order the variables
+
+stuclass %&lt;&gt;% select(sid, cid, school_year, school_code, course_code,
+                     marking_period, section_code, instructional_level,
+                     credits_possible, math_flag, ela_flag,
+                     class_enrollment_date, class_withdrawal_date,
+                     final_grade_mark, final_grade_mark_num, 
+                     credits_earned)
+# // 4. Sort the data
+
+stuclass %&lt;&gt;% ungroup() %&gt;% 
+  arrange(sid, school_year, marking_period, cid)
+
+# // 5. Save the current file as Student_Class_Enrollment_Merged.dta.</code></pre>
+</div>
+</div>
+<div id="task-7-student-nsc-enrollment" class="section level2">
+<h2>Task 7 STUDENT NSC ENROLLMENT</h2>
+<div id="purpose-6" class="section level3">
+<h3>PURPOSE</h3>
+<p>In Task 7: Student NSC Enrollment, you will take the Student_NSC_Enrollment file that matches the specification in Identify and produce a Student_ NSC_Enrollment_Indicators file that includes some of the first college enrollment indicators you will need for further analysis. College enrollment data is obtained from the National Student Clearninghouse (NSC). NSC matches students from a file your agency sends, including student id, student name, high school from where the student graduated, graduation date, and some other variables. For more information on the NSC matching process and requirements, visit <a href="http://www.studentclearinghouse.org/high_schools/studenttracker" class="uri">http://www.studentclearinghouse.org/high_schools/studenttracker</a> The core of this task: 1. Rename the variables typically returned by NSC 2. Format the date values 3. Standardize the variables that reflect the type of college the student enrolls in 4. Create a college graduation indicator 5. Interpret the college enrollment status 6. Identify the first college the student attended After this task, you will merge the Student_NSC_Indicators file onto the college-going analysis file from Connect. You will use this file and the high school graduation variables you will also create in Connect to then to generate further college-going variables, such as variables that indicating if a student enrolled in college the fall after graduation, enrolled in college a year after graduation, and persisted through subsequent years of college.</p>
+</div>
+<div id="how-to-start-6" class="section level3">
+<h3>HOW TO START</h3>
+<p>To begin, open the Student_NSC_Enrollment file in Stata. This file contains data on college enrollment and persistence for students in your agency. If you do not have Stata, you can follow the steps of the task by looking at the instructions and data snippets we have provided. If this is your first time attempting Task 7, start with the provided input file. This file teaches you SDP’s cleaning methodology and allows you to check answers from a common dataset.</p>
+</div>
+<div id="data-description-3" class="section level3">
+<h3>DATA DESCRIPTION</h3>
+<p>The input file, Student_NSC_Enrollment, follows the structure of Student_NSC_Enrollment in Identify so it is unique by sid, college_code_branch, enrollment_ begin, and enrollment_end. This usually equates to a semester. Though the exact structure of the data you receive from NSC may vary, it will likely look something like this. The aim of this task then is to become familiar with the NSC data and start building college enrollment outcomes that will be expanded upon in Connect.</p>
+<p>** Step 0: Load the Student_NSC_Enrollment data file. **</p>
+<pre class="r"><code># Read in Stata
+library(haven) # required for .dta files
+
+# To read data from a zip file we create a connection to the path of the 
+# zip file
+tmpfileName &lt;- &quot;raw/Student_NSC_Enrollment.dta&quot;
+con &lt;- unz(description = &quot;data/raw.zip&quot;, filename = tmpfileName, 
+           open = &quot;rb&quot;)
+stunsc &lt;- read_stata(con) # read data in the data subdirectory
+glimpse(stunsc)</code></pre>
+<pre><code>Observations: 11,985
+Variables: 15
+$ sid                 &lt;dbl&gt; 7, 10, 10, 10, 10, 10, 16, 20, 24, 24, 30, 33, 33, 33, 33, 33, 34, 36, 36, 38, 38, 38, ...
+$ record_found_yn     &lt;chr&gt; &quot;N&quot;, &quot;Y&quot;, &quot;Y&quot;, &quot;Y&quot;, &quot;Y&quot;, &quot;Y&quot;, &quot;Y&quot;, &quot;Y&quot;, &quot;Y&quot;, &quot;Y&quot;, &quot;Y&quot;, &quot;Y&quot;, &quot;Y&quot;, &quot;Y&quot;, &quot;Y&quot;, &quot;Y&quot;, &quot;N&quot;, &quot;Y...
+$ enrollment_begin    &lt;dbl&gt; NaN, 20100109, 20090523, 20090110, 20090829, 20080830, 20090829, 20080819, 20100109, 20...
+$ enrollment_end      &lt;dbl&gt; NaN, 20100503, 20090814, 20090505, 20091215, 20081216, 20091215, 20081012, 20100503, 20...
+$ college_code_branch &lt;chr&gt; &quot;&quot;, &quot;746460-00&quot;, &quot;746460-00&quot;, &quot;746460-00&quot;, &quot;746460-00&quot;, &quot;746460-00&quot;, &quot;860457-00&quot;, &quot;4928...
+$ college_name        &lt;chr&gt; &quot;&quot;, &quot;COMMUNITY COLLEGE 400&quot;, &quot;COMMUNITY COLLEGE 400&quot;, &quot;COMMUNITY COLLEGE 400&quot;, &quot;COMMUNI...
+$ college_state       &lt;chr&gt; &quot;&quot;, &quot;FL&quot;, &quot;FL&quot;, &quot;FL&quot;, &quot;FL&quot;, &quot;FL&quot;, &quot;MA&quot;, &quot;FL&quot;, &quot;NY&quot;, &quot;NY&quot;, &quot;IL&quot;, &quot;TX&quot;, &quot;MA&quot;, &quot;MA&quot;, &quot;MA&quot;,...
+$ yr2_yr4             &lt;chr&gt; &quot;&quot;, &quot;2-year&quot;, &quot;2-year&quot;, &quot;2-year&quot;, &quot;2-year&quot;, &quot;2-year&quot;, &quot;2-year&quot;, &quot;4-year&quot;, &quot;2-year&quot;, &quot;2-...
+$ public_private      &lt;chr&gt; &quot;&quot;, &quot;Public&quot;, &quot;Public&quot;, &quot;Public&quot;, &quot;Public&quot;, &quot;Public&quot;, &quot;Public&quot;, &quot;Private&quot;, &quot;Public&quot;, &quot;P...
+$ enrollment_status   &lt;chr&gt; &quot;&quot;, &quot;L&quot;, &quot;L&quot;, &quot;H&quot;, &quot;L&quot;, &quot;F&quot;, &quot;F&quot;, &quot;W&quot;, &quot;F&quot;, &quot;F&quot;, &quot;F&quot;, &quot;L&quot;, &quot;F&quot;, &quot;F&quot;, &quot;F&quot;, &quot;F&quot;, &quot;&quot;, &quot;F&quot;,...
+$ graduated           &lt;chr&gt; &quot;N&quot;, &quot;N&quot;, &quot;N&quot;, &quot;N&quot;, &quot;N&quot;, &quot;N&quot;, &quot;N&quot;, &quot;N&quot;, &quot;N&quot;, &quot;N&quot;, &quot;N&quot;, &quot;N&quot;, &quot;N&quot;, &quot;N&quot;, &quot;N&quot;, &quot;N&quot;, &quot;N&quot;, &quot;N...
+$ graduation_date     &lt;dbl&gt; NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, Na...
+$ college_sequence    &lt;dbl&gt; NaN, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, NaN, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2,...
+$ degree_title        &lt;chr&gt; &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;,...
+$ major               &lt;chr&gt; &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;,...</code></pre>
+<pre class="r"><code># // 1. Rename variables to indicate that they are NSC variables.
+
+names(stunsc) &lt;- c(&quot;sid&quot;, &quot;n_record_found_yn&quot;, &quot;n_enrollment_begin&quot;, 
+                   &quot;n_enrollment_end&quot;, &quot;n_college_opeid&quot;, 
+                   &quot;n_college_name&quot;, &quot;college_state&quot;,&quot;yr2_yr4&quot;, 
+                   &quot;public_private&quot;, &quot;n_enrollment_status&quot;, 
+                   &quot;graduated&quot;, &quot;n_degree_date&quot;, 
+                   &quot;n_enrl_sequence&quot;, &quot;degree_title&quot;, &quot;major&quot;)
+
+# // 2. Format the date values as dates.
+library(lubridate)
+
+stunsc &lt;- as.data.frame(stunsc)
+for(i in c(&quot;n_enrollment_begin&quot;, &quot;n_enrollment_end&quot;, 
+           &quot;n_degree_date&quot;)){
+  stunsc[, i] &lt;- lubridate::ymd(as.character(stunsc[, i]))
+  }
+
+stunsc %&gt;% filter(sid == 13047) %&gt;% 
+  select(sid, n_record_found_yn, n_enrollment_begin, 
+         n_enrollment_end, n_college_name, yr2_yr4, 
+         public_private, n_enrollment_status, graduated)</code></pre>
+<pre><code>    sid n_record_found_yn n_enrollment_begin n_enrollment_end      n_college_name yr2_yr4 public_private
+1 13047                 Y         2009-01-10       2009-05-05 B COMMUNITY COLLEGE  2-year         Public
+2 13047                 Y         2008-08-30       2008-12-17     UNIVERSITY OF B  4-year        Private
+3 13047                 Y         2009-08-29       2009-12-15 B COMMUNITY COLLEGE  2-year         Public
+4 13047                 Y         2008-08-30       2008-12-16 B COMMUNITY COLLEGE  2-year         Public
+  n_enrollment_status graduated
+1                   F         N
+2                   F         N
+3                   H         N
+4                   H         N</code></pre>
+<pre class="r"><code>### Drop missing
+# stunsc %&lt;&gt;% filter(stunsc$college_state != &quot;&quot;)
+
+
+# // 3. Standardize types of college by:
+# // 2-year and 4-year college
+
+stunsc$n_college_4yr &lt;- ifelse(stunsc$yr2_yr4 == &quot;4-year&quot;, 1, 0)
+stunsc$n_college_2yr &lt;- ifelse(stunsc$yr2_yr4 == &quot;2-year&quot; |
+                                 stunsc$yr2_yr4 == &quot;Less Than 2 Years&quot;, 
+                               1, 0)
+
+stunsc$yr2_yr4 &lt;- NULL
+
+# // Public and private college
+table(stunsc$public_private)</code></pre>
+<pre><code>
+        Private  Public 
+   1088    2660    8237 </code></pre>
+<pre class="r"><code>stunsc$n_college_public &lt;- ifelse(stunsc$public_private == &quot;Public&quot;, 1, 0)
+stunsc$n_college_private &lt;- ifelse(stunsc$public_private == &quot;Private&quot;, 1, 0)
+stunsc$public_private &lt;- NULL
+
+# // In-state and out-of-state college
+table(stunsc$college_state)</code></pre>
+<pre><code>
+       CA   FL   IL   MA   NY   TX 
+1088 1915 1905 1683 1865 1779 1750 </code></pre>
+<pre class="r"><code>stunsc$n_college_instate &lt;- ifelse(stunsc$college_state == &quot;MA&quot;, 1, 0)
+stunsc$n_college_outstate &lt;- ifelse(stunsc$college_state != &quot;MA&quot;, 1, 0)
+stunsc$college_state &lt;- NULL
+
+# // 4. Create a college graduation indicator.
+stunsc$n_degree &lt;- ifelse(stunsc$graduated == &quot;Y&quot;, 1, 0)
+stunsc$graduated &lt;- NULL
+# // 5. Interpret enrollment status.
+
+table(stunsc$n_enrollment_status)</code></pre>
+<pre><code>
+        F    H    L    W 
+1118 8693 1350  551  273 </code></pre>
+<pre class="r"><code>stunsc$n_enrl_status &lt;- factor(stunsc$n_enrollment_status, 
+                               levels = c(&quot;F&quot;, &quot;H&quot;, &quot;L&quot;, &quot;W&quot;, 
+                                          &quot;A&quot;, &quot;D&quot;))
+stunsc$n_enrollment_status &lt;- NULL</code></pre>
+<p>** Step 2: Identify first college attended by type (any, 4-year and 2-year) that didn’t result in a withdrawal. **</p>
+<pre class="r"><code># // 1. Specify these types of college (any, 4-year, 2-year) in globals.
+# global condition_any “n_college_4yr == 1 | n_college_2yr == 1”
+# global condition_4yr “n_college_4yr == 1”
+# global condition_2yr “n_college_2yr == 1”
+# // 2. Calculate the days enrolled.
+
+stunsc$days_enrolled &lt;- stunsc$n_enrollment_end - stunsc$n_enrollment_begin
+
+# // 3. Identify the first college a student enrolled in by type (any, 2-year, and 4-year).
+
+stunsc %&gt;% filter(sid == 13047) %&gt;% 
+  select(sid, n_record_found_yn, n_enrollment_begin, 
+         n_enrollment_end, n_college_name,  
+         n_enrl_status, n_college_4yr, n_college_2yr)</code></pre>
+<pre><code>    sid n_record_found_yn n_enrollment_begin n_enrollment_end      n_college_name n_enrl_status n_college_4yr
+1 13047                 Y         2009-01-10       2009-05-05 B COMMUNITY COLLEGE             F             0
+2 13047                 Y         2008-08-30       2008-12-17     UNIVERSITY OF B             F             1
+3 13047                 Y         2009-08-29       2009-12-15 B COMMUNITY COLLEGE             H             0
+4 13047                 Y         2008-08-30       2008-12-16 B COMMUNITY COLLEGE             H             0
+  n_college_2yr
+1             1
+2             0
+3             1
+4             1</code></pre>
+<pre class="r"><code>stunsc %&lt;&gt;% group_by(sid) %&gt;% 
+  mutate(flag_status = ifelse(n_enrl_status %in% c(&quot;F&quot;, &quot;H&quot;, &quot;L&quot;), 1, 0))
+
+stunsc %&gt;% filter(sid == 13047) %&gt;% 
+  select(sid, n_record_found_yn, n_enrollment_begin, 
+         n_enrollment_end, n_college_name,  
+         n_enrl_status, n_college_4yr, n_college_2yr, flag_status)</code></pre>
+<pre><code>Source: local data frame [4 x 9]
+Groups: sid [1]
+
+    sid n_record_found_yn n_enrollment_begin n_enrollment_end      n_college_name n_enrl_status n_college_4yr
+  &lt;dbl&gt;             &lt;chr&gt;             &lt;date&gt;           &lt;date&gt;               &lt;chr&gt;        &lt;fctr&gt;         &lt;dbl&gt;
+1 13047                 Y         2009-01-10       2009-05-05 B COMMUNITY COLLEGE             F             0
+2 13047                 Y         2008-08-30       2008-12-17     UNIVERSITY OF B             F             1
+3 13047                 Y         2009-08-29       2009-12-15 B COMMUNITY COLLEGE             H             0
+4 13047                 Y         2008-08-30       2008-12-16 B COMMUNITY COLLEGE             H             0
+# ... with 2 more variables: n_college_2yr &lt;dbl&gt;, flag_status &lt;dbl&gt;</code></pre>
+<pre class="r"><code>stunsc %&lt;&gt;% group_by(sid, n_college_4yr) %&gt;% 
+  mutate(first_enr_date_4yr = min(n_enrollment_begin[flag_status &gt; 0])) %&gt;%
+  ungroup %&gt;%
+  group_by(sid, n_college_2yr) %&gt;%
+  mutate(first_enr_date_2yr = min(n_enrollment_begin[flag_status &gt; 0])) %&gt;%
+  ungroup %&gt;%
+  group_by(sid) %&gt;%
+  mutate(first_enr_date_any = min(n_enrollment_begin[flag_status &gt; 0])) 
+  
+
+stunsc %&gt;% filter(sid == 13047) %&gt;% 
+  select(sid,n_enrollment_begin, 
+         n_enrollment_end,   
+         n_enrl_status, n_college_4yr, n_college_2yr, flag_status, 
+         first_enr_date_2yr, first_enr_date_4yr, 
+         first_enr_date_any) %&gt;% as.data.frame</code></pre>
+<pre><code>    sid n_enrollment_begin n_enrollment_end n_enrl_status n_college_4yr n_college_2yr flag_status first_enr_date_2yr
+1 13047         2009-01-10       2009-05-05             F             0             1           1         2008-08-30
+2 13047         2008-08-30       2008-12-17             F             1             0           1         2008-08-30
+3 13047         2009-08-29       2009-12-15             H             0             1           1         2008-08-30
+4 13047         2008-08-30       2008-12-16             H             0             1           1         2008-08-30
+  first_enr_date_4yr first_enr_date_any
+1         2008-08-30         2008-08-30
+2         2008-08-30         2008-08-30
+3         2008-08-30         2008-08-30
+4         2008-08-30         2008-08-30</code></pre>
+<pre class="r"><code>stunsc %&gt;% filter(sid == 13047) %&gt;% 
+  select(sid, n_college_opeid,  
+         n_enrl_status, n_college_4yr, n_college_2yr, flag_status, 
+         first_enr_date_2yr, first_enr_date_4yr, 
+         first_enr_date_any) %&gt;% as.data.frame</code></pre>
+<pre><code>    sid n_college_opeid n_enrl_status n_college_4yr n_college_2yr flag_status first_enr_date_2yr first_enr_date_4yr
+1 13047       164039-00             F             0             1           1         2008-08-30         2008-08-30
+2 13047       416739-00             F             1             0           1         2008-08-30         2008-08-30
+3 13047       164039-00             H             0             1           1         2008-08-30         2008-08-30
+4 13047       164039-00             H             0             1           1         2008-08-30         2008-08-30
+  first_enr_date_any
+1         2008-08-30
+2         2008-08-30
+3         2008-08-30
+4         2008-08-30</code></pre>
+<pre class="r"><code>stunsc %&lt;&gt;% group_by(sid) %&gt;% 
+  mutate(first_college_any_opeid = n_college_opeid[first_enr_date_any == n_enrollment_begin][1],
+         first_college_4yr_opeid = n_college_opeid[first_enr_date_4yr == n_enrollment_begin &amp; n_college_4yr &gt; 0][1], 
+         first_college_2yr_opeid = n_college_opeid[first_enr_date_2yr == n_enrollment_begin &amp; n_college_2yr &gt; 0][1]) %&gt;% 
+  ungroup
+
+
+# # // Get the college name and id for the first enrollment date
+# 
+# stunsc %&gt;% filter(sid == 13047) %&gt;% 
+#   select(sid, n_college_opeid,  
+#          n_enrl_status, n_college_4yr, n_college_2yr,  
+#          first_enr_date_2yr, first_enr_date_4yr, 
+#          first_enr_date_any, 
+#          first_college_any_opeid, 
+#          first_college_4yr_opeid, first_college_2yr_opeid) %&gt;% as.data.frame
+# 
+# # // Count how many first college names and ids you got for each student
+# # bys sid: egen nvals_first_college_`var’_`type’ = nvals(temp_first_college_`var’_`type’)
+# 
+# tmp &lt;- stunsc %&gt;% select(sid, first_college_any_opeid, 
+#                          first_college_4yr_opeid, first_college_2yr_opeid)
+# 
+# tmp &lt;- tmp[!duplicated(tmp), ]
+# tmp$nunique &lt;- apply(tmp[, 2:4], 1, function(x) length(unique(na.omit(x))))
+# 
+# stunsc &lt;- left_join(stunsc, tmp[, c(1,5)], &quot;sid&quot;)
+# rm(tmp); gc()
+# 
+# 
+# stunsc %&gt;% filter(nunique &gt; 1) %&gt;% 
+#   select(sid, n_enrl_status, n_college_4yr, n_college_2yr, 
+#          n_enrollment_begin,
+#          n_college_opeid, first_college_any_opeid, 
+#          first_college_4yr_opeid, first_college_2yr_opeid, 
+#          days_enrolled) %&gt;% 
+#   filter(sid == 13653) %&gt;% as.data.frame
+# 
+
+
+
+
+# // If a student started at multiple colleges of the same type on the same date, indicate this by replacing
+
+# // these values with a dummy value (“&gt;1”) for processing.
+# replace temp_first_college_`var’_`type’ = “&gt;1” if nvals_first_college_`var’_`type’ &gt; 1 &amp; nvals_first_college_`var’_`type’
+# !=.</code></pre>
+<p>** Step 3: Drop any unneeded variables, and save the file **</p>
+<pre class="r"><code># // 1. Drop the unneeded variables
+# drop temp* nvals* days_enrolled
+# // 2. Save the current file as Student_NSC_Enrollment_Indicators
+# save “${clean}\Student_NSC_Enrollment_Indicators.dta”, replace</code></pre>
 </div>
 </div>
 </div>

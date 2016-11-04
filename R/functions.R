@@ -1,6 +1,6 @@
 # Packages
-library(ggplot2)
-library(xtable)
+library(tidyverse)
+
 
 # R Function for Task 1
 statamode <- function(x) {
