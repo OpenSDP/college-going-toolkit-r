@@ -1,0 +1,491 @@
+---
+title: "SDP Data Linking Tasks"
+author: "Strategic Data Project"
+date: "November 16, 2016"
+output: 
+  html_document: 
+    toc: yes
+---
+
+```{r, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, comment=NA}
+# Set options for knitr
+library(knitr)
+knitr::opts_chunk$set(comment=NA, warning=FALSE, 
+                      error=FALSE, message=FALSE, fig.align='center')
+options(width=120)
+library(dplyr)
+library(magrittr)
+```
+
+# SDP Data Linking Tasks
+
+
+
+## Task 1: Prior Achievement
+
+### Purpose
+
+Prepare 8th grade test scores for the analysis file.
+
+### Files needed
+
+Prior_Achievement output file from Task 5 in **Clean**
+
+**After this step** you will have a temporary file `tests` that contains 
+prior achievement information for math, ELA, and math-ELA composite score.
+
+#### 1.1 Load the File and Check Uniqueness
+
+Begin Step 1 of Connect by loading the Prior_Achievement file resulting from 
+Task 5. 
+
+
+```{r echo=TRUE}
+# Read in Stata
+library(haven) # required for .dta files
+
+# To read data from a zip file we create a connection to the path of the 
+# zip file
+tmpfileName <- "clean/Prior_Achievement.dta"
+con <- unz(description = "data/clean.zip", filename = tmpfileName, 
+           open = "rb")
+stuach <- read_stata(con) # read data in the data subdirectory
+```
+
+
+Note the structure of the file. Thanks to Task 5, the file is unique by sid 
+(highlighted in blue) and contains test scores for only 8th grade math , ELA and 
+math-ELA composite. If your data is not structured like this, please review 
+Task 5.
+
+Raw scores (math_raw_score and ela_raw_score from Task 5) are not shown. You 
+will primarily use scaled or standardized scores in future analyses. However, 
+keep raw scores in your file to compare results between scaled, standardized, 
+or raw scores later on.
+
+#### 1.2 Rename variables to indicate that thyey are 8th grade scores
+
+```{r echo=TRUE}
+stuach %<>% rename( 
+       test_math_8_raw = raw_score_math,
+       test_ela_8_raw = raw_score_ela,
+       test_math_8 = scaled_score_math,
+       test_ela_8 = scaled_score_ela,
+       test_composite_8 = scaled_score_composite,
+       test_math_8_std = scaled_math_std,
+       test_ela_8_std = scaled_ela_std, 
+       test_composite_8_std = scaled_score_composite_std)
+```
+
+#### 1.3 Define Prior Achievement Quartiles in Each Subject
+
+Prior achievement quartiles have to be created by subject and by year. 
+
+To create a variable to capture the quartile of an eighth grader’s score in 
+each subject, relative to peers who took the same test, the same school year.
+
+This allows you to compare performance of each student to peers in the same year.
+
+In R this can be done simply combining a `group_by` and `mutate` command.
+
+```{r echo=TRUE}
+stuach %<>% group_by(school_year) %>% 
+  mutate(qrt_8_math = ntile(test_math_8, 4), 
+         qrt_8_ela = ntile(test_ela_8, 4))
+```
+
+
+### Step 2: School Crosswalk
+
+Purpose: Prepare a crosswalk* between school codes and names. This allows you to link a high
+school students’ high school graduation with their college enrollment outcomes.
+Files needed: School research file from Identify
+After this step you will have created a temporary file `highschoolinfo' that contains a crosswalk
+between school codes and school names.
+
+#### Load the File and Check Uniqueness
+
+```{r echo=TRUE}
+# To read data from a zip file we create a connection to the path of the 
+# zip file
+tmpfileName <- "clean/School.dta"
+con <- unz(description = "data/clean.zip", filename = tmpfileName, 
+           open = "rb")
+schl <- read_stata(con) # read data in the data subdirectory
+```
+
+
+Load the School research file from Identify. Restrict the 'universe' of schools to only
+include high schools.
+
+
+A crosswalk table ensures the final file is unique by school_code and that one 
+school_code maps to one school_name. For example, in an uncleaned file, Albert 
+Einstein High School might be spelled three ways, "A. Einstein HS," 
+"Einstein High School," or "A.E. HS," but have one school_code. Alternatively, 
+"Jones High School" might have a code of 153 and 154. You must fix these issues 
+before moving on.
+
+```{r echo=TRUE}
+# keep only the school code and school name
+schl <- select(schl, school_name, school_code)
+# keep school_code school_name
+# duplicates drop
+schl <- distinct(schl)
+# // check that the file is unique by school_code
+# isid school_code
+length(unique(schl$school_code)) == nrow(schl)
+
+```
+
+#### Generate First, Last, and Longest High School Variables
+
+Next, generate three variables, `first_hs_code`, `last_hs_code`, and 
+`longest_hs_code`. Set them equal to the `school_code` of each high school.
+
+```{r}
+# // creates first / last / longest hs id variables
+schl$first_hs_code <- schl$school_code
+schl$last_hs_code <- schl$school_code
+schl$longest_hs_code <- schl$school_code
+```
+
+
+### Step 3: Student Attributes
+
+**Purpose:** Load Student Attributes data to obtain time-invariant information for 
+students in the system.
+**Files needed:** `Student_Attributes` output file from Task 1 in Clean
+
+**After this step** you will have loaded the Student Attributes data into memory.
+
+
+#### Load the File and Check Uniqueness
+
+```{r echo=TRUE}
+# To read data from a zip file we create a connection to the path of the 
+# zip file
+tmpfileName <- "clean/Student_Attributes.dta"
+con <- unz(description = "data/clean.zip", filename = tmpfileName, 
+           open = "rb")
+stuatt <- read_stata(con) # read data in the data subdirectory
+```
+
+
+
+### Step 4: Student School Year
+
+**Purpose:** Merge Student School Year data with Student Attributes data in memory and generate
+program participation status variables.
+**Files needed:** `Student_School_Year_Ninth` output file from Task 3 in Clean
+
+**After this step** You will have merged Student School Year data with Student 
+Attributes data into memory and generated variables that indicate if a student h
+as ever been classified as FRPL (Free and Reduced Price Lunch), 
+IEP (Individualized Education Plan), ELL(Engish Language Learner) or Gifted
+in the system or during high school.
+
+
+#### Merge on Student School Year
+
+Merge the Student School Year file with the Student Attributes
+file in memory. This adds student-level information that may
+change from year to year (i.e FRPL,IEP, ELL or Gifted). This is a
+1:m (one-to-many) merge because the Student Attributes file is
+unique by sid and the Student School Year file is unique by sid +
+school_year.
+
+
+```{r echo=TRUE}
+tmpfileName <- "clean/Student_School_Year_Ninth.dta"
+con <- unz(description = "data/clean.zip", filename = tmpfileName, 
+           open = "rb")
+stusy <- read_stata(con)
+stusy <- inner_join(stusy, stuatt, by = "sid")
+
+```
+
+
+Before conducting the merge, the Student School Year output file should be unique by sid and school_year and
+contain information on all available grades. The Student School Year data should also include the first_9th_
+school_year_observed variable.
+
+#### Checking the Merge
+
+In an ideal world records match perfectly. However, administrative records are often messy. Perfect merges
+rarely occur. Therefore, consider a merge satisfactory if at least 95% of students appear in both files.
+The results of the merge can be checked by running a tabulation of the _merge variable. The _merge variable
+is automatically created when data files are merged.
+Keep only students at the intersection of the two files.
+
+
+```{r echo=TRUE}
+# // check the number and percentage of students appearing in both files
+
+stusy <- arrange(stusy, sid)
+length(unique(stusy$sid)) == length(unique(stuatt$sid))
+```
+
+#### Generate Program Participation Variables
+
+Now, create binary variables (variables that assume values of 0 or 1) to 
+indicate if a student ever:
+
+1. qualified to participate in FRPL;
+2. qualified for an IEP;
+3. classified as ELL (or LEP);
+4. qualified for gifted program.
+
+These variables, (`frpl_ever`, `iep_ever`, `ell_ever`, and `gifted_ever`) allow 
+you to explore high school and college outcomes for students that participated 
+in these programs for one or more school years. 
+
+Create analogous variables to capture students’ program participation status in 
+high school.
+
+```{r echo=TRUE}
+# In R this is an easy way to go by just using group_by and mutate
+tmp <- filter(stusy, (grade_level >= 9 & grade_level <= 12)) %>% 
+               group_by(sid) %>% 
+  summarize(frpl_ever = ifelse(max(frpl) > 0, 1, 0), 
+         iep_ever = max(iep), 
+         ell_ever = max(ell), 
+         gifted_ever = max(gifted))
+
+stusy <- inner_join(stusy, tmp, by = "sid")
+stusy <- arrange(stusy, sid)
+rm(tmp)
+```
+
+High school status variables (`frpl_ever_hs`, `iep_ever_hs`, `ell_ever_hs` 
+and `gifted_ever_hs`) allow flexibility in defining student subgroups. This is 
+useful if participation data is missing non-randomly before a student enters 
+high school, or if variables that capture participation are overly inclusive 
+across years. For example, a student who demonstrates limited English 
+proficiency in 4th grade may be fluent in English by 9th grade. It may or may 
+not be appropriate to categorize the student as ELL in analyses that examine 
+high school outcomes.
+
+
+### STEP 5: Student School Enrollment
+
+**Purpose:** Merge Student School Enrollment with data in memory.
+
+**Files needed:** Student_School_Enrollment_Clean output from Task 4 in Clean
+
+**After this step** you will have merged Student School Enrollment data with 
+data in memory.
+
+
+#### Merge on Student School Enrollment
+
+
+Merge the Student School Enrollment file onto the analysis file.
+This allows you to identify high schools students enrolled at
+different times.
+
+This is a 1:m merge, as the data file from the previous two
+steps is unique by sid + school_year and the Student School
+Enrollment file is unique by sid, school_year, school_code, and
+enrollment_date.
+
+```{r echo=TRUE}
+tmpfileName <- "clean/Student_School_Enrollment_Clean.dta"
+con <- unz(description = "data/clean.zip", filename = tmpfileName, 
+           open = "rb")
+stuschl <- read_stata(con)
+
+stusy <- inner_join(stusy, stuschl, by = c("sid", "school_year"))
+```
+
+Before the merge, the Student School Enrollment file should
+be unique by sid, school_year, school_code, and enrollment_
+date.
+
+#### Checking the Merge
+
+```
+// check the number and percentage of students appearing in both files
+sort sid
+tab _merge if sid!=sid[_n-1]
+// once you have checked the _merge, keep only students at the intersection of both files
+keep if _merge==3
+drop _merge
+```
+
+### STEP 6: High School Indicators and Outcomes
+
+Purpose: Generate high school indicators and outcomes in two categories.
+Files needed: The file in memory from Steps 3-5 and `highschoolinfo' from Step 2
+After this step you will have created a number of high school indicators and 
+outcomes: 1) first, last, and longest high school; 2) 9th grade and graduation 
+cohorts; and 3) end of high school outcomes: ontime and late graduates and high 
+school enrollment outcomes for non-graduates.
+
+
+#### 6.1 Define First, Last, and Longest High School
+
+
+To begin, make sure that the data includes only student observations in high 
+school. (You have done this in Clean already; we are checking it again here).
+
+```{r echo=TRUE}
+stusy %<>% filter(grade_level >= 9 & !is.na(grade_level) & 
+                    grade_level <= 12)
+
+# TODO: Why is grade level > 12 sometimes?
+```
+
+There might be students who are assigned to high schools but whose attendance 
+duration is 0. Drop these school assignments to ensure that you assign students 
+to high schools they actually attended. 
+
+```{r echo=TRUE}
+stusy %<>% filter(days_enrolled > 0)
+```
+
+#### Define First High School
+
+To identify a student’s first high school, determine the first enrollment 
+episode for the student.
+
+In some cases, students enroll in more than one school at the same time. In such 
+cases, assign them to the school where they attended longest.
+
+Should students have multiple first enrollments of the same length, randomly 
+assign them to one of these schools.
+
+```{r echo=TRUE}
+
+stusy %<>% arrange(sid, school_year, enrollment_date, desc(days_enrolled))
+
+stusy %<>% group_by(sid) %>%
+  arrange(sid, school_year, enrollment_date, desc(days_enrolled)) %>% 
+  mutate(first_hs_code = first(school_code), 
+         last_hs_code = last(school_code))
+
+```
+
+
+#### Define Last High School
+
+
+To identify a student’s last high school, determine the last enrollment episode for the student.
+In cases of joint enrollment, use the school where the student attended longest.
+Where joint enrollment duration is the same, randomly assign the last high school.
+
+
+#### Define Longest High School
+
+To determine the longest enrolling HS, you first have to add up all enrollments 
+within a HS. Since in Clean you ensured that there are no overlapping enrollments 
+within a school, you can add enrollments up. 
+
+In cases where students enrolled in more than one school for the same amount of 
+time, randomly assign the longest high school
+
+
+```{r}
+# egen total_days_enrolled_in_school = sum(days_enrolled), by(sid school_code)
+# gsort sid -total_days_enrolled_in_school
+# bys sid: gen temp_longest_hs_code = school_code if _n==1
+# egen longest_hs_code = max(temp_longest_hs_code), by(sid)
+
+stusy %<>% group_by(sid, school_code) %>% 
+  mutate(total_days_enrolled_in_school = sum(days_enrolled))
+
+stusy %<>% group_by(sid) %>% 
+  mutate(total_days_enrolled_in_school_max = max(total_days_enrolled_in_school))
+
+stusy %>% select(sid, school_code, enrollment_date, total_days_enrolled_in_school, 
+                 days_enrolled, first_hs_code) %>% 
+  head
+
+stusy %<>% group_by(sid) %>% 
+  mutate(longest_hs_code = unique(school_code[total_days_enrolled_in_school_max == total_days_enrolled_in_school])[1])
+
+
+stusy %>% select(sid, school_code, enrollment_date, total_days_enrolled_in_school, 
+                 days_enrolled, first_hs_code, longest_hs_code) %>% 
+  head
+
+# Drop temporary variables
+stusy$total_day_enrolled_in_school <- NULL
+stusy$total_days_enrolled_in_school <- NULL
+stusy$total_days_enrolled_in_school_max <- NULL
+
+```
+
+
+#### Merge on highschoolinfo
+
+Merge the `highschoolinfo’ tempfile created in Step 2 onto the
+current file. This allows you to obtain school names( first_hs_
+name and last_hs_name) associated with the high school codes
+just captured.
+
+
+This requires merging data currently loaded in Stata to the
+`highschoolinfo' tempfile three times – once on first_hs_code,
+then on last_hs_code, and finally on longest_hs_code. These
+merges will all be m:1 (many to one) because the file in memory
+contains multiple observations per school and the tempfile
+contains only one per school.
+
+```{r echo=TRUE}
+
+stusy <- left_join(stusy, schl[, c("school_name", "first_hs_code")], 
+                   by = c("first_hs_code"))
+
+stusy %<>% rename(school_name_first_hs = school_name)
+
+stusy <- left_join(stusy, schl[, c("school_name", "last_hs_code")], 
+                   by = c("last_hs_code"))
+
+stusy %<>% rename(school_name_last_hs = school_name)
+
+stusy <- left_join(stusy, schl[, c("school_name", "longest_hs_code")], 
+                   by = c("longest_hs_code"))
+
+stusy %<>% rename(school_name_longest_hs = school_name)
+
+
+```
+
+By specifying gen(_m`type’), you can
+keep all three merge variables in the dataset, and verify the
+return of each merge.
+
+
+After each merge drop observations that do not show up in the enrollment data, as well as observations
+for which you cannot assign high school names (students who have school_codes not listed in the
+`highschoolinfo' file). Also, drop students that had neither a first nor last high school defined. These
+restrictions should eliminate very few students from the analysis file.
+
+
+#### 6.2 Assign Ninth Grade and Graduation Cohorts
+
+Assigning students to cohorts will allow you to calculate various indicators 
+(e.g. high school graduation, college enrollment) using a different set of 
+students in the denominator. For example, when calculating college enrollment, 
+you could use the ninth grade cohort to illustrate how high schools prepared 
+their incoming freshmen for future success, or you could use the graduating 
+cohort to illustrate the percentage of a high school’s graduates enrolling in 
+college.
+
+Since the ninth grade cohort is equal to first_9th_school_year_observed in the 
+student attributes file, just rename first_9th_school_year_observed to chrt_ninth.
+
+```{r}
+#// define ninth grade cohort
+#rename first_9th_school_year_observed chrt_ninth
+```
+
+
+The graduation cohort variable, chrt_grad, is the school year in which a student 
+graduated. If a student obtained a diploma prior to September 1st, the chrt_grad 
+variable is the same as the year of hs_diploma_date. If a student received a 
+diploma between September 1st and December 31st treat them as graduates for the 
+next school year.
+
+
