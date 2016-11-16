@@ -91,7 +91,8 @@ In R this can be done simply combining a `group_by` and `mutate` command.
 ```{r echo=TRUE}
 stuach %<>% group_by(school_year) %>% 
   mutate(qrt_8_math = ntile(test_math_8, 4), 
-         qrt_8_ela = ntile(test_ela_8, 4))
+         qrt_8_ela = ntile(test_ela_8, 4), 
+         qrt_8_composite = ntile(test_composite_8, 4))
 ```
 
 
@@ -247,13 +248,20 @@ high school.
 # In R this is an easy way to go by just using group_by and mutate
 tmp <- filter(stusy, (grade_level >= 9 & grade_level <= 12)) %>% 
                group_by(sid) %>% 
-  summarize(frpl_ever = ifelse(max(frpl) > 0, 1, 0), 
+  summarize(frpl_ever_hs = ifelse(max(frpl) > 0, 1, 0), 
+         iep_ever_hs = max(iep), 
+         ell_ever_hs = max(ell), 
+         gifted_ever_hs = max(gifted))
+
+stusy <- inner_join(stusy, tmp, by = "sid")
+stusy <- arrange(stusy, sid)
+
+stusy %<>% group_by(sid) %>% 
+  mutate(frpl_ever = ifelse(max(frpl) > 0, 1, 0), 
          iep_ever = max(iep), 
          ell_ever = max(ell), 
          gifted_ever = max(gifted))
 
-stusy <- inner_join(stusy, tmp, by = "sid")
-stusy <- arrange(stusy, sid)
 rm(tmp)
 ```
 
@@ -476,9 +484,12 @@ college.
 Since the ninth grade cohort is equal to first_9th_school_year_observed in the 
 student attributes file, just rename first_9th_school_year_observed to chrt_ninth.
 
-```{r}
+```{r echo=TRUE}
 #// define ninth grade cohort
 #rename first_9th_school_year_observed chrt_ninth
+
+stusy %<>% rename(chrt_ninth = first_9th_school_year_observed)
+
 ```
 
 
@@ -488,4 +499,406 @@ variable is the same as the year of hs_diploma_date. If a student received a
 diploma between September 1st and December 31st treat them as graduates for the 
 next school year.
 
+```{r echo=TRUE}
+# // define graduation cohort
+stusy$chrt_grad <- NULL
+
+library(lubridate)
+
+head(year(stusy$hs_diploma_date))
+head(month(stusy$hs_diploma_date))
+
+stusy$chrt_grad <- ifelse(month(stusy$hs_diploma_date) < 9, year(stusy$hs_diploma_date), 
+                          year(stusy$hs_diploma_date) + 1)
+```
+
+**Question 6.2** Test your understanding by filling the shaded areas below.
+
+```{r}
+
+stusy %>% filter(sid %in% c(16305, 16306, 16307)) %>% 
+  select(sid, hs_diploma_date, chrt_ninth, chrt_grad) %>% 
+  distinct(.keep_all=TRUE) 
+
+
+```
+
+Note, that in Clean, you assigned every student a first_ninth_school_year_observed. 
+You either had their first night grade in the data, or if they transferred into 
+the district later in high school, you backward mapped them to an appropriate 
+ninth grade school year. Thus, chrt_ninth should never be missing. Chrt_grad, 
+however, could be missing, because not all students graduated, thus they will 
+not be assigned a graduating cohort. 
+
+#### 6.3 Define High School Outcomes
+
+To determine end of high school outcomes, you need a student's last withdrawal 
+code (withdrawal code at their last high school). Use the last withdrawal code 
+to determine if the student graduated, transferred out, dropped out, or has 
+another outcome. 
+
+#### 6.3a Group last withdrawal codes together into four end of high school outcomes:
+
+1 = Graduated (define graduated using withdrawal data and hs_diploma in the 
+Student Attributes file, or any other source of graduation information used)
+2 = Transfer Out
+3 = Drop Out
+4 = Other (all other reasons for withdrawal)
+
+Outcomes are captured using the last_wd_group variable. Assigning the last 
+withdrawal code to last_wd_group requires an understanding of decision rules in 
+your agency. Some withdrawal codes may be ambiguous or redundant and need to be 
+combined to fit under the four categories. Therefore, it is important to elicit 
+help from those knowledgeable of local graduation, transfer, and dropout policies 
+in your agency. For example, there may be special codes for students who are 
+incarcerated or pass away that are not well-documented. We provide an example 
+below, but you will have to customize this script based on values your agency 
+uses. Particularly, for dropouts you should make sure the agency is not being 
+penalized for something it does not have control over.
+
+First, examine the values for last_withdrawal_reason. You will have to make sure 
+that you capture all these values in defining the last withdrawal groups. Should 
+your data have any missing values for last_withdrawal_reason, be sure to assign 
+those to an appropriate category. In some agencies, a missing withdrawal code 
+indicates that the student is still enrolled, so assign them as still enrolled.
+
+```{r echo=TRUE}
+stusy %>% arrange(sid) %>% 
+  summarize(last_withdrawal = last(last_withdrawal_reason)) %>% 
+  select(last_withdrawal) %>% unlist %>% table
+
+```
+
+
+
+```{r echo=TRUE}
+stusy$last_wd_group <- NA
+stusy$last_wd_group[stusy$last_withdrawal_reason %in% c("Home School", 
+                                                        "Other Transfer", 
+                                                        "Transfer Out of District", 
+                                                        "Death")] <- 2
+stusy$last_wd_group[stusy$last_withdrawal_reason %in% c("Absenteeism", 
+                                                        "No Show", 
+                                                        "Expulsion")] <- 3
+stusy$last_wd_group[stusy$hs_diploma == 1] <- 1
+stusy$last_wd_group[is.na(stusy$last_wd_group)] <- 4
+table(is.na(stusy$last_wd_group))
+```
+
+Note that we populated the graduating group last; this is because the evidence 
+of a high school diploma overrides any other value for last withdrawal reason. 
+Any remaining last_withdrawal_reason values were then classified as 4, Other. 
+
+#### 6.3b Define High School Outcomes
+
+Identify On-Time and Late High School Graduates
+
+First, identify students who graduated within 4 years of entering high school 
+(on-time graduates) as well as students who took more than 4 years 
+(late graduates). These variables allow you to examine time taken to complete 
+high school and explore how this varies across high schools within a system. 
+These two variables have to add up to the total graduates.
+
+```{r echo=TRUE}
+# // define on-time graduates
+
+stusy$ontime_grad <- ifelse(stusy$chrt_ninth >= stusy$chrt_grad -3 & 
+                        !is.na(stusy$chrt_ninth) & 
+                        !is.na(stusy$chrt_grad) & 
+                        stusy$hs_diploma == 1 , 1, 0)
+
+# // define late graduates
+stusy$late_grad <- ifelse(stusy$ontime_grad == 0 & 
+                        !is.na(stusy$chrt_ninth) & 
+                        !is.na(stusy$chrt_grad) & 
+                        stusy$hs_diploma == 1 , 1, 0)
+all(stusy$late_grad + stusy$ontime_grad == stusy$hs_diploma)
+```
+
+Identifying High School Enrollment Outcomes for Non-Graduates
+
+Next, assign high school enrollment outcomes for students who have not graduated 
+by a point in time. You may define this point, but typically it is the current 
+year if data is up to date. It is important that each student is either marked 
+as a graduate or assigned to only one of the following categories. Notice how 
+the definition of each category is conditional on all previous categories.
+
+```{r}
+# // still enrolled
+
+maxDataYear <- max(stusy$school_year)
+stusy %<>% group_by(sid) %>% 
+  mutate(still_enrl = ifelse(max(school_year) == maxDataYear & 
+                               hs_diploma != 1, 1, 0))
+# // transfer out
+
+stusy$transferout <- ifelse(stusy$last_wd_group == 2 & 
+                              stusy$hs_diploma!=1 & 
+                              stusy$still_enrl != 1, 1, 0)
+# // drop out
+stusy$dropout <- ifelse(stusy$last_wd_group == 3 & 
+                              stusy$hs_diploma!=1 & 
+                              stusy$still_enrl != 1 & 
+                              stusy$transferout != 1, 1, 0)
+# // disappear
+stusy$disappear <- ifelse(stusy$dropout != 1 & 
+                              stusy$hs_diploma!=1 & 
+                              stusy$still_enrl != 1 & 
+                              stusy$transferout != 1, 1, 0)
+
+```
+
+You have generated most of the key high school indicators and outcomes, so you 
+no longer need all source variables. Keep only the variables listed here.
+
+Based on these time-invariant variables, the file is now unique by sid. To drop 
+other variables, first keep the 30 then drop duplicates.
+
+```{r}
+# // keep time-invariant variables
+stusy %<>% ungroup %>% 
+  select(sid, male, race_ethnicity, 
+         last_wd_group, still_enrl, transferout, 
+         dropout, disappear,
+         matches("hs_diploma|_ever|_hs_code|school_name|chrt|_grad"))
+
+stusy %<>% distinct(.keep_all = TRUE)
+
+# // make sure the file is unique by sid
+nrow(stusy) == length(unique(stusy$sid))
+
+```
+
+### STEP 7: Prior Achievement Part 2
+
+Purpose: Merge prior achievement test scores onto the analysis file.
+Files needed: the analysis file in memory from Step 6 and `tests' from Step 1
+After this step you will have merged prior achievement data with the current analysis file.
+
+#### Merge on tests
+
+You have a data set unique by sid that contains key student
+attributes, high school indicators and outcomes. All you need
+now are 8th grade test scores.
+To add prior achievement scores to the file, merge the `tests'
+tempfile from Step 1 onto the current analysis file. This is a 1:1
+merge on sid.
+
+```{r echo=TRUE}
+stusy <- left_join(stusy, stuach, by = "sid")
+```
+
+
+Next, drop students who do not appear in the analysis file but
+have 8th grade test scores. You may expect to capture prior
+achievement for most students, but not all students will have
+score information. For example, students who first enroll in the
+system during high school (after 8th grade) or were exempt from
+tests will not have prior test scores.
+
+Review the merge results, to see what percentage of students
+have prior scores.
+
+```{r echo=TRUE}
+table(is.na(stusy$qrt_8_math))
+```
+
+
+In this case, almost 70% of high school students have prior
+achievement data. 
+
+### STEP 8: Examining the Analysis File Part 1
+
+Congratulations! You now finished working with agency administrative records and can save a preliminary
+analysis file to generate analyses on student transitions through high school completion and college going
+success. First, order the variables in a sensible way.
+
+```{r}
+stusy %<>% select(sid, male, race_ethnicity, hs_diploma, hs_diploma_type, 
+                  hs_diploma_date, frpl_ever, iep_ever, ell_ever, gifted_ever,
+                  frpl_ever_hs, iep_ever_hs, ell_ever_hs, gifted_ever_hs,
+                  first_hs_code, last_hs_code, longest_hs_code, school_name_first_hs, 
+                  school_name_last_hs, school_name_longest_hs, last_wd_group, chrt_ninth, 
+                  chrt_grad, ontime_grad, late_grad, still_enrl, transferout,
+                  dropout, disappear, test_math_8_raw, test_math_8, 
+                  test_math_8_std, test_ela_8_raw, test_ela_8, 
+                  test_ela_8_std, test_composite_8, test_composite_8_std, 
+                  qrt_8_math, qrt_8_ela, qrt_8_composite)
+```
+
+
+
+All that is left to do is process college enrollment records from the National 
+Student Cleainghouse (NSC), and merge these data onto the Student_CollegeGoing 
+file. This creates a single analysis file to generate analyses on student 
+transitions through high school and college.
+
+Before moving on, take a moment to admire your work and refamiliarize yourself 
+with sources and processes for each of these variables. Ask yourself: What
+research files were the variables produced from? How were high school indicators 
+and outcomes created?
+
+```{r}
+names(stusy)
+```
+
+
+Use the following questions for the numbered variables above to guide your thoughts:
+1. (1-6): Which research file are these variables from?
+2. (7-14): Which research file are these variables from?
+3. (15-17): How are first, last, and longest high school codes identified?
+4. (18-20): From what research file are first, last, and longest high school names obtained?
+5. (21): What does the last_wd_group variable describe?
+6. (22-23): How are 9th grade and graduation cohorts defined?
+7. (24-29): How are graduation and high school enrollment outcomes defined?
+8. (30-40): Which research file are these variables from?
+
+### STEP 9: National Student Clearinghouse Data
+
+Purpose: Generate college enrollment and persistence indicators
+
+Files needed: The Student_NSC_Enrollment_Indicators data from Task 7 in Clean, 
+and the Student_CollegeGoing file you saved in Step 8.
+
+After this step you have created the indicators that will be used for college 
+going analysis.
+
+For all NSC related analyses, we create two types of indicators: one bases on 
+the graduating cohort, and another based on the ninth grade cohort. Each of these 
+indicators serves a different purpose, and can be used to answer different 
+questions. For example, if you are interested in how high schools or the entire 
+agency is doing in enrolling their graduates to college, you would be using the 
+indicators based on the graduating cohort. 
+
+If, however, you want to evaluate how the high schools or agency is preparing 
+their incoming freshman to go through high school and enroll in college, you 
+will use the indicators bases on the night grade cohort. In addition, we create 
+separate indicators to evaluate how soon after high school students enroll in 
+college. One set of indicators is based on enrollment on October 1st. The second 
+set of indicators is based on enrollment within two years of graduation. This 
+latter indicator is calculated based on the calendar date of the student’s high 
+school graduation (or, in case of the ninth grade cohort, the expected on-time 
+high school graduation). 
+
+To begin this step, open the Student_NSC_Enrollment_Indicators file from Task 7, 
+and merge the Student_CollegeGoing file you saved in Step 8.
+
+```{r echo=TRUE}
+tmpfileName <- "clean/Student_NSC_Enrollment_Indicators.dta"
+con <- unz(description = "data/clean.zip", filename = tmpfileName, 
+           open = "rb")
+stunsc <- read_stata(con)
+
+# // merge on variables needed from Student_College_Going
+tmp <- select(stusy, sid, hs_diploma_date, hs_diploma, chrt_grad, chrt_ninth)
+# Use inner_join to only keep students in both
+stunsc <- inner_join(tmp, stunsc, by = c("sid")); rm(tmp)
+```
+
+#### 9.1 Create a varaible to indicate if the student enrolled in college within two years of graduating from high school.
+
+
+Start with the graduating cohort. If the student enrolled in college within 2*365 days after high school
+graduation, set the indicator to 1.
+
+
+```{r}
+# // create and indicator to show if the student enrolled within two years of HS graduation
+
+stunsc$enrl_ever_w2_grad <- ifelse(stunsc$first_enrl_date_any < 
+                                     (stunsc$hs_diploma_date + (365*2)) &
+                                     !is.na(stunsc$hs_diploma_date) & 
+                                     !is.na(stunsc$first_enrl_date_any), 
+                                   1, 0)
+```
+
+For the ninth grade cohort, first create a variable that represents on-time graduation. Set this date to
+September 1st the fourth year after the student’s ninth grade cohort. Then create the enrollment indicator
+using this date.
+
+```{r}
+stunsc$ontime_yr <- stunsc$chrt_ninth + 3
+stunsc$ontime_date <- mdy(paste0("09", "01", stunsc$ontime_yr))
+# // create and indicator to show if the student enrolled within two years of expected HS graduation
+stunsc$enrl_ever_w2_ninth <- ifelse(stunsc$first_enrl_date_any < (stunsc$ontime_date + (365*2)) & 
+                                      !is.na(stunsc$ontime_date) & !is.na(stunsc$first_enrl_date_any), 
+                                    1, 0)
+
+```
+
+Question 9.1 Test your understanding by filling the shaded areas below.
+
+```{r}
+stunsc %>% filter(sid %in% c(15647,15656,15658)) %>% 
+  select(sid, chrt_ninth, chrt_grad, hs_diploma_date, first_enrl_date_any, 
+         enrl_ever_w2_grad, ontime_yr, ontime_date, enrl_ever_w2_ninth) %>% 
+  distinct(.keep_all=TRUE) %>% 
+  as.data.frame
+```
+
+
+#### 9.2 Create variables to indicate if the student was enrolled in college by Oct 1
+
+
+This variable indicates if a student enrolled in college immediately after high 
+school. In addition, we use indicators based on October 1st college enrollment 
+to track if student persisted in college. For this, we need to create variables 
+to indicate enrollment on October 1st the 1st, 2nd, 3rd and 4th year after high 
+school graduation.
+
+First, create placeholder variables for both the ninth and graduating cohort, 
+for each of the four years. 
+
+```{r}
+# // Create the 4 enrollment outcomes of interest by October 1st
+# foreach num of numlist 1/4 {
+# gen enrl_1oct_grad_yr`num' = .
+# gen enrl_1oct_ninth_yr`num' = .
+# }
+```
+
+Now, loop through these year values. We replace the above created placeholder 
+variables with 1 if the student enrolled in college as of October 1st and the 
+student's enrollment for that year ended after October 1st. We do this for the 
+1st, 2nd, 3rd and 4th year after high school graduation. As we loop through the 
+variables, we have to make sure that we are only replacing values for students 
+who graduated in the year in the current loop, so we have to set a condition 
+that ensures that the record is for a student whose diploma date falls in that 
+school year.
+
+```{r}
+# // loop through the graduation years (actual and expected) that exist in your data.
+# // actual
+# levelsof chrt_grad, local(chrt_grad_values)
+# foreach yr of local chrt_grad_values {
+# // assign the outcome of interest to assume a value of 1 when students enroll on or
+# before October 1st
+# local yr1 = `yr'
+# local yr2 = `yr' + 1
+# local yr3 = `yr' + 2
+# local yr4 = `yr' + 3
+# local yr5 = `yr' + 4
+# foreach num of numlist 1/5 {
+# replace enrl_1oct_grad_yr`num' = 1 if (n_enroll_begin_date <=
+# td(1oct`yr`num'')) & (td(1oct`yr`num'') <= n_enroll_end_date) & ((year(hs_diploma_date) ==
+# (`yr') & month(hs_diploma_date) <=9) | ((year(hs_diploma_date) == `yr'-1 & month(hs_diploma_
+# date)>9)))
+# }
+# }
+# // expected
+# levelsof ontime_yr, local(chrt_ninth_values)
+# foreach yr of local chrt_ninth_values {
+# //assign the outcome of interest to assume a value of 1 when students enroll on or
+# before October 1st
+# local yr1 = `yr'
+# local yr2 = `yr' + 1
+# local yr3 = `yr' + 2
+# local yr4 = `yr' + 3
+# local yr5 = `yr' + 4
+# foreach num of numlist 1/5 {
+# replace enrl_1oct_ninth_yr`num' = 1 if (n_enroll_begin_date <=
+# td(1oct`yr`num'')) & (td(1oct`yr`num'') <= n_enroll_end_date) & chrt_ninth == (`yr' - 3)
+# }
+# }
+```
 
