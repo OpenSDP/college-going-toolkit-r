@@ -362,6 +362,72 @@ ggplot(progressTrack,
 All other data from Agency administrative records.")
 ```
 
+## B Ninth to Tenth Grade Transition by On-Track Status
+
+## Task 1 Proportion of Students On-Track at the End of Ninth Grade by High School
+
+```{r}
+plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & chrt_ninth <= chrt_ninth_end_persist_yr2) %>% filter(ontrack_sample == 1)
+
+# // Step 3: Create variables for the outcomes "regular diploma recipients", "seamless transitioners" and "second year persisters"
+plotdf$grad <- ifelse(!is.na(plotdf$chrt_grad) & plotdf$ontime_grad ==1, 1, 0)
+plotdf$seamless_transitioners_any <- as.numeric(plotdf$enrl_1oct_ninth_yr1_any == 1 &
+                                                 plotdf$ontime_grad == 1)
+plotdf$second_year_persisters = as.numeric(plotdf$enrl_1oct_ninth_yr1_any == 1 &
+                                             plotdf$enrl_1oct_ninth_yr2_any == 1 &
+                                             plotdf$ontime_grad == 1)
+# // Step 3: Generate on track indicators that take into account students’ GPAs 
+# upon completion of their first year in high school
+
+plotdf$ot <- NA
+plotdf$ot[plotdf$ontrack_endyr1 == 0] <- "Off-Track to Graduate"
+plotdf$ot[plotdf$ontrack_endyr1 == 1 & plotdf$cum_gpa_yr1 < 3 & !is.na(plotdf$cum_gpa_yr1)] <- "On-Track to Graduate, GPA < 3.0"
+plotdf$ot[plotdf$ontrack_endyr1 == 1 & plotdf$cum_gpa_yr1 >= 3 & !is.na(plotdf$cum_gpa_yr1)] <- "On-Track to Graduate, GPA >= 3.0"
+
+# assert !mi(ontrack_endyr1_gpa) if !mi(ontrack_endyr1) & !mi(cum_gpa_yr1)
+# // Step 4: Obtain the agency average for the key variables
+# // Step 5: Obtain mean rates for each school and append the agency average
+progressBars <- bind_rows(
+  plotdf %>% group_by(ot) %>% tally() %>% ungroup %>% 
+    mutate(count = sum(n), first_hs_name = "Agency Average"), 
+  plotdf %>% group_by(first_hs_name, ot) %>% tally() %>% ungroup %>% 
+    group_by(first_hs_name) %>%
+    mutate(count = sum(n))
+)
+
+# replace first_hs_name = subinstr(first_hs_name, " High School", "", .)
+progressBars$first_hs_name <- gsub(" High School", "", progressBars$first_hs_name)
+
+# // Step 7: For students who are off-track upon completion of their first year of high school, convert the values to be
+# negative for ease of visualization in the graph
+
+progressBars$n[progressBars$ot == "Off-Track to Graduate"] <- 
+  -progressBars$n[progressBars$ot == "Off-Track to Graduate"] 
+
+# // Step 8: Multiply the average of each outcome by 100 for graphical representation of the rates. Create a variable equal to
+# the sum of the two on-track status variables for easier sorting
+# foreach var of varlist ontrack_endyr1_1 ontrack_endyr1_2 ontrack_endyr1_3 {
+# replace `var' = (`var' * 100)
+
+
+ggplot(progressBars, aes(x = reorder(first_hs_name, n/count), 
+                         y = n/count, group = ot)) + 
+  geom_bar(aes(fill = ot), stat = 'identity') + 
+  geom_text(aes(label = round(100* n/count, 1)), 
+            position = position_stack(vjust=0.3)) + 
+  theme_bw() + 
+  scale_y_continuous(limits = c(-0.5, 0.95), label = percent, 
+                    name = "Percent of Ninth Graders") + 
+  scale_fill_brewer(name = "", type = "qual", palette = 6) + 
+  theme(axis.text.x = element_text(angle = 30, color = "black", vjust = 0.5), 
+        legend.position = c(0.15, 0.875)) +
+  labs(title = "Proportion of Students On-Track to Graduate by School", 
+       subtitle = "End of Ninth Grade On-Track Status \n By High School", x = "",
+       caption = "Sample: 2004-2005 Agency first-time ninth graders. Postsecondary enrollment outcomes from NSC matched records.
+All other data from Agency administrative records.")
+
+```
+
 
 
 
