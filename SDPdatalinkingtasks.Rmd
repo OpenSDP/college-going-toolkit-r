@@ -867,6 +867,34 @@ that ensures that the record is for a student whose diploma date falls in that
 school year.
 
 ```{r}
+
+stunsc$n_enroll_begin_date[stunsc$sid == 16011]
+
+stunsc %>% filter(sid %in% c(16011, 16016)) %>% 
+  select(sid, chrt_grad, hs_diploma_date, first_enrl_date_any, n_enroll_begin_date)
+
+testDF <- stunsc %>% 
+  mutate(compDateG = ymd(paste0(chrt_grad, "-10-01")), 
+         compDateE = ymd(paste0(chrt_ninth, "-10-01")),
+         compInterval = n_enroll_begin_date %--% n_enroll_end_date) %>%
+    mutate(enrl_1oct_grad_yr1 = compDateG %within% compInterval, 
+           enrl_1oct_grad_yr2 = (compDateG + 365) %within% compInterval,
+           enrl_1oct_grad_yr3 = (compDateG + 730) %within% compInterval,
+           enrl_1oct_grad_yr4 = (compDateG + 1095) %within% compInterval) %>% 
+  mutate(enrl_1oct_grad_yr1 = ifelse(compDateE %within% compInterval, 1,
+                                     as.numeric(enrl_1oct_grad_yr1)),
+           enrl_1oct_grad_yr2 = ifelse((compDateE + 365) %within% compInterval, 1, 
+                                       as.numeric(enrl_1oct_grad_yr2)),
+           enrl_1oct_grad_yr3 = ifelse((compDateE + 730) %within% compInterval, 1, 
+                                       as.numeric(enrl_1oct_grad_yr3)),
+           enrl_1oct_grad_yr4 = ifelse((compDateE + 1095) %within% compInterval, 1, 
+         as.numeric(enrl_1oct_grad_yr4)))
+  
+testDF %>% filter(sid %in% c(16011, 16016)) %>% 
+  select(sid, chrt_grad, hs_diploma_date, first_enrl_date_any, n_enroll_begin_date, 
+         n_enroll_end_date,
+         enrl_1oct_grad_yr1, enrl_1oct_grad_yr2, enrl_1oct_grad_yr3, enrl_1oct_grad_yr4) %>% as.data.frame
+
 # // loop through the graduation years (actual and expected) that exist in your data.
 # // actual
 # levelsof chrt_grad, local(chrt_grad_values)

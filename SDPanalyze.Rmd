@@ -1,0 +1,367 @@
+---
+title: "SDP Analyze Tasks"
+author: "Strategic Data Project"
+date: "November 16, 2016"
+output: 
+  html_document: 
+    toc: yes
+---
+
+```{r, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, comment=NA}
+# Set options for knitr
+library(knitr)
+knitr::opts_chunk$set(comment=NA, warning=FALSE, 
+                      error=FALSE, message=FALSE, fig.align='center')
+options(width=120)
+library(dplyr)
+library(magrittr)
+```
+
+
+
+
+# SDP College Going Analysis
+
+
+
+## Task 1: Overall Progression
+
+Analytic Technique: Calculate the proportion of first-time ninth graders that 
+progress to each step along the education pipeline.
+
+
+```{r echo=TRUE}
+# // Step 1: Load the college-going analysis file into Stata
+# Read in Stata
+library(haven) # required for .dta files
+
+# To read data from a zip file we create a connection to the path of the 
+# zip file
+tmpfileName <- "analysis/CG_Analysis.dta"
+con <- unz(description = "data/analysis.zip", filename = tmpfileName, 
+           open = "rb")
+cgdata <- read_stata(con) # read data in the data subdirectory
+```
+
+```{r}
+#// Step 1a: Read in global variables
+# // Ninth grade cohorts you can observe persisting to the second year of college
+chrt_ninth_begin_persist_yr2 = 2005
+chrt_ninth_end_persist_yr2 = 2005
+
+# // Ninth grade cohorts you can observe graduating high school on time
+chrt_ninth_begin_grad = 2005
+chrt_ninth_end_grad = 2006
+
+# // Ninth grade cohorts you can observe graduating high school one year late
+chrt_ninth_begin_grad_late = 2005
+chrt_ninth_end_grad_late = 2005
+
+# // High school graduation cohorts you can observe enrolling in college the fall after graduation
+chrt_grad_begin = 2008
+chrt_grad_end = 2009
+
+# // High school graduation cohorts you can observe enrolling in college two years after hs graduation
+# /*global chrt_grad_begin_delayed = 2008
+# global chrt_grad_end_delayed = 2008*/
+```
+
+
+```{r}
+# // Step 2: Keep students in ninth grade cohorts you can observe persisting to the second year of college
+
+plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & chrt_ninth <= chrt_ninth_end_persist_yr2)
+
+# // Step 3: Create variables for the outcomes "regular diploma recipients", "seamless transitioners" and "second year persisters"
+plotdf$grad <- ifelse(!is.na(plotdf$chrt_grad) & plotdf$ontime_grad ==1, 1, 0)
+plotdf$seamless_transitioners_any <- as.numeric(plotdf$enrl_1oct_ninth_yr1_any == 1 &
+                                                 plotdf$ontime_grad == 1)
+plotdf$second_year_persisters = as.numeric(plotdf$enrl_1oct_ninth_yr1_any == 1 &
+                                             plotdf$enrl_1oct_ninth_yr2_any == 1 &
+                                             plotdf$ontime_grad == 1)
+# // Step 4: Create agency-level average outcomes
+
+# // 2. Calculate the mean of each outcome variable by agency
+
+agencyData <- plotdf %>%  
+  summarize(grad = mean(grad), 
+            seameless_transitioners_any = mean(seamless_transitioners_any, na.rm=TRUE), 
+            second_year_persisters = mean(second_year_persisters, na.rm=TRUE), 
+            N = n())
+
+agencyData$school_name <- "AGENCY AVERAGE"
+# // 2. Calculate the mean of each outcome variable by first high school attended
+schoolData <- plotdf %>% group_by(first_hs_name) %>% 
+  summarize(grad = mean(grad), 
+            seameless_transitioners_any = mean(seamless_transitioners_any, na.rm=TRUE), 
+            second_year_persisters = mean(second_year_persisters, na.rm=TRUE), 
+            N = n())
+# // 1. Create a variable school_name that takes on the value of students’ first high school attended
+names(schoolData)[1] <- "school_name"
+
+# // 3. Identify the agency maximum values for each of the three outcome variables
+maxSchool <- schoolData %>% summarize_all(.funs = funs("max"))
+maxSchool$school_name <- "AGENCY MAX HS"
+
+# // 4. Identify the agency minimum values for each of the three outcome variables
+minSchool <- schoolData %>% summarize_all(.funs = funs("min"))
+minSchool$school_name <- "AGENCY MIN HS"
+# // 5. Append the three tempfiles to the school-level file loaded into R
+schoolData <- bind_rows(schoolData, agencyData, 
+                        minSchool, maxSchool)
+rm(agencyData, minSchool, maxSchool)
+```
+
+```{r}
+# // Step 6: Format the outcome variables so they read as percentages in the graph
+
+# // Step 7: Reformat the data file so that one variable contains all the outcomes of interest
+# // Step 8: Prepare to graph the results
+library(tidyr)
+schoolData$cohort <- 1
+schoolData <- schoolData %>% gather(key = outcome, 
+                             value = measure, -N, -school_name)
+schoolData$subset <- grepl("AGENCY", schoolData$school_name)
+library(ggplot2)
+library(scales)
+
+schoolData$outcome[schoolData$outcome == "cohort"] <- "Ninth Graders"
+schoolData$outcome[schoolData$outcome == "grad"] <- "On-time Graduates"
+schoolData$outcome[schoolData$outcome == "seameless_transitioners_any"] <- "Seamless College Transitioner"
+schoolData$outcome[schoolData$outcome == "second_year_persisters"] <- "Second Year Persisters"
+
+ggplot(schoolData[schoolData$subset,], 
+       aes(x = outcome, y = measure, group = school_name, 
+           color = school_name, linetype = school_name)) + 
+  geom_line(size = 1.1) + geom_point(aes(group = 1), color = I("black")) +
+  geom_text(aes(label = round(measure * 100, 1)), vjust = -0.8, hjust = -0.25, 
+            color = I("black")) +
+  scale_y_continuous(limits = c(0, 1), label = percent) + 
+  theme_bw() + theme(legend.position = c(0.825, 0.825)) + 
+  guides(color = guide_legend("", keywidth = 6, 
+                              label.theme = element_text(face = "bold", 
+                                                         size = 8,
+                                                         angle = 0)), 
+         linetype = "none") +
+  labs(y = "Percent of Ninth Graders", 
+       title = "Student Progression from 9th Grade Through College", 
+       subtitle = "Agency Average", x = "",
+       caption = "Sample: 2004-2005 Agency first-time ninth graders. Postsecondary enrollment outcomes from NSC matched records.
+All other data from Agency administrative records.")
+
+
+```
+
+
+## Task 2: Progression by Student Race/Ethnicity
+
+```{r}
+
+plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & chrt_ninth <= chrt_ninth_end_persist_yr2)
+
+# // Step 3: Create variables for the outcomes "regular diploma recipients", "seamless transitioners" and "second year persisters"
+plotdf$grad <- ifelse(!is.na(plotdf$chrt_grad) & plotdf$ontime_grad ==1, 1, 0)
+plotdf$seamless_transitioners_any <- as.numeric(plotdf$enrl_1oct_ninth_yr1_any == 1 &
+                                                 plotdf$ontime_grad == 1)
+plotdf$second_year_persisters = as.numeric(plotdf$enrl_1oct_ninth_yr1_any == 1 &
+                                             plotdf$enrl_1oct_ninth_yr2_any == 1 &
+                                             plotdf$ontime_grad == 1)
+# // Step 4: Create agency-level average outcomes
+
+
+# // 2. Calculate the mean of each outcome variable by race/ethnicity
+progressRace <- plotdf %>% group_by(race_ethnicity) %>% 
+  summarize(grad = mean(grad), 
+            seameless_transitioners_any = mean(seamless_transitioners_any, na.rm=TRUE), 
+            second_year_persisters = mean(second_year_persisters, na.rm=TRUE), 
+            N = n())
+
+# // Step 7: Reformat the data file so that one variable contains all the outcomes of interest
+# // Step 8: Prepare to graph the results
+progressRace$cohort <- 1
+progressRace <- progressRace %>% gather(key = outcome, 
+                             value = measure, -N, -race_ethnicity)
+
+progressRace$outcome[progressRace$outcome == "cohort"] <- "Ninth Graders"
+progressRace$outcome[progressRace$outcome == "grad"] <- "On-time Graduates"
+progressRace$outcome[progressRace$outcome == "seameless_transitioners_any"] <- "Seamless College Transitioner"
+progressRace$outcome[progressRace$outcome == "second_year_persisters"] <- "Second Year Persisters"
+
+progressRace$subset <- ifelse(progressRace$race_ethnicity %in% c(1, 3, 2, 5), 
+                              TRUE, FALSE)
+progressRace$race_ethnicity[progressRace$race_ethnicity == 1] <- "Black"
+progressRace$race_ethnicity[progressRace$race_ethnicity == 2] <- "Asian"
+progressRace$race_ethnicity[progressRace$race_ethnicity == 3] <- "Hispanic"
+progressRace$race_ethnicity[progressRace$race_ethnicity == 4] <- "Native American"
+progressRace$race_ethnicity[progressRace$race_ethnicity == 5] <- "White"
+progressRace$race_ethnicity[progressRace$race_ethnicity == 6] <- "Multiple/Other"
+progressRace$race_ethnicity <- as.character(zap_labels(progressRace$race_ethnicity))
+
+
+ggplot(progressRace[progressRace$subset,], 
+       aes(x = outcome, y = measure, group = race_ethnicity, 
+           color = race_ethnicity, linetype = race_ethnicity)) + 
+  geom_line(size = 1.1) + geom_point(aes(group = 1), color = I("black")) +
+  geom_text(aes(label = round(measure * 100, 1)), vjust = -0.8, hjust = -0.25, 
+            color = I("black")) +
+  scale_y_continuous(limits = c(0, 1), label = percent) + 
+  theme_bw() + theme(legend.position = c(0.825, 0.825)) + 
+  guides(color = guide_legend("", keywidth = 6, 
+                              label.theme = element_text(face = "bold", 
+                                                         size = 8,
+                                                         angle = 0)), 
+         linetype = "none") +
+  labs(y = "Percent of Ninth Graders", 
+       title = "Student Progression from 9th Grade Through College", 
+       subtitle = "By Student Race/Ethnicity", x = "",
+       caption = "Sample: 2004-2005 Agency first-time ninth graders. Postsecondary enrollment outcomes from NSC matched records.
+All other data from Agency administrative records.")
+
+```
+
+## Task 3: Progression by Student Race/Ethnicity, Among FRPL-Eligible Students
+
+```{r}
+#TODO: equal to 1 seems wrong
+## TODO: Graduation seems way off
+plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & chrt_ninth <= chrt_ninth_end_persist_yr2) %>% filter(frpl_ever_hs > 0)
+
+# // Step 3: Create variables for the outcomes "regular diploma recipients", "seamless transitioners" and "second year persisters"
+plotdf$grad <- ifelse(!is.na(plotdf$chrt_grad) & plotdf$ontime_grad == 1, 1, 0)
+plotdf$seamless_transitioners_any <- ifelse(plotdf$enrl_1oct_ninth_yr1_any == 1 &
+                                                 plotdf$ontime_grad == 1, 1, 0)
+plotdf$second_year_persisters = ifelse(plotdf$enrl_1oct_ninth_yr1_any == 1 &
+                                             plotdf$enrl_1oct_ninth_yr2_any == 1 &
+                                             plotdf$ontime_grad == 1, 1, 0)
+# // Step 4: Create agency-level average outcomes
+
+
+# // 2. Calculate the mean of each outcome variable by race/ethnicity
+progressRaceFRL <- plotdf %>% group_by(race_ethnicity) %>% 
+  summarize(grad = mean(grad), 
+            seameless_transitioners_any = mean(seamless_transitioners_any, na.rm=TRUE), 
+            second_year_persisters = mean(second_year_persisters, na.rm=TRUE), 
+            N = n())
+progressRaceFRL %<>% filter(N >= 20)
+
+# // Step 7: Reformat the data file so that one variable contains all the outcomes of interest
+# // Step 8: Prepare to graph the results
+progressRaceFRL$cohort <- 1
+progressRaceFRL <- progressRaceFRL %>% gather(key = outcome, 
+                             value = measure, -N, -race_ethnicity)
+
+progressRaceFRL$outcome[progressRaceFRL$outcome == "cohort"] <- "Ninth Graders"
+progressRaceFRL$outcome[progressRaceFRL$outcome == "grad"] <- "On-time Graduates"
+progressRaceFRL$outcome[progressRaceFRL$outcome == "seameless_transitioners_any"] <- "Seamless College Transitioner"
+progressRaceFRL$outcome[progressRaceFRL$outcome == "second_year_persisters"] <- "Second Year Persisters"
+
+# TODO: Recode race
+progressRaceFRL$subset <- ifelse(progressRaceFRL$race_ethnicity %in% c(1, 3, 5), 
+                              TRUE, FALSE)
+progressRaceFRL$race_ethnicity[progressRaceFRL$race_ethnicity == 1] <- "Black"
+progressRaceFRL$race_ethnicity[progressRaceFRL$race_ethnicity == 2] <- "Asian"
+progressRaceFRL$race_ethnicity[progressRaceFRL$race_ethnicity == 3] <- "Hispanic"
+progressRaceFRL$race_ethnicity[progressRaceFRL$race_ethnicity == 4] <- "Native American"
+progressRaceFRL$race_ethnicity[progressRaceFRL$race_ethnicity == 5] <- "White"
+progressRaceFRL$race_ethnicity[progressRaceFRL$race_ethnicity == 6] <- "Multiple/Other"
+progressRaceFRL$race_ethnicity <- as.character(zap_labels(progressRaceFRL$race_ethnicity))
+
+
+ggplot(progressRaceFRL[progressRaceFRL$subset,], 
+       aes(x = outcome, y = measure, group = race_ethnicity, 
+           color = race_ethnicity, linetype = race_ethnicity)) + 
+  geom_line(size = 1.1) + geom_point(aes(group = 1), color = I("black")) +
+  geom_text(aes(label = round(measure * 100, 1)), vjust = -0.8, hjust = -0.25, 
+            color = I("black")) +
+  scale_y_continuous(limits = c(0, 1), label = percent) + 
+  theme_bw() + theme(legend.position = c(0.825, 0.825)) + 
+  guides(color = guide_legend("", keywidth = 6, 
+                              label.theme = element_text(face = "bold", 
+                                                         size = 8,
+                                                         angle = 0)), 
+         linetype = "none") +
+  labs(y = "Percent of Ninth Graders", 
+       title = "Student Progression from 9th Grade Through College", 
+       subtitle = "Among Students Qualifying for Free or Reduced Price Lunch \n By Student Race/Ethnicity", x = "",
+       caption = "Sample: 2004-2005 Agency first-time ninth graders. Postsecondary enrollment outcomes from NSC matched records.
+All other data from Agency administrative records.")
+```
+
+## Task 4: Progression by Students' On-Track Status After Ninth Grade
+
+```{r}
+
+plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & chrt_ninth <= chrt_ninth_end_persist_yr2) %>% filter(ontrack_sample == 1)
+
+# // Step 3: Create variables for the outcomes "regular diploma recipients", "seamless transitioners" and "second year persisters"
+plotdf$grad <- ifelse(!is.na(plotdf$chrt_grad) & plotdf$ontime_grad ==1, 1, 0)
+plotdf$seamless_transitioners_any <- as.numeric(plotdf$enrl_1oct_ninth_yr1_any == 1 &
+                                                 plotdf$ontime_grad == 1)
+plotdf$second_year_persisters = as.numeric(plotdf$enrl_1oct_ninth_yr1_any == 1 &
+                                             plotdf$enrl_1oct_ninth_yr2_any == 1 &
+                                             plotdf$ontime_grad == 1)
+# // Step 4: Create agency-level average outcomes
+
+
+# // 2. Calculate the mean of each outcome variable by race/ethnicity
+
+# // Step 3: Generate on track indicators that take into account students’ GPAs 
+# upon completion of their first year in high school
+
+plotdf$ot <- NA
+plotdf$ot[plotdf$ontrack_endyr1 == 0] <- "Off-Track to Graduate"
+plotdf$ot[plotdf$ontrack_endyr1 == 1 & plotdf$cum_gpa_yr1 < 3 & !is.na(plotdf$cum_gpa_yr1)] <- "On-Track to Graduate, GPA < 3.0"
+plotdf$ot[plotdf$ontrack_endyr1 == 1 & plotdf$cum_gpa_yr1 >= 3 & !is.na(plotdf$cum_gpa_yr1)] <- "On-Track to Graduate, GPA >= 3.0"
+
+# assert !mi(ontrack_endyr1_gpa) if !mi(ontrack_endyr1) & !mi(cum_gpa_yr1)
+
+
+progressTrack <- plotdf %>% group_by(ot) %>% 
+  summarize(grad = mean(grad), 
+            seameless_transitioners_any = mean(seamless_transitioners_any, na.rm=TRUE), 
+            second_year_persisters = mean(second_year_persisters, na.rm=TRUE), 
+            N = n())
+
+# // Step 7: Reformat the data file so that one variable contains all the outcomes of interest
+# // Step 8: Prepare to graph the results
+progressTrack$cohort <- 1
+progressTrack <- progressTrack %>% gather(key = outcome, 
+                             value = measure, -N, -ot)
+
+# TODO: Function to recode outcome
+progressTrack$outcome[progressTrack$outcome == "cohort"] <- "Ninth Graders"
+progressTrack$outcome[progressTrack$outcome == "grad"] <- "On-time Graduates"
+progressTrack$outcome[progressTrack$outcome == "seameless_transitioners_any"] <- "Seamless College Transitioner"
+progressTrack$outcome[progressTrack$outcome == "second_year_persisters"] <- "Second Year Persisters"
+
+# Annotate for direct labels
+
+ann_txt <- data.frame(outcome = rep("Second Year Persisters", 3), 
+                      measure = c(0.2, 0.55, 0.85), 
+                      textlabel = c("Off-Track to Graduate", 
+                                    "On-Track to Graduate, GPA < 3.0", 
+                                    "On-Track to Graduate, GPA >= 3.0"))
+ann_txt$ot <- ann_txt$textlabel
+
+ggplot(progressTrack, 
+       aes(x = outcome, y = measure, group = ot, 
+           color = ot, linetype = ot)) + 
+  geom_line(size = 1.1) + geom_point(aes(group = 1), color = I("black")) +
+  geom_text(aes(label = round(measure * 100, 1)), vjust = -0.8, hjust = -0.25, 
+            color = I("black")) +
+  geom_text(data = ann_txt, aes(label = textlabel)) + 
+  scale_y_continuous(limits = c(0, 1), label = percent) + 
+  theme_bw() + theme(legend.position = c(0.825, 0.825)) + 
+  scale_color_brewer(type = "qual", palette = 2) +
+  guides(color = "none", 
+         linetype = "none") +
+  labs(y = "Percent of Ninth Graders", 
+       title = "Student Progression from 9th Grade Through College", 
+       subtitle = "By Course Credits and GPA after First High School Year", x = "",
+       caption = "Sample: 2004-2005 Agency first-time ninth graders. Postsecondary enrollment outcomes from NSC matched records.
+All other data from Agency administrative records.")
+```
+
+
+
+
