@@ -366,6 +366,27 @@ All other data from Agency administrative records.")
 
 ## Task 1 Proportion of Students On-Track at the End of Ninth Grade by High School
 
+Purpose: This analysis illustrates what percent of students are on-track after ninth grade graduate
+from each high school and the agency as a whole. Different levels of on-track for graduation are distinguished
+by high school.
+
+Analysis-Specific Sample Restrictions: Keep students in ninth
+grade cohorts you can observe graduating high school on time
+AND are part of the on-track sample (attended the first semester
+of ninth grade and never transferred into or out of the system).
+
+Ask Yourself
+- How does the percent of students on-track differ by high school (consider the overall height of each
+bar)?
+- How does the percent of students on-track for an advanced versus general diploma differ by high
+school (consider the different components of each bar)?
+
+Possible Next Steps or Action Plans: Overall school-level results can be disaggregated by student
+subgroups of interest, (race, FRPL status, and eighth grade academic achievement).
+
+Analytic Technique:Calculate the proportion of students on-track at each school, and across the
+agency.
+
 ```{r}
 plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & chrt_ninth <= chrt_ninth_end_persist_yr2) %>% filter(ontrack_sample == 1)
 
@@ -429,5 +450,448 @@ All other data from Agency administrative records.")
 ```
 
 
+## Task 2: Ninth To Tenth Grade Transition by On-Track Status
+
+Purpose: This analysis explores how on-track status after ninth grade (the horizontal axis) predicts ontrack
+status in tenth grade (the vertical axis). This analysis is useful for developing early dropout warning
+indicators for at-risk students as early as the second semester of ninth grade.
+
+Analysis-Specific Sample Restrictions: Keep students in ninth
+grade cohorts you can observe graduating high school on time
+AND are part of the on-track sample (attended the first semester
+of ninth grade and never transferred into or out of the system).
+
+Ask Yourself
+- What percent of those in a specific on-track category at the end of ninth grade stay in that same
+on-track category? For example, what percent of off-track ninth graders continue off-track in tenth
+grade?
+- How might you use an early warning system to help students get back on-track for graduation?
+
+Possible Next Steps or Action Plans: Identify additional risk factors, (chronic absenteeism, prior
+academic achievement etc.) which can be incorporated into analyses like the one above. This could be
+used to further understand which students struggle, why they struggle, and interventions to keep them
+enrolled and engaged.
+
+```{r}
+plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
+                   chrt_ninth <= chrt_ninth_end_persist_yr2) %>% 
+  filter(ontrack_sample == 1)
+
+# // Step 3: Create variables for the outcomes "regular diploma recipients", "seamless transitioners" and "second year persisters"
+plotdf$grad <- ifelse(!is.na(plotdf$chrt_grad) & plotdf$ontime_grad ==1, 1, 0)
+plotdf$seamless_transitioners_any <- as.numeric(plotdf$enrl_1oct_ninth_yr1_any == 1 &
+                                                 plotdf$ontime_grad == 1)
+plotdf$second_year_persisters = as.numeric(plotdf$enrl_1oct_ninth_yr1_any == 1 &
+                                             plotdf$enrl_1oct_ninth_yr2_any == 1 &
+                                             plotdf$ontime_grad == 1)
+# // Step 3: Generate on track indicators that take into account students’ GPAs 
+# upon completion of their first year in high school
+
+plotdf$ot <- NA
+plotdf$ot[plotdf$ontrack_endyr1 == 0] <- "Off-Track to Graduate"
+plotdf$ot[plotdf$ontrack_endyr1 == 1 & plotdf$cum_gpa_yr1 < 3 & !is.na(plotdf$cum_gpa_yr1)] <- "On-Track, GPA < 3.0"
+plotdf$ot[plotdf$ontrack_endyr1 == 1 & plotdf$cum_gpa_yr1 >= 3 & !is.na(plotdf$cum_gpa_yr1)] <- "On-Track, GPA >= 3.0"
+
+# assert !mi(ontrack_endyr1_gpa) if !mi(ontrack_endyr1) & !mi(cum_gpa_yr1)
+# // Step 4: Create indicators for students upon completion of their second year of high school
+
+plotdf$ot_10 <- NA
+
+plotdf$ot_10[plotdf$ontrack_endyr2 == 0] <- "Off-Track to Graduate"
+plotdf$ot_10[plotdf$ontrack_endyr2 == 1 & plotdf$cum_gpa_yr2 < 3 & !is.na(plotdf$cum_gpa_yr2)] <- "On-Track, GPA < 3.0"
+plotdf$ot_10[plotdf$ontrack_endyr2 == 1 & plotdf$cum_gpa_yr2 >= 3 & !is.na(plotdf$cum_gpa_yr2)] <- "On-Track, GPA >= 3.0"
+plotdf$ot_10[plotdf$status_after_yr2 == 3 | plotdf$status_after_yr2 == 4] <- "Dropout/Disappear"
 
 
+
+# // Step 5: Obtain mean rates for each school and append the agency average
+onTrackBar <- plotdf %>% group_by(ot, ot_10) %>% 
+  select(ot) %>% tally() %>% 
+  ungroup %>% group_by(ot) %>%
+  mutate(count = sum(n))
+
+
+# // Step 7: For students who are off-track upon completion of their first year of high school, convert the values to be
+# negative for ease of visualization in the graph
+
+onTrackBar$n[onTrackBar$ot_10 == "Off-Track to Graduate"] <- 
+  -onTrackBar$n[onTrackBar$ot_10 == "Off-Track to Graduate"] 
+
+
+onTrackBar$n[onTrackBar$ot_10 == "Dropout/Disappear"] <- 
+  -onTrackBar$n[onTrackBar$ot_10 == "Dropout/Disappear"] 
+
+
+# // Step 8: Multiply the average of each outcome by 100 for graphical representation of the rates. Create a variable equal to
+# the sum of the two on-track status variables for easier sorting
+# foreach var of varlist ontrack_endyr1_1 ontrack_endyr1_2 ontrack_endyr1_3 {
+# replace `var' = (`var' * 100)
+
+
+ggplot(onTrackBar, aes(x = reorder(ot, n/count), 
+                         y = n/count, group = ot_10)) + 
+  geom_bar(aes(fill = ot_10), stat = 'identity') + 
+  geom_text(aes(label = round(100* n/count, 1)), 
+            position = position_stack(vjust=0.3)) + 
+  theme_bw() + 
+  scale_y_continuous(limits = c(-1, 1), label = percent, 
+                    name = "Percent of Tenth Grade Students \n by Ninth Grade Status") + 
+  scale_fill_brewer(name = "End of Tenth Grade \n On-Track Status", 
+                    type = "div", palette = 5) + 
+  theme(axis.text.x = element_text(color = "black"), 
+        legend.position = c(0.15, 0.825)) +
+  labs(title = "Proportion of Students On-Track to Graduate by School", 
+       x = "Ninth Grade On-Track Status",
+       subtitle = "End of Ninth Grade On-Track Status \n By High School", 
+       caption = paste0("Sample: 2004-2005 Agency first-time ninth graders. \n", 
+                        "Postsecondary enrollment outcomes from NSC matched records. All other data from Agency administrative records."))
+```
+
+# C. High School Graduation
+
+Purpose: This analysis explores variation in high school completion rates across 
+high schools in the system for both on-time and late high school graduates.
+
+Analysis-Specific Sample Restrictions: Keep students in ninth
+grade cohorts you can observe graduating high school one year late
+
+Ask Yourself
+- Does the ordering of high school completion rates coincide with beliefs key 
+stakeholders have about these high schools?
+- Which high schools have the highest and lowest completion rates? Do you know 
+why?
+
+## Task 1: High School Completion Rates By School
+
+Analytic Technique: Calculate the proportion of students who complete high school 
+by school.
+
+
+
+```{r}
+plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
+                   chrt_ninth <= chrt_ninth_end_persist_yr2) 
+
+schoolLevel <- bind_rows(
+  plotdf %>% group_by(first_hs_name) %>% 
+    summarize(ontime_grad = mean(ontime_grad, na.rm=TRUE), 
+              late_grad = mean(late_grad, na.rm=TRUE), 
+              count = n()), 
+  plotdf %>% ungroup %>%  
+    summarize(first_hs_name = "Agency AVERAGE",
+              ontime_grad = mean(ontime_grad, na.rm=TRUE), 
+              late_grad = mean(late_grad, na.rm=TRUE), 
+              count = n())
+)
+# // Step 7: Reformat the data file so that one variable contains all the outcomes of interest
+# // Step 8: Prepare to graph the results
+schoolLevel <- schoolLevel %>% gather(key = outcome, 
+                             value = measure, -count, -first_hs_name)
+schoolLevel$first_hs_name <- gsub(" High School", "", schoolLevel$first_hs_name)
+
+schoolLevel$outcome[schoolLevel$outcome == "ontime_grad"] <- "On-Time HS Graduate"
+schoolLevel$outcome[schoolLevel$outcome == "late_grad"] <- "Graduate in 4+ Years"
+
+ggplot(schoolLevel, aes(x = reorder(first_hs_name, measure), y = measure, 
+                        group = first_hs_name, fill = outcome)) + 
+  geom_bar(aes(fill = outcome), stat = 'identity') + 
+  geom_text(aes(label = round(100 * measure, 0)), 
+            position = position_stack(vjust = 0.8)) + 
+  theme_bw() + theme(panel.grid = element_blank(), axis.ticks.x = element_blank()) +
+  scale_y_continuous(limits = c(0, 1), label = percent, 
+                    name = "Percent of Ninth Graders") + 
+  scale_fill_brewer(name = "", 
+                    type = "qual", palette = 7) + 
+  theme(axis.text.x = element_text(color = "black", angle = 30, vjust = 0.5), 
+        legend.position = c(0.15, 0.825)) +
+  labs(title = "High School Graduation Rates by High School", 
+       x = "",
+       caption = paste0("Sample: 2004-2005 Agency first-time ninth graders. \n", 
+                        "Data from Agency administrative records."))
+```
+
+## Task 2: High SChool Completion Rates by Average 8th Grade Achievement
+
+```{r}
+plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
+                   chrt_ninth <= chrt_ninth_end_persist_yr2) %>% 
+  filter(!is.na(test_math_8_std))
+
+schoolLevel <- bind_rows(
+  plotdf %>% group_by(first_hs_name) %>% 
+    summarize(ontime_grad = mean(ontime_grad, na.rm=TRUE), 
+              std_score = mean(test_math_8_std, na.rm=TRUE), 
+              count = n()), 
+  plotdf %>% ungroup %>%  
+    summarize(first_hs_name = "Agency AVERAGE",
+              ontime_grad = mean(ontime_grad, na.rm=TRUE), 
+              std_score = mean(test_math_8_std, na.rm=TRUE), 
+              count = n())
+)
+# // Step 7: Reformat the data file so that one variable contains all the outcomes of interest
+# // Step 8: Prepare to graph the results
+schoolLevel$first_hs_name <- gsub(" High School", "", schoolLevel$first_hs_name)
+
+```
+
+```{r}
+
+
+ggplot(schoolLevel[schoolLevel$first_hs_name != "Agency AVERAGE", ], 
+       aes(x = std_score, y = ontime_grad)) + 
+  geom_vline(xintercept = as.numeric(schoolLevel[schoolLevel$first_hs_name == "Agency AVERAGE", "std_score"]), 
+               linetype = 4, color = I("goldenrod"), size = 1.1) +
+  geom_hline(yintercept = as.numeric(schoolLevel[schoolLevel$first_hs_name == "Agency AVERAGE", "ontime_grad"]), 
+               linetype = 4, color = I("purple"), size = 1.1) +
+  geom_point(size = I(2)) + 
+  theme_bw() + theme(panel.grid = element_blank()) +
+  coord_cartesian() +
+  annotate(geom = "text", x = -.85, y = 0.025, 
+           label = "Below average math scores & \n below average graduation rates", 
+           size = I(2.5)) +
+  annotate(geom = "text", x = .85, y = 0.025, 
+           label = "Above average math scores & \n below average graduation rates", 
+           size = I(2.5)) +
+  annotate(geom = "text", x = .85, y = 0.975, 
+           label = "Above average math scores & \n above average graduation rates", 
+           size = I(2.5)) +
+  annotate(geom = "text", x = -.85, y = 0.975, 
+           label = "Below average math scores & \n above average graduation rates", 
+           size = I(2.5)) + 
+  annotate(geom = "text", x = .205, y = 0.025, 
+           label = "Agency Average \n Test Score", 
+           size = I(2.5), color = I("goldenrod")) + 
+  annotate(geom = "text", x = .85, y = 0.61, 
+           label = "Agency Average Graduation Rate", 
+           size = I(2.5)) + 
+  scale_x_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.2)) + 
+  scale_y_continuous(limits = c(0, 1), label = percent, 
+                     name = "Percent of Ninth Graders", breaks = seq(0, 1, 0.1)) + 
+  geom_text(aes(label = first_hs_name), nudge_y = 0.025, vjust = "top", size = I(4), 
+            nudge_x = 0.01) +
+  labs(title = "High School Graduation Rates by High School", 
+       x = "Average 8th Grade Math Standardized Score",
+       subtitle = "By Student Achievement Profile Upon High SChool Entry",
+       caption = paste0("Sample: 2004-2005 through 2005-2006 Agency first-time ninth graders with eighth grade math test scores. \n", 
+                        "Data from Agency administrative records."))
+```
+
+
+## Task 3: High SChool Completion Rates by 8TH Grade Achievement Quartiles
+
+
+Purpose: This analysis examines variation in completion rates for high schools 
+among students with 8th grade test scores in the same quartile. The analysis is useful to explore high school completion
+rates across schools with students in the same quartile or range of achievement. Each high school is
+repeated as a blue bar in each quartile.
+
+Analysis-Specific Sample Restrictions:
+• Keep students in ninth grade cohorts you can observe
+graduating high school AND have non-missing eighth grade
+math scores.
+• Drop high schools with less than 20 students in each quartile
+enrolled in ninth grade across the cohorts.
+
+Ask Yourself
+• Looking at the average in each quartile (orange bars), how do 8th grade test scores relate to high
+school graduation?
+• For each quartile of 8th grade test scores (the blue bars), how do graduation rates vary by high
+school? What is the difference between top and bottom high schools in each quartile?
+
+Possible Next Steps or Action Plans: Highlight comparison schools to show variation across quartiles
+and explore reasons why students at different schools, but with similar academic profiles at high
+school entry, are more or less likely to graduate.
+
+```{r}
+plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
+                   chrt_ninth <= chrt_ninth_end_persist_yr2) %>% 
+  filter(!is.na(test_math_8_std))
+
+schoolLevel <- bind_rows(
+  plotdf %>% group_by(qrt_8_math, first_hs_name) %>% 
+    summarize(ontime_grad = mean(ontime_grad, na.rm=TRUE), 
+              count = n()), 
+  plotdf %>% ungroup %>% 
+    summarize(first_hs_name = "Agency AVERAGE",
+              qrt_8_math = 1,
+              ontime_grad = mean(ontime_grad, na.rm=TRUE), 
+              count = n())
+)
+# // Step 7: Reformat the data file so that one variable contains all the outcomes of interest
+# // Step 8: Prepare to graph the results
+schoolLevel$first_hs_name <- gsub(" High School", "", schoolLevel$first_hs_name)
+
+```
+
+```{r}
+
+p2 <-  ggplot(schoolLevel[schoolLevel$qrt_8_math == 2 & 
+                       schoolLevel$first_hs_name != "Agency AVERAGE", ], 
+       aes(x = reorder(first_hs_name, ontime_grad), y = ontime_grad)) +
+      geom_hline(yintercept = as.numeric(schoolLevel$ontime_grad[schoolLevel$first_hs_name == "Agency AVERAGE"]),
+               linetype = 2, size = I(1.1)) +
+  geom_bar(stat = "identity", fill = "lightsteelblue4", color = I("black")) + 
+    scale_y_continuous(limits = c(0,1), breaks = seq(0, 1, 0.2), 
+                       expand = c(0, 0), label = percent) + 
+    theme_bw() + 
+    theme(panel.grid = element_blank(),
+                       axis.text.x = element_text(angle = 30, color = "black", vjust = 0.5),
+          axis.ticks = element_blank(),
+          axis.text.y = element_blank(), axis.line.y = element_blank(), 
+          panel.border = element_blank()) +
+    labs(y = "", x = "") + 
+    geom_text(aes(label = round(ontime_grad * 100, 0)), vjust = -0.2) +
+    expand_limits(y = 0, x = 0)
+
+# schoolLevel$order <-
+
+grobList <- list(
+  ggplot(schoolLevel[schoolLevel$qrt_8_math == 1 & 
+                       schoolLevel$first_hs_name != "Agency AVERAGE", ], 
+       aes(x = reorder(first_hs_name, ontime_grad), y = ontime_grad)) + 
+        geom_hline(yintercept = as.numeric(schoolLevel$ontime_grad[schoolLevel$first_hs_name == "Agency AVERAGE"]),
+               linetype = 2, size = I(1.1)) +
+  geom_bar(stat = "identity", fill = "lightsteelblue4", color = I("black")) + 
+    scale_y_continuous(limits = c(0,1), breaks = seq(0, 1, 0.2), 
+                       expand = c(0, 0), label = percent) + 
+    theme_bw() + 
+    theme(panel.grid = element_blank(),
+                       axis.text.x = element_text(angle = 30, color = "black", vjust = 0.5),
+          axis.line.y = element_line(),
+          axis.ticks.x = element_blank(),panel.border = element_blank()) +
+    labs(y = "Percent of Ninth Graders", x = "") + 
+    geom_text(aes(label = round(ontime_grad * 100, 0)), vjust = -0.2) +
+    expand_limits(y = 0, x = 0),
+  p2, 
+  p2 %+% schoolLevel[schoolLevel$qrt_8_math == 3 & 
+                       schoolLevel$first_hs_name != "Agency AVERAGE", ],
+  p2 %+% schoolLevel[schoolLevel$qrt_8_math == 4 & 
+                       schoolLevel$first_hs_name != "Agency AVERAGE", ]
+)
+
+wrap <- mapply(arrangeGrob, grobList, 
+               bottom = c("Bottom Quartile", "2nd Quartile", "3rd Quartile", "Top Quartile"), 
+               SIMPLIFY=FALSE)
+grid.arrange(grobs=wrap, nrow=1, 
+             top = "On-Time High School Graduation Rates \n by Prior Student Achievement", 
+             bottom = paste0("Sample: 2004-2005 through 2005-2006 Agency first-time", 
+                              "ninth graders with eighth grade math test scores. \n",
+                              "Data from Agency administrative records."))
+
+```
+
+## Task 4: Racial Gaps in Completion Overall and by 8th Grade Achievement Quartiles
+
+Purpose: This analysis displays an overall graduation gap by race, and examines the extent to which
+this gap is explained by average differences in academic achievement between racial sub-groups at
+high school entry. The analysis is useful to diagnose whether racial gaps in high school result from
+persistent academic achievement gaps that emerge in early grades, or if other factors unique to the
+high school experience drive high school completion rate differences by race.
+
+
+Analysis-Specific Sample Restrictions:
+• Keep students in ninth grade cohorts you can observe
+graduating high school AND have non-missing eighth grade
+math scores.
+• Drop any race/ethnic sub-groups with at least 20 students
+in each quartile (for the second graph). You may further
+restrict the sample to only include students from the most
+representative racial/ethnic sub-groups in your agency.
+
+Ask Yourself
+• How do racial gaps in graduation rates change after prior achievement is accounted for? Do these
+gaps change for different prior achievement quartiles?
+
+Possible Next Steps or Action Plans: Repeat analyses for only students that qualify for free or reduced
+price lunch (FRPL) to explore if racial gaps are better explained by disparities in prior academic
+achievement and family socioeconomic status.
+
+```{r}
+plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
+                   chrt_ninth <= chrt_ninth_end_persist_yr2) %>% 
+  filter(!is.na(test_math_8_std))
+
+plotdf$race <- as_factor(plotdf$race_ethnicity)
+
+plotOne <- plotdf %>% group_by(race) %>% 
+  summarize(ontimeGrad = mean(ontime_grad, na.rm = TRUE), 
+            N = n()) %>% ungroup %>% 
+  filter(N > 100)
+
+plotTwo <- plotdf %>% group_by(race, qrt_8_math) %>% 
+  summarize(ontimeGrad = mean(ontime_grad, na.rm=TRUE), 
+            N = n()) %>% ungroup %>% 
+  filter(race %in% c("Black", "Asian", "Hispanic", "White"))
+
+plotTwo$qrt_label <- NA
+plotTwo$qrt_label[plotTwo$qrt_8_math == 1] <- "Bottom Quartile"
+plotTwo$qrt_label[plotTwo$qrt_8_math == 2] <- "2nd Quartile"
+plotTwo$qrt_label[plotTwo$qrt_8_math == 3] <- "3rd Quartile"
+plotTwo$qrt_label[plotTwo$qrt_8_math == 4] <- "Top Quartile"
+
+plotTwo$qrt_label <- factor(plotTwo$qrt_label, 
+                            ordered = TRUE, 
+                            levels = c("Bottom Quartile", 
+                                       "2nd Quartile", 
+                                       "3rd Quartile", 
+                                       "Top Quartile"))
+
+# // Step 7: Reformat the data file so that one variable contains all the outcomes of interest
+# // Step 8: Prepare to graph the results
+# schoolLevel$first_hs_name <- gsub(" High School", "", schoolLevel$first_hs_name)
+```
+
+```{r}
+
+ggplot(plotOne, aes( x= reorder(race, -N), y = ontimeGrad, fill = race)) + 
+  geom_bar(stat = "identity", color = I("black")) + 
+  scale_fill_brewer(type = "qual", palette = 4, guide = "none") + 
+  geom_text(aes(label = round(ontimeGrad*100, 0)), vjust = -0.4) + 
+  theme_bw() + theme(panel.grid = element_blank(), panel.border = element_blank(),
+                     axis.line = element_line()) + 
+  scale_y_continuous(limits = c(0, 1), expand = c(0, 0), 
+                     breaks = seq(0, 1, 0.2), name = "Percent of Ninth Graders", 
+                     label = percent) + 
+  labs(x = "", title = "On-Time High School Graduation Rates",
+       subtitle = "by Race", 
+       caption = "Sample: 2004-2005 through 2005-2006 Agency first-time ninth graders. \n All data from Agency administrative records.")
+
+ggplot(plotTwo, aes( x = qrt_label, 
+                     group= reorder(race, -N), y = ontimeGrad, fill = race)) + 
+  geom_bar(stat = "identity", color = I("black"), position = "dodge") + 
+  scale_fill_brewer(type = "qual", palette = 4) + 
+  guides(fill = guide_legend(nrow=1, title = "", keywidth = 2)) +
+  geom_text(aes(label = round(ontimeGrad*100, 0)), position = position_dodge(0.9), vjust = -0.3) + 
+  theme_bw() + theme(panel.grid = element_blank(), panel.border = element_blank(),
+                     axis.line = element_line(), legend.position = "top") + 
+  scale_y_continuous(limits = c(0, 1), expand = c(0, 0), 
+                     breaks = seq(0, 1, 0.2), name = "Percent of Ninth Graders", 
+                     label = percent) + 
+  labs(x = "", title = "On-Time High School Graduation Rates",
+       subtitle = "by Race", 
+       caption = "Sample: 2004-2005 through 2005-2006 Agency first-time ninth graders. \n All data from Agency administrative records.")
+
+  
+```
+
+## Task 5: Enrollment Outcome in Year Four By On-Track Status At the End of Ninth Grade
+
+Purpose: This analysis explores how strongly student performance in ninth grade predicts high school
+graduation three years later. Building upon our analysis of the relationship between student performance
+in ninth and tenth grade, the analysis assesses the utility of using course-level performance
+data early in students’ high school careers to assess risk of non-completion, and target students in
+need of academic and/or socio-emotional support.
+
+Analysis-Specific Sample Restrictions:
+• Keep students in ninth grade cohorts you can observe
+graduating high school AND are part of the on-track sample
+(attended the first semester of ninth grade and never transferred
+into or out of the system).
+
+Ask Yourself
+• How does on-track status at the end of ninth grade relate to high school completion status at the
+end of four years?
+
+Possible Next Steps or Action Plans: Repeat analyses for only students that qualify for free or reduced
+price lunch (FRPL) to explore whether racial gaps are better explained by disparities in prior academic
+achievement and family socioeconomic status.
