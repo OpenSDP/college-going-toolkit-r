@@ -895,3 +895,112 @@ end of four years?
 Possible Next Steps or Action Plans: Repeat analyses for only students that qualify for free or reduced
 price lunch (FRPL) to explore whether racial gaps are better explained by disparities in prior academic
 achievement and family socioeconomic status.
+
+```{r}
+plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
+                   chrt_ninth <= chrt_ninth_end_persist_yr2) %>% 
+  filter(!is.na(cum_gpa_yr1)) %>% 
+  filter(ontrack_sample == 1)
+
+plotdf$statusVar <- as_factor(plotdf$status_after_yr4)
+
+plotdf$ontrackStatus <- NA
+plotdf$ontrackStatus[plotdf$ontrack_endyr1 == 0] <- "Off-Track to Graduate"
+plotdf$ontrackStatus[plotdf$ontrack_endyr1 == 1 & plotdf$cum_gpa_yr1 < 3 &
+                       !is.na(plotdf$cum_gpa_yr1)] <- "On-Track, GPA < 3.0"
+plotdf$ontrackStatus[plotdf$ontrack_endyr1 == 1 & plotdf$cum_gpa_yr1 >= 3 &
+                       !is.na(plotdf$cum_gpa_yr1)] <- "On-Track, GPA >= 3.0"
+
+
+
+plotOne <- plotdf %>% group_by(ontrackStatus, statusVar) %>% 
+  summarize(count = n()) %>% ungroup %>%
+  group_by(ontrackStatus) %>% 
+  mutate(sum = sum(count))
+plotOne$count[plotOne$statusVar == "Dropped Out"] <- -plotOne$count[plotOne$statusVar == "Dropped Out"]
+plotOne$count[plotOne$statusVar == "Disappeared"] <- -plotOne$count[plotOne$statusVar == "Disappeared"]  
+```
+
+```{r}
+
+ggplot(plotOne, aes(x = ontrackStatus, y = count/sum, fill = statusVar, 
+                    group = statusVar)) + 
+  geom_bar(stat="identity") + 
+  scale_fill_brewer(type = "div", palette=7, direction = -1) + 
+  geom_hline(yintercept = 0, size =1.1) + 
+  scale_y_continuous(limits = c(-0.6, 1), label = percent, 
+                     breaks = seq(-0.6, 1, 0.2), name = "Percent of Students") + 
+  labs(x = "Ninth Grade On-Track Status", fill = "Status After Year Four", 
+       title = "Enrollment Status After Four Years in High School", 
+       subtitle = "By Course Credits and GPA after First Year of High School", 
+       caption = paste0("Sample: 2004-2005 through 2005-2006 Agency first-time ninth graders.", 
+                        "Students who transferred into or out of the agency are excluded from the sample.",
+                        "\n All data from Agency administrative records.")) + 
+  theme_classic() + theme(legend.position = c(0.2, 0.8),
+                          axis.text = element_text(color = "black")) 
+
+```
+
+# D: College Enrollment
+
+The following three analyses in College Enrollment include the three Strategic Performance Indicators
+(SPIs) SDP has released to provide deeper insight into the college-going performance of educational
+systems. These SPIs were conducted using data from a number of SDP's partner agencies. This
+section of Analyze will help you conduct these analyses yourself. You can read more about the SPIs at
+http://www.gse.harvard.edu/sdp/strategic-performance-indicators.
+
+
+## Task 1: College Enrollment Rates by High School
+
+Purpose: This analysis provides an agency snapshot of college enrollment to understand how patterns
+of college-going for high school graduates vary across high schools. By illuminating the extent
+to which enrollment varies by entry time for seamless enrollers and college level (2- vs. 4-year), the
+analysis helps diagnose compositional differences for the college-bound population by high school attended.
+
+Analysis-Specific Sample Restrictions:
+• Keep students in high school graduation cohorts you can
+observe enrolling in college the fall after graduation.
+• Drop any high schools with less than 20 students in the
+sample.
+• Include only graduates who received regular or advanced
+diplomas (i.e. exclude students who received SPED diplomas
+and other certificates).
+
+Ask Yourself
+• How do college enrollment rates differ by high schools? Why might certain schools have a greater
+percentage of high school graduates enrolling in college? Do certain schools have higher percentages
+of 2-year or delayed college enrollers?
+
+Possible Next Steps or Action Plans: Replicate this analysis to include all first-time ninth graders (i.e.
+ninth grade cohorts) in place of graduates. Additionally, create individual high school reports that provide
+more details for school administrators (top enrolling institutions of the school’s graduates).
+
+```{r}
+plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end)
+
+chartData <- 
+  bind_rows(plotdf %>% select(first_hs_name, enrl_1oct_grad_yr1_2yr, enrl_1oct_grad_yr1_4yr, 
+                               hs_diploma) %>%
+              group_by(first_hs_name) %>% 
+              summarize_all(funs(sum), na.rm=TRUE),
+  plotdf %>% select(enrl_1oct_grad_yr1_2yr, enrl_1oct_grad_yr1_4yr, 
+                               hs_diploma) %>% 
+    summarize_all(funs(sum), na.rm=TRUE) %>% 
+    mutate(first_hs_name = "Agency AVERAGE")
+  )
+
+chartData <- chartData %>% gather(key = outcome, 
+                             value = measure, -first_hs_name, -hs_diploma)
+
+```
+
+```{r}
+
+ggplot(chartData, aes(x = first_hs_name, y = measure/hs_diploma, 
+                      fill = outcome, group = outcome)) + 
+  geom_bar(stat = "identity", position = "stack")
+
+
+```
+
+
