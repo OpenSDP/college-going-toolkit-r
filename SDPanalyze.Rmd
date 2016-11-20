@@ -724,7 +724,7 @@ schoolLevel$first_hs_name <- gsub(" High School", "", schoolLevel$first_hs_name)
 ```
 
 ```{r}
-
+library(gridExtra)
 p2 <-  ggplot(schoolLevel[schoolLevel$qrt_8_math == 2 & 
                        schoolLevel$first_hs_name != "Agency AVERAGE", ], 
        aes(x = reorder(first_hs_name, ontime_grad), y = ontime_grad)) +
@@ -1243,3 +1243,216 @@ school completion. Additionally, replicate this analysis to explore the relation
 enrollment and students’ ELA achievement at high school entry. Consider why schools with similar
 incoming student profiles may report dramatically different college-going rates. Conversely, consider
 why schools with distinct student bodies may report similar matriculation rates to college.
+
+```{r}
+plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end) %>% 
+  select(sid, chrt_grad, enrl_1oct_grad_yr1_any, qrt_8_math,
+         last_hs_name) %>% 
+  filter(!is.na(qrt_8_math))
+
+
+AGENCYLEVEL <- plotdf %>% 
+  summarize(agency_mean_enroll = mean(enrl_1oct_grad_yr1_any, na.rm=TRUE)) %>% 
+  as.data.frame
+
+chartData <- bind_rows(
+  plotdf %>% group_by(last_hs_name, qrt_8_math) %>% 
+  summarize(enroll_rate = mean(enrl_1oct_grad_yr1_any, na.rm=TRUE), 
+            count = n()),
+  plotdf %>% group_by(qrt_8_math) %>% 
+  summarize(enroll_rate = mean(enrl_1oct_grad_yr1_any, na.rm=TRUE), 
+            count = n(), 
+            last_hs_name = "Agency AVERAGE")
+)
+
+chartData$last_hs_name <- gsub("High School", "", chartData$last_hs_name)
+
+```
+
+```{r}
+p1 <- ggplot(chartData[chartData$qrt_8_math == 1, ], 
+       aes(x = reorder(last_hs_name, enroll_rate), y = enroll_rate)) + 
+        geom_hline(yintercept = as.numeric(AGENCYLEVEL$agency_mean_enroll),
+               linetype = 2, size = I(1.1)) +
+  geom_bar(stat = "identity", fill = "lightsteelblue4", color = I("black")) + 
+    scale_y_continuous(limits = c(0,1), breaks = seq(0, 1, 0.2), 
+                       expand = c(0, 0), label = percent) + 
+    theme_bw() + 
+  annotate(geom = "text", x = 3, y = 0.775, label = "Agency Average") +
+    theme(panel.grid = element_blank(),
+                       axis.text.x = element_text(angle = 30, color = "black", vjust = 0.5),
+          axis.line.y = element_line(),  axis.line.x = element_line(),
+          axis.ticks.x = element_blank(),panel.border = element_blank()) +
+    labs(y = "Percent of Ninth Graders", x = "") + 
+    geom_text(aes(label = round(enroll_rate * 100, 0)), vjust = -0.2) +
+    expand_limits(y = 0, x = 0)
+
+p2 <-  ggplot(chartData[chartData$qrt_8_math == 2, ], 
+       aes(x = reorder(last_hs_name, enroll_rate), y = enroll_rate)) +
+      geom_hline(yintercept = as.numeric(AGENCYLEVEL$agency_mean_enroll),
+               linetype = 2, size = I(1.1)) +
+  geom_bar(stat = "identity", fill = "lightsteelblue4", color = I("black")) + 
+    scale_y_continuous(limits = c(0,1), breaks = seq(0, 1, 0.2), 
+                       expand = c(0, 0), label = percent) + 
+    theme_bw() + 
+    theme(panel.grid = element_blank(),
+                       axis.text.x = element_text(angle = 30, color = "black", vjust = 0.5),
+          axis.ticks = element_blank(), axis.line.x = element_line(),
+          axis.text.y = element_blank(), axis.line.y = element_blank(), 
+          panel.border = element_blank()) +
+    labs(y = "", x = "") + 
+    geom_text(aes(label = round(enroll_rate * 100, 0)), vjust = -0.2) +
+    expand_limits(y = 0, x = 0)
+
+# schoolLevel$order <-
+
+grobList <- list(
+  p1,
+  p2, 
+  p2 %+% chartData[chartData$qrt_8_math == 3, ],
+  p2 %+% chartData[chartData$qrt_8_math == 4, ]
+)
+
+wrap <- mapply(arrangeGrob, grobList, 
+               bottom = c("Bottom Quartile", "2nd Quartile", "3rd Quartile", "Top Quartile"), 
+               SIMPLIFY=FALSE)
+grid.arrange(grobs=wrap, nrow=1, 
+             top = "College Enrollment Rates \n by Prior Student Achievement, Seamless Enrollers Only", 
+             bottom = paste0("Sample: 2007-2008 through 2008-2009 ", 
+                             "Agency graduates with eighth grade math scores. Postsecondary ",
+                             "enrollment outcomes from NSC matched records.", 
+                             " \n All other data from Agency administrative records."))
+```
+
+### Task 5: Rates of College Enrollment Among Graduates Highly Qualified to Attend Four-Year Colleges, by College Type
+
+Purpose: Research consistently finds wide variation in rates of persistence and completion across
+postsecondary institutions. This analysis examines whether high school graduates enroll in colleges
+and universities that provide the right academic fit to maximize their chances of completion.
+"Match"describes the extent high school graduates with strong academic records attend colleges
+and universities that allow them to take advantage of their ambition and abilities. While "matching"
+to an appropriately selective college is only one factor to consider when choosing a postsecondary
+institution, the implications of under-matching (i.e. lower rates of persistence and degree completion)
+suggest students should be encouraged to attend realistic, yet challenging postsecondary institutions.
+
+Analysis-Specific Sample Restrictions:
+• Keep students in high school graduation cohorts you can
+observe enrolling in college the fall after graduation.
+• Include only graduates who received regular or advanced
+diplomas (i.e. exclude students who received SPED diplomas
+and other certificates).
+• Include only highly qualified high school graduates (i.e.
+students who have obtained a high school diploma on time
+with 1) a cumulative GPA of 3.0 or higher and Math/Verbal
+SAT score of 1300 or higher, or 2) a cumulative GPA of 3.3 or
+higher and Math/Verbal SAT score of 1200 or higher, or 3) a
+cumulative GPA of 3.7 or higher and Math/Verbal SAT score
+of at least 1100).
+• Drop race/ethnic groups with less than 20 students eligible
+to attend a four-year university.
+
+Ask Yourself
+• Among highly qualified students, which race/ethnicities seem to face the greatest undermatch
+rates?
+
+Possible Next Steps or Action Plans: This analysis leads to important questions that warrant further
+exploration. What factors drive undermatch differences across student subgroups and high schools?
+To what extent is undermatching concentrated among first-time college-goers? To what extent is
+undermatching driven by students’ proximity to 2-year versus 4-year institutions? What college aspirations
+do incoming ninth graders hold, and do these aspirations change by the time they enter or complete
+12th grade? To what extent are teachers, counselors, and administrators supported to work with
+students to cultivate postsecondary aspirations and weigh factors in the college selection process?
+
+```{r}
+plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end) %>% 
+  select(sid, chrt_grad, race_ethnicity, highly_qualified, 
+         enrl_1oct_grad_yr1_any, enrl_1oct_grad_yr1_4yr, enrl_1oct_grad_yr1_2yr)
+
+plotdf$race_ethnicity <- as_factor(plotdf$race_ethnicity)
+
+totalCount <- nrow(plotdf)
+
+plotdf$no_college <- ifelse(plotdf$enrl_1oct_grad_yr1_any == 0, 1, 0)
+plotdf$enrl_2yr <- ifelse(plotdf$enrl_1oct_grad_yr1_2yr == 1, 1, 0)
+plotdf$enrl_4yr <- ifelse(plotdf$enrl_1oct_grad_yr1_4yr == 1, 1, 0)
+
+agencyLevel <- plotdf %>% filter(highly_qualified == 1) %>% 
+  summarize(no_college = mean(no_college, na.rm=TRUE), 
+            enrl_2yr = mean(enrl_2yr, na.rm=TRUE), 
+            enrl_4yr = mean(enrl_4yr, na.rm=TRUE), 
+            total_count = n(), 
+            race_ethnicity = "TOTAL")
+
+chartData <- plotdf %>% filter(highly_qualified == 1) %>% 
+  group_by(race_ethnicity) %>%
+  summarize(no_college = mean(no_college, na.rm=TRUE), 
+            enrl_2yr = mean(enrl_2yr, na.rm=TRUE), 
+            enrl_4yr = mean(enrl_4yr, na.rm=TRUE), 
+            total_count = n())
+
+chartData <- bind_rows(chartData, agencyLevel)
+
+chartData$no_college <- -chartData$no_college
+chartData$enrl_2yr <- -chartData$enrl_2yr
+
+chartData <- chartData %>% gather(key = outcome, value = measure, 
+                                  -race_ethnicity, -total_count)
+
+chartData$groupPer <- round(100 * chartData$total_count/totalCount)
+chartData$race_ethnicity[chartData$race_ethnicity == "Black"] <- "African American"
+chartData$race_ethnicity[chartData$race_ethnicity == "Asian"] <- "Asian American"
+chartData$race_ethnicity[chartData$race_ethnicity == "Hispanic"] <- "Hispanic American"
+chartData$race_ethnicity[chartData$race_ethnicity == "TOTAL"] <- "Total"
+
+chartData$label <- paste0(chartData$race_ethnicity, "\n ", 
+                          chartData$groupPer, "% of Graduates")
+
+chartData %<>% filter(chartData$race_ethnicity != "Multiple/Other")
+
+chartData$outcomeLabel <- NA
+chartData$outcomeLabel[chartData$outcome == "no_college"] <- "Not Enrolled in College"
+chartData$outcomeLabel[chartData$outcome == "enrl_2yr"] <- "Enrolled at 2-Yr College"
+chartData$outcomeLabel[chartData$outcome == "enrl_4yr"] <- "Enrolled at 4-Yr College"
+
+chartData$outcomeLabel <- factor(chartData$outcomeLabel, 
+                                 ordered = TRUE, 
+                                 levels = c("Enrolled at 4-Yr College", 
+                                            "Not Enrolled in College", 
+                                            "Enrolled at 2-Yr College"))
+
+```
+
+```{r}
+
+myCap <- paste0("Sample: 2007-2008 through 2008-2009 Agency first-time ninth graders.", 
+                " Students who transferred into or out of Agency are excluded \n", 
+                "from the sample. Eligibility to attend a public four-year university", 
+                  " is based on students' cumulative GPA and ACT/SAT scores. \n", 
+                  "Sample includes 30 African American, 82 Asian American students, ", 
+                "53 Hispanic, and 198 White students. \n", 
+                "Post-secondary enrollment data are from NSC matched records.")
+
+ggplot(chartData, aes(x = reorder(label, total_count), y = measure, group = outcomeLabel, 
+                      fill = outcomeLabel)) + 
+  geom_bar(position = 'stack', stat = 'identity', color = I("black")) + 
+  geom_hline(yintercept = 0) + 
+  geom_text(aes(label = round(measure * 100, 0)), position=position_stack(vjust = 0.85)) +
+  scale_y_continuous(limits = c(-.25, 1), breaks = seq(-.25, 1, 0.2), label = percent) +
+  theme_classic() + 
+  guides(fill = guide_legend(nrow=1, title = "", keywidth = 2)) +
+  scale_fill_brewer(type = "qual", palette = 2, direction = -1) + 
+  theme(legend.position = "top", axis.text = element_text(color = "black"), 
+        plot.caption = element_text(hjust = 0), 
+        plot.title = element_text(hjust = 0.5), 
+        plot.subtitle = element_text(hjust = 0.5)) + 
+  labs(x = "", y = "Percent of Highly-Qualified Graduates", 
+       title = "Rates of Highly Qualified Students Attending College, by Race", 
+       subtitle = "Among Graduates Eligible to Attend Four-Year Universities", 
+       caption = myCap)
+
+```
+
+## Task 6: Gaps in Rates of College Enrollment Between Latino High School Graduates and White High SChool Graduates
+
+
+
