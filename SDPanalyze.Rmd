@@ -43,7 +43,7 @@ con <- unz(description = "data/analysis.zip", filename = tmpfileName,
 cgdata <- read_stata(con) # read data in the data subdirectory
 ```
 
-```{r}
+```{r setglobals}
 #// Step 1a: Read in global variables
 # // Ninth grade cohorts you can observe persisting to the second year of college
 chrt_ninth_begin_persist_yr2 = 2005
@@ -979,28 +979,267 @@ more details for school administrators (top enrolling institutions of the school
 plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end)
 
 chartData <- 
-  bind_rows(plotdf %>% select(first_hs_name, enrl_1oct_grad_yr1_2yr, enrl_1oct_grad_yr1_4yr, 
+  bind_rows(plotdf %>% select(last_hs_name, enrl_1oct_grad_yr1_2yr, enrl_1oct_grad_yr1_4yr, 
                                hs_diploma) %>%
-              group_by(first_hs_name) %>% 
+              group_by(last_hs_name) %>% 
               summarize_all(funs(sum), na.rm=TRUE),
   plotdf %>% select(enrl_1oct_grad_yr1_2yr, enrl_1oct_grad_yr1_4yr, 
                                hs_diploma) %>% 
     summarize_all(funs(sum), na.rm=TRUE) %>% 
-    mutate(first_hs_name = "Agency AVERAGE")
+    mutate(last_hs_name = "Agency AVERAGE")
   )
 
 chartData <- chartData %>% gather(key = outcome, 
-                             value = measure, -first_hs_name, -hs_diploma)
+                             value = measure, -last_hs_name, -hs_diploma)
+
+chartData %<>% group_by(last_hs_name) %>% 
+  mutate(enroll_any = sum(measure) / hs_diploma[1]) %>% 
+  ungroup
+
+chartData$last_hs_name <- gsub("High School", "", chartData$last_hs_name)
+chartData$outcome[chartData$outcome == "enrl_1oct_grad_yr1_2yr"] <- "2-yr Seamless Enroller"
+chartData$outcome[chartData$outcome == "enrl_1oct_grad_yr1_4yr"] <- "4-yr Seamless Enroller"
 
 ```
 
 ```{r}
 
-ggplot(chartData, aes(x = first_hs_name, y = measure/hs_diploma, 
+ggplot(chartData, aes(x = reorder(last_hs_name, enroll_any), 
+                      y = measure/hs_diploma, 
                       fill = outcome, group = outcome)) + 
-  geom_bar(stat = "identity", position = "stack")
+  geom_bar(stat = "identity", position = "stack", color = I("black")) + 
+  geom_text(aes(label = round(100 * measure/hs_diploma)), 
+            position = position_stack(vjust = 0.5)) +
+  geom_text(aes(label = round(100 * enroll_any), y = enroll_any), 
+            vjust = -0.5, color = I("gray60")) +
+  theme_classic() + 
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2), 
+                     expand = c(0,0),
+                     label = percent) + 
+  scale_fill_brewer(name = "", type = "qual", palette = 1) +
+  labs(x = "", y = "Percent of High School Graduates", 
+       title = "College Enrollment by High School", 
+       subtitle = "Seamless Enrollers", 
+       caption = paste0("Sample: 2007-2008 through 2008-2009 Agency graduates. Postsecondary", 
+                        " enrollment outcomes from NSC matched records. \n ", 
+                        "All other data from administrative records.")) + 
+  theme(axis.text.x = element_text(angle = 30, vjust = 0.8, color = "black"), 
+        legend.position = c(0.1, 0.8), axis.ticks.x = element_blank())
 
 
 ```
 
+### Task 2: Seamless and Delayed College Enrollment Rates by High School
 
+Purpose: This analysis provides an agency snapshot of college enrollment to understand how patterns
+of college-going for high school graduates vary across high schools. By illuminating the extent
+to which enrollment varies by entry time (seamless vs. delayed) and college level (2- vs. 4-year), the
+analysis helps diagnose compositional differences for the college-bound population by high school attended.
+
+Analysis-Specific Sample Restrictions:
+• Keep students in high school graduation cohorts you can
+observe enrolling in college the fall after graduation.
+• Drop any high schools with less than 20 students in the
+sample.
+• Include only graduates who received regular or advanced
+diplomas (i.e. exclude students who received SPED diplomas
+and other certificates).
+
+Ask Yourself
+• How do college enrollment rates differ by high schools? Why might certain schools have a greater
+percentage of high school graduates enrolling in college? Do certain schools have higher percentages
+of 2-year or delayed college enrollers?
+
+Possible Next Steps or Action Plans: Replicate this analysis to include all first-time ninth graders (i.e.
+ninth grade cohorts) in place of graduates. Additionally, create individual high school reports that provide
+more details for school administrators (top enrolling institutions of the school’s graduates).
+
+
+
+```{r}
+plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end) %>% 
+  select(sid, chrt_grad, enrl_1oct_grad_yr1_2yr, enrl_1oct_grad_yr1_4yr,
+         enrl_1oct_grad_yr1_any, enrl_ever_w2_grad_2yr, enrl_ever_w2_grad_any,
+         enrl_ever_w2_grad_4yr, hs_diploma, last_hs_code, last_hs_name)
+
+
+plotdf$late_any <- ifelse(plotdf$enrl_1oct_grad_yr1_any == 0 & 
+                            plotdf$enrl_ever_w2_grad_any == 1, 1, 0)
+plotdf$late_4yr <- ifelse(plotdf$enrl_1oct_grad_yr1_any == 0 & 
+                            plotdf$enrl_ever_w2_grad_4yr == 1, 1, 0)
+plotdf$late_2yr <- ifelse(plotdf$enrl_1oct_grad_yr1_any == 0 & 
+                            plotdf$enrl_ever_w2_grad_2yr == 1, 1, 0)
+
+
+chartData <- 
+  bind_rows(plotdf %>% select(last_hs_name, enrl_1oct_grad_yr1_2yr, 
+                              enrl_1oct_grad_yr1_4yr, late_4yr, late_2yr,
+                              hs_diploma) %>%
+              group_by(last_hs_name) %>% 
+              summarize_all(funs(sum), na.rm=TRUE),
+  plotdf %>% select(enrl_1oct_grad_yr1_2yr, 
+                              enrl_1oct_grad_yr1_4yr, late_4yr, late_2yr,
+                              hs_diploma) %>% 
+    summarize_all(funs(sum), na.rm=TRUE) %>% 
+    mutate(last_hs_name = "Agency AVERAGE")
+  )
+
+chartData <- chartData %>% gather(key = outcome, 
+                             value = measure, -last_hs_name, -hs_diploma)
+
+chartData %<>% group_by(last_hs_name) %>% 
+  mutate(enroll_any = sum(measure) / hs_diploma[1]) %>% 
+  ungroup
+
+chartData$last_hs_name <- gsub("High School", "", chartData$last_hs_name)
+chartData$outcome[chartData$outcome == "enrl_1oct_grad_yr1_2yr"] <- "2-yr Seamless"
+chartData$outcome[chartData$outcome == "enrl_1oct_grad_yr1_4yr"] <- "4-yr Seamless"
+chartData$outcome[chartData$outcome == "late_2yr"] <- "2-yr Delayed"
+chartData$outcome[chartData$outcome == "late_4yr"] <- "4-yr Delayed"
+
+
+```
+
+```{r}
+ggplot(chartData, aes(x = reorder(last_hs_name, enroll_any), 
+                      y = measure/hs_diploma, 
+                      fill = outcome, group = outcome)) + 
+  geom_bar(stat = "identity", position = "stack", color = I("black")) + 
+  geom_text(aes(label = round(100 * measure/hs_diploma)), 
+            position = position_stack(vjust = 0.5)) +
+  geom_text(aes(label = round(100 * enroll_any), y = enroll_any), 
+            vjust = -0.5, color = I("gray60")) +
+  theme_classic() + 
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2), 
+                     expand = c(0,0),
+                     label = percent) + 
+  scale_fill_brewer(name = "", type = "seq", palette = "YlGnBu") +
+  labs(x = "", y = "Percent of High School Graduates", 
+       title = "College Enrollment by High School", 
+       subtitle = "Seamless and Delayed Enrollers", 
+       caption = paste0("Sample: 2007-2008 through 2008-2009 Agency graduates. Postsecondary", 
+                        " enrollment outcomes from NSC matched records. \n ", 
+                        "All other data from administrative records.")) + 
+  theme(axis.text.x = element_text(angle = 30, vjust = 0.8, color = "black"), 
+        legend.position = c(0.1, 0.8), axis.ticks.x = element_blank())
+
+```
+
+### Task 3: College Enrollment Rates by Average 8th Grade Achievement
+
+Purpose: This analysis displays variations in college enrollment rates across high schools by
+examining the extent to which academic achievement at high school entry explains variation in
+college-going across high schools. This analysis is useful to identify high schools with similar
+incoming student achievement profiles but divergent college enrollment rates; or on the other hand,
+high schools with similar college-going rates but different academic performance at high school entry.
+
+Analysis-Specific Sample Restrictions:
+• Keep students in high school graduation cohorts you can observe
+enrolling in college the fall after graduation AND have
+non-missing eighth grade test scores.
+• Include only graduates who received regular or advanced
+diplomas (i.e. exclude students who received SPED diplomas
+and other certificates).
+
+Ask Yourself
+• What might explain variation in college enrollment rates for high schools with similar incoming
+achievement? What might explain variation in incoming achievement for high schools with similar
+college enrollment rates?
+
+```{r}
+plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end) %>% 
+  select(sid, chrt_grad, enrl_1oct_grad_yr1_any, test_math_8_std,
+         last_hs_name) %>% 
+  filter(!is.na(test_math_8_std))
+
+
+AGENCYLEVEL <- plotdf %>% 
+  summarize(agency_mean_enroll = mean(enrl_1oct_grad_yr1_any, na.rm=TRUE), 
+            agency_mean_test = mean(test_math_8_std)) %>% 
+  as.data.frame
+
+
+chartData <- plotdf %>% group_by(last_hs_name) %>% 
+  summarize(math_test = mean(test_math_8_std), 
+            enroll_rate = mean(enrl_1oct_grad_yr1_any, na.rm=TRUE), 
+            count = n())
+
+chartData$last_hs_name <- gsub("High School", "", chartData$last_hs_name)
+
+```
+
+
+```{r}
+
+ggplot(chartData, aes(x = math_test, y = enroll_rate)) + 
+  geom_point() + geom_text(aes(label = last_hs_name), 
+                           nudge_x = -0.02, nudge_y= 0.02, angle = 30,
+                           check_overlap = FALSE) +
+  theme_classic() + 
+  geom_hline(yintercept = AGENCYLEVEL$agency_mean_enroll, linetype = 2, 
+             size = I(1.1), color = I("slateblue")) +
+  geom_vline(xintercept = AGENCYLEVEL$agency_mean_test, linetype = 2, 
+             size = I(1.1), color = I("goldenrod")) +
+  scale_y_continuous(limits = c(0,1), breaks = seq(0, 1, 0.2), label = percent) + 
+  scale_x_continuous(limits = c(-0.8, 1), breaks = seq(-0.8, 1, 0.2)) + 
+  annotate(geom = "text", x = -.725, y = 0.025, 
+           label = "Below average math scores & \n below average college enrollment", 
+           size = I(2.5)) +
+  annotate(geom = "text", x = .9, y = 0.025, 
+           label = "Above average math scores & \n below average college enrollment", 
+           size = I(2.5)) +
+  annotate(geom = "text", x = .9, y = 0.975, 
+           label = "Above average math scores & \n above average college enrollment", 
+           size = I(2.5)) +
+  annotate(geom = "text", x = -.725, y = 0.975, 
+           label = "Below average math scores & \n above average college enrollment", 
+           size = I(2.5)) + 
+  annotate(geom = "text", x = .255, y = 0.125, 
+           label = "Agency Average \n Test Score", 
+           size = I(2.5), color = I("goldenrod")) + 
+  annotate(geom = "text", x = -.7, y = 0.71, 
+           label = "Agency Average College Enrollment Rate", 
+           size = I(2.5)) + 
+  labs(x = "Percent of High School Graduates", 
+       y = "Average 8th Grade Math Standardized Score", 
+       title = "College Enrollment Rates by Prior Student Achievement",
+       subtitle = "Seamless Enrollers", 
+       caption = paste0("Sample: 2007-2008 through 2008-2009 Agency graduates. Postsecondary", 
+                        " enrollment outcomes from NSC matched records. \n ", 
+                        "All other data from administrative records.")) + 
+  theme(axis.text = element_text(color="black", size = 12))
+
+
+```
+
+## Task 4: College Enrollment Rates by 8th Grade Achievement Quartiles
+
+Purpose: This analysis explores whether variation in college enrollment across high schools is similar
+among low-, middle, and top-achieving students. It also considers whether overall variation across
+schools derives from concentrated divergence among students scoring in a particular achievement
+range. Additionally, the analysis facilitates granular school-to-school comparisons to identify those
+especially under-, or over-performing within each achievement quartile. Finally, the analysis also helps
+identify which student subgroups require additional resources and support within each school.
+
+Analysis-Specific Sample Restrictions:
+• Keep students in high school graduation cohorts you can observe
+enrolling in college the fall after graduation AND have
+non-missing eighth grade test scores.
+• Drop high schools with less than 20 students in each quartile
+enrolled in ninth grade across the cohorts.
+• Keep only graduates who received regular or advanced diplomas
+(i.e. exclude students who received SPED diplomas
+and other certificates).
+
+Ask Yourself
+• After looking at the average in each quartile (the orange bars), how do 8th grade test scores
+relate to college enrollment? Within each quartile of 8th grade test scores (the blue bars), how do
+enrollment rates vary by high school? What is the difference between top and bottom performing
+high schools in each quartile?
+
+Possible Next Steps or Action Plans: Repeat this analysis to include all first-time ninth graders (i.e.
+ninth grade cohorts) in place of graduates, and explore college enrollment within two years of high
+school completion. Additionally, replicate this analysis to explore the relationship between college
+enrollment and students’ ELA achievement at high school entry. Consider why schools with similar
+incoming student profiles may report dramatically different college-going rates. Conversely, consider
+why schools with distinct student bodies may report similar matriculation rates to college.
