@@ -11,7 +11,8 @@ output:
 # Set options for knitr
 library(knitr)
 knitr::opts_chunk$set(comment=NA, warning=FALSE, 
-                      error=FALSE, message=FALSE, fig.align='center')
+                      error=FALSE, message=FALSE, fig.align='center',
+                      fig.width=10, fig.height=8)
 options(width=120)
 library(dplyr)
 library(magrittr)
@@ -1628,6 +1629,431 @@ ggplot(chartData, aes(x = factor(qrt_8_math), y = pct_enrl)) +
        title = "College Enrollment Rates Among High School Gradautes", 
        subtitle = "Within Quartile of Prior Achievement, by High School", 
         caption = "Sample: 2007-2008 through 2008-2009 high school graduates. Postsecondary enrollment outcomes from NSC matched records. \n All other data from Agency administrative records.")
+
+```
+
+## Task 8: Undermatch Rates Among Highly Qualified High School Graduates
+
+Purpose: This Strategic Performance Indicator examines the prevalence of “undermatch” in the
+agency—that is, the extent to which high school graduates with strong academic records pursue
+enrollment in colleges and universities less selective than those for which they are likely qualified.
+The SPI does so by illustrating the rates at which highly qualified graduates are enrolling at 2-year
+colleges, less competitive 4-year colleges, or forgoing college altogether, instead of pursuing selective
+colleges that may provide a better academic and social fit for these students’ potential, ambition, and
+preparation.
+
+Analysis-Specific Sample Restrictions:
+• Keep students in high school graduation cohorts you can
+observe enrolling in college the fall after graduation.
+• Keep only highly qualified high school graduates (i.e. students
+who have obtained a high school diploma on time
+with 1) a cumulative GPA of 3.0 or higher and Math/Verbal
+SAT score of 1300 or higher, or 2) a cumulative GPA of 3.3 or
+higher and Math/Verbal SAT score of 1200 or higher, or 3) a
+cumulative GPA of 3.7 or higher and Math/Verbal SAT score
+of at least 1100).
+• Keep only graduates who received regular or advanced diplomas
+(i.e. exclude students who received SPED diplomas
+and other certificates).
+
+A Note on College Selectivity
+To determine the selectivity of the postsecondary institutions in which high school graduates enroll, we
+typically rely on Barron’s College Rankings. Barron’s has developed well-established college selectivity
+ratings based on the degree of admissions competitiveness at four-year colleges and universities.
+Factors used in determining these rankings include the median SAT and ACT scores, high school class
+rankings, and grade point average among incoming college freshmen. The seven selectivity rankings
+Barron’s assigns are “Most Competitive,” “Highly Competitive,” “Very Competitive,” “Competitive,”
+“Less Competitive,” “Non-Competitive,” and “Special.”
+As part of this exercise, we have provided a simplified table from which the selectivity ratings of the
+colleges and universities included in this dataset can be obtained. In conducting this analysis for your
+own agency, you need to select a source of college selectivity ratings, such as Barron’s, and use it in
+place of the college selectivity table used in this exercise.
+
+Ask Yourself
+• How do college enrollment rates vary across high schools for students within the same quartile of
+8th grade test scores (that is, when we compare students with similar prior achievement)?
+• What is the difference between the high schools with the lowest and with the highest rates in each
+quartile?
+• Are across-school differences in colleges enrollment rates particularly large for students of certain
+achievement profile—for example, for students with 8th grade test scores in the bottom quartile?
+
+```{r}
+plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end) %>% 
+  select(sid, chrt_grad, highly_qualified, first_college_opeid_4yr,
+         enrl_1oct_grad_yr1_any, enrl_1oct_grad_yr1_4yr, enrl_1oct_grad_yr1_2yr) %>% 
+  filter(!is.na(highly_qualified)) %>% 
+  filter(highly_qualified ==1 )
+# Read in college selectivity data
+tmpfileName <- "analysis/college_selectivity.dta"
+con <- unz(description = "data/analysis.zip", filename = tmpfileName, 
+           open = "rb")
+coll_select <- read_stata(con) # read data in the data subdirectory
+close(con)
+plotdf <- left_join(plotdf, coll_select, 
+                    by = c("first_college_opeid_4yr" = "college_id"))
+plotdf %<>% filter(!(first_college_opeid_4yr == "" & enrl_1oct_grad_yr1_4yr == 1))
+# Create matching outcomes
+# recode rank to avoid issues
+plotdf$rank[is.na(plotdf$rank)] <- 6
+plotdf$outcome <- NA
+plotdf$outcome[plotdf$enrl_1oct_grad_yr1_any == 0] <- "No college"
+plotdf$outcome[plotdf$enrl_1oct_grad_yr1_2yr == 1] <- "Two year college"
+plotdf$outcome[is.na(plotdf$outcome) & 
+                 plotdf$enrl_1oct_grad_yr1_any == 1 & (plotdf$rank > 4)] <- "Undermatch"
+plotdf$outcome[plotdf$enrl_1oct_grad_yr1_any == 1 & plotdf$rank <= 4] <- "Match"
+
+chartData <- plotdf %>% group_by(outcome) %>% 
+  summarize(count = n()) %>% ungroup %>% 
+  mutate(totalCount = sum(count))
+
+```
+
+```{r}
+
+# chartData$outcome <- factor(chartData$outcome, ordered=TRUE, 
+#                             levels = c("No college", 
+#                                        "Two year college", 
+#                                        "Undermatch", 
+#                                        "Match"))
+chartData %<>% filter(outcome != "Match") %>% 
+  arrange(count)
+
+ggplot(arrange(chartData, -count), 
+       aes(x = factor(1), fill = outcome, y = count/totalCount)) +
+  geom_bar(stat = 'identity', position = "stack") +
+  scale_fill_hue(h = c(210, 250), l = 30, c = 70) +
+  guides(fill = guide_legend("", keywidth = 6, nrow = 2)) + 
+  geom_text(aes(label = round(100 * count/totalCount, 1)), 
+            position = position_stack(vjust = 0.5)) +
+  scale_y_continuous(limits = c(0, 0.40), breaks = seq(0, 0.4, 0.1), 
+                     label = percent, name = "Percent of High School Graduates") + 
+  theme_classic() + theme(legend.position = "bottom", axis.text.x = element_blank(), 
+                          axis.ticks.x = element_blank()) + 
+  labs(title = "Undermatch Rates by Agency", 
+       subtitle = "Among Highly Qualified High School Graduates",
+       x = "",
+       caption = "Sample: 2007-2008 through 2008-2009 high school graduates. Postsecondary enrollment outcomes from NSC matched records. \n All other data from Agency administrative records.")
+
+```
+
+# E: College Persistence
+
+For many high school graduates, college enrollment is just the first of many hurdles on the road to
+postsecondary success. While considerable attention has been paid to challenges that surround
+college preparedness, access, and enrollment, only recently has conversation expanded to consider
+barriers to degree completion. These barriers must be understood and addressed at both the
+secondary and postsecondary levels for college attainment rates to increase. In the last section of the
+education pipeline, you examine patterns of persistence to the second year of college to identify early
+indications of student progress towards degree attainment.
+To explore college persistence, use the models below:
+
+## Task 1: Persistence Rates to the Second Year of College by High School
+
+Purpose: Initial enrollment decisions can dramatically affect higher education trajectories and the
+likelihood of degree attainment. This analysis provides a snapshot of persistence to the second year of
+college by examining persistence rates across high schools in the system. The analysis illuminates differences
+in persistence by level of college first attended (two-year vs. four-year). Given another year of
+sample data, the analysis could also be conducted by time of initial entry (seamless vs. delayed enrollment).
+
+Analysis-Specific Sample Restrictions:
+• Keep students in high school graduation cohorts you can
+observe enrolling in college the fall after graduation
+• Keep only graduates who received regular or advanced diplomas
+(i.e. exclude students who received SPED diplomas
+and other certificates).
+• Drop high schools with less than 20 students in the sample.
+
+Ask Yourself
+• How does college persistence for enrollers at 2-year colleges compare to enrollers at 4-year
+colleges? Given another year of sample data, how does college persistence for seamless enrollers
+compare to delayed enrollers?
+
+Possible Next Steps or Action Plans: Consider establishing MOUs with local community colleges to
+obtain detailed data on graduates’ postsecondary pursuits at two-year colleges (Course enrollment
+and transcript data) allowing agencies to explore persistence rates by assignment to remediation
+coursework.
+
+```{r}
+plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end) %>% 
+  select(sid, chrt_grad, enrl_1oct_grad_yr1_2yr, enrl_1oct_grad_yr1_4yr,
+         enrl_1oct_grad_yr1_any, enrl_grad_persist_any, 
+         enrl_grad_persist_2yr, enrl_grad_persist_4yr, last_hs_name, 
+         enrl_ever_w2_grad_any) 
+
+plotdf$groupVar <- NA
+plotdf$groupVar[plotdf$enrl_1oct_grad_yr1_2yr == 1] <- "2-year College"
+plotdf$groupVar[plotdf$enrl_1oct_grad_yr1_4yr == 1] <- "4-year College"
+
+agencyData <- plotdf %>% group_by(groupVar) %>%
+  summarize(persistCount = sum(enrl_grad_persist_any, na.rm=TRUE),
+            totalCount = n()) %>% 
+  ungroup %>% 
+  mutate(total = sum(persistCount)) %>% 
+  mutate(persistRate = persistCount / totalCount, 
+         last_hs_name = "Agency AVERAGE")
+
+schoolData <- plotdf %>% group_by(groupVar, last_hs_name) %>%
+  summarize(persistCount = sum(enrl_grad_persist_any, na.rm=TRUE), 
+            totalCount = n()) %>% 
+  ungroup %>% group_by(last_hs_name) %>%
+  mutate(total = sum(persistCount)) %>% 
+  mutate(persistRate = persistCount / totalCount)
+
+chartData <- bind_rows(agencyData, schoolData)
+
+chartData$last_hs_name <- gsub(" High School", "", chartData$last_hs_name)
+
+chartData <- na.omit(chartData)
+chartData <- filter(chartData, totalCount > 20)
+
+chartData <- chartData %>% group_by(groupVar) %>% 
+  mutate(order = min_rank(-persistRate))
+chartData %<>% arrange(last_hs_name)
+
+
+chartData$order[chartData$groupVar == "2-year College"] <- chartData$order[chartData$groupVar == "4-year College"] 
+
+chartData$groupVar <- factor(chartData$groupVar)
+chartData$groupVar <- relevel(chartData$groupVar, ref = "4-year College")
+
+```
+
+
+```{r}
+ggplot(chartData, aes(x = reorder(last_hs_name, -order), 
+                                      group = groupVar, 
+                      y = persistRate, fill = groupVar, 
+                      color = I("black"))) + 
+  geom_bar(stat = 'identity', position = 'dodge') +
+  geom_text(aes(label = round(persistRate * 100, 0)), 
+            position = position_dodge(0.9), vjust = -0.4) +
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2), 
+                     name = "% Of Seamless Enrollers", 
+                     expand = c(0,0), label = percent) +
+  theme_classic() + 
+  guides(fill = guide_legend("", keywidth = 3, nrow = 2)) + 
+  theme(axis.text.x = element_text(angle = 30, vjust = 0.5, color = "black"), 
+        legend.position = c(0.1, 0.925), axis.ticks.x = element_blank(),
+        legend.key = element_rect(color = "black")) +
+  scale_fill_brewer(type = "div", palette = 2) + 
+  labs(x = "", 
+       title = "College Persistence by High School, at Any College", 
+       subtitle = "Seamless Enrollers by Type of College", 
+       caption = "Sample: 2007-2008 through 2008-2009 Agency high school graduates. Postsecondary enrollment outcomes from NSC matched records. \n All other data from agency administrative records")
+
+```
+
+
+## Task 2: Persistence Across Two-Year and Four-Year Colleges
+
+Purpose: This analysis provides a snapshot of persistence to the second year of college from one type
+of college to another for different high schools in the system. The left analysis charts explores how
+seamless enrollers in 4-year colleges either persist at a 4-year or switch to a 2-year. The right analysis
+charts how seamless enrollers in 2-year colleges either persist at a 2-year or switch to a 4-year.
+
+Analysis-Specific Sample Restrictions:
+• Keep the three most recent cohorts of graduates for which
+persistence in college over four consecutive years can be
+reported.
+• Keep only graduates enrolled in 4-yr colleges and universities
+the fall following high school graduation.
+• Keep only graduates for whom cumulative high school GPAs
+can be calculated (or obtained from the agency)
+• Only include the top six enrolling 4-year colleges
+• Only report persistence rates among students falling in each
+high school GPA category if the sample includes 25 or more
+students
+
+Ask Yourself
+• How do the rates of persistence or switching differ for seamless enrollers at 4-year vs. 2-year
+colleges?
+
+Possible Next Steps or Action Plans: Create individual school-level reports for administrators and
+college counselors to communicate which postsecondary institutions are associated with greater rates
+of persistence. Additionally, conduct similar analyses that include more detailed institutional information
+that may be associated with students’ prospects of persisting (e.g. cost of tuition and room/board,
+financial aid, etc.).
+
+Analytic Technique: Calculate the proportion of 4-yr college-goers who persist through four years of
+college by the postsecondary institution first attended and cumulative high school GPA category.
+
+```{r}
+plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end) %>% 
+  select(sid, chrt_grad, enrl_1oct_grad_yr1_2yr, enrl_1oct_grad_yr1_4yr,
+         enrl_1oct_grad_yr1_any, enrl_1oct_grad_yr2_2yr, enrl_1oct_grad_yr2_4yr,
+         enrl_1oct_grad_yr2_any, enrl_grad_persist_any, 
+         enrl_grad_persist_2yr, enrl_grad_persist_4yr, last_hs_name) 
+
+plotdf$persist_pattern <- "Not persisting"
+plotdf$persist_pattern[plotdf$enrl_grad_persist_4yr ==1 &
+                         !is.na(plotdf$chrt_grad)] <- "Persisted at 4-Year College"
+plotdf$persist_pattern[plotdf$enrl_grad_persist_2yr ==1 &
+                         !is.na(plotdf$chrt_grad)] <- "Persisted at 2-Year College"
+plotdf$persist_pattern[plotdf$enrl_1oct_grad_yr1_4yr == 1 & 
+                        plotdf$enrl_1oct_grad_yr2_2yr == 1 & 
+                         !is.na(plotdf$chrt_grad)] <- "Switched to 2-Year College"
+plotdf$persist_pattern[plotdf$enrl_1oct_grad_yr1_2yr == 1 & 
+                        plotdf$enrl_1oct_grad_yr2_4yr == 1 & 
+                         !is.na(plotdf$chrt_grad)] <- "Switched to 4-Year College"
+
+plotdf$groupVar <- "Non-enroller"
+plotdf$groupVar[plotdf$enrl_1oct_grad_yr1_2yr == 1] <- "2-year College"
+plotdf$groupVar[plotdf$enrl_1oct_grad_yr1_4yr == 1] <- "4-year College"
+
+chartData <- plotdf %>% filter(groupVar != "Non-enroller") %>% 
+  group_by(last_hs_name, groupVar, persist_pattern) %>% 
+  summarize(tally = n()) %>% 
+  ungroup %>% 
+  group_by(last_hs_name, groupVar) %>% 
+  mutate(denominator = sum(tally)) %>% 
+  mutate(persistRate = tally / denominator) %>% 
+  filter(persist_pattern != "Not persisting") %>%
+  mutate(rankRate = sum(persistRate))
+
+agencyData <- plotdf %>% filter(groupVar != "Non-enroller") %>% 
+  group_by(groupVar, persist_pattern) %>% 
+  summarize(tally = n(), 
+            last_hs_name = "Agency AVERAGE") %>% 
+  ungroup %>% 
+  group_by(last_hs_name, groupVar) %>% 
+  mutate(denominator = sum(tally)) %>% 
+  mutate(persistRate = tally / denominator) %>% 
+  filter(persist_pattern != "Not persisting") %>%
+  mutate(rankRate = sum(persistRate))
+
+chartData <- bind_rows(chartData, agencyData)
+
+  
+chartData$last_hs_name <- gsub(" High School", "", chartData$last_hs_name)
+# chartData %<>% filter(persist_pattern != "Not persisting")
+chartData %<>% arrange(persist_pattern)
+chartData <- as.data.frame(chartData)
+chartData$persist_pattern <- factor(as.character(chartData$persist_pattern), 
+                                    ordered = TRUE, 
+                                    levels = c("Switched to 4-Year College", 
+                                               "Switched to 2-Year College", 
+                                               "Persisted at 2-Year College", 
+                                               "Persisted at 4-Year College"))
+```
+
+
+```{r}
+p1 <- ggplot(chartData[chartData$groupVar == "2-year College",], 
+       aes(x = reorder(last_hs_name, rankRate), 
+           y = persistRate, group = persist_pattern, 
+           fill = persist_pattern)) + 
+  scale_y_continuous(limits = c(0, 1), expand = c(0, 0), 
+                     label = percent, breaks = seq(0, 1, 0.2)) + 
+  geom_bar(stat = 'identity', position = 'stack', 
+           color = I("black")) + 
+  geom_text(aes(label = round(persistRate * 100, 0)), 
+            position = position_stack(vjust = 0.5)) +
+  geom_text(aes(label = round(rankRate * 100, 0), y = rankRate), vjust = -0.7) +
+  guides(fill = guide_legend("", keywidth = 2, nrow = 2)) +
+  scale_fill_brewer(type = "qual", palette = 1) +
+  labs(x = "", y = "Percent of Seamless Enrollers") + 
+  theme_classic() + theme(axis.text.x = element_text(angle = 30, vjust = 0.2), 
+                          axis.ticks.x = element_blank(), 
+                          legend.position = c(0.2, 0.9), 
+                          plot.caption = element_text(hjust = 0)) + 
+  labs(subtitle = "Seamless Enrollers at 2-year Colleges", 
+       caption = "Sample: 2007-2008 through 2008-2009 Agency high school graduates. Postsecondary enrollment outcomes from NSC matched records. \n All other data from agency administrative records")
+
+p2 <- p1 %+% chartData[chartData$groupVar == "4-year College",] + 
+  labs(subtitle = "Seamless Enrollers at 4-year Colleges")
+
+
+grid.arrange(grobs= list(p2, p1), nrow=1, 
+             top = "College Persistence by High School")
+
+```
+
+## Task 3: Top-Enrolling Colleges/Universities of Agency Graduates
+
+Purpose: This analysis reports enrollment and persistence rates among top-enrolling two- and fouryear
+institutions attended by graduates. This analysis illuminates differences in persistence rates to
+the second year of college among top-enrolling postsecondary institutions. Agency staff that advise
+students during their senior year may find this information useful when meeting to weigh college options.
+
+Analysis-Specific Sample Restrictions:
+• Keep only the most recent cohort of seamless college-goers
+for which persistence to the second year of college can be
+reported
+• Only include postsecondary institutions with 25 or more
+agency graduates attending.
+
+Ask Yourself
+• What are the top enrolling 4-year and 2-year colleges or universities in your agency? What are the
+persistence rates at those colleges and universities?
+
+Analytic Technique: Calculate the proportion of college-goers attending top-enrolling 2- and 4-year
+institutions, as well as the proportion of seamless enrollers who persist to the second year of any
+college, by the postsecondary institution graduates first attended.
+
+```{r}
+plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end) %>% 
+  select(sid, chrt_grad, enrl_1oct_grad_yr1_2yr, enrl_1oct_grad_yr1_4yr,
+         enrl_1oct_grad_yr1_any, enrl_1oct_grad_yr2_2yr, enrl_1oct_grad_yr2_4yr,
+         enrl_1oct_grad_yr2_any, enrl_grad_persist_any, 
+         enrl_grad_persist_2yr, enrl_grad_persist_4yr, 
+         first_college_name_any, first_college_name_2yr, first_college_name_4yr) 
+
+
+chart4year <- bind_rows(
+  plotdf %>% group_by(first_college_name_4yr) %>% 
+  summarize(enrolled = sum(enrl_1oct_grad_yr1_4yr, na.rm=TRUE), 
+            persisted = sum(enrl_grad_persist_4yr, na.rm=TRUE)) %>% 
+  ungroup %>% 
+  mutate(total_enrolled = sum(enrolled)) %>% 
+  mutate(perEnroll = round(100 * enrolled/total_enrolled, 1), 
+         perPersist = round(100 * persisted/enrolled, 1)),
+  plotdf %>% 
+  summarize(enrolled = sum(enrl_1oct_grad_yr1_4yr, na.rm=TRUE), 
+            persisted = sum(enrl_grad_persist_4yr, na.rm=TRUE), 
+            first_college_name_4yr = "All 4-Year Colleges") %>% 
+  ungroup %>% 
+  mutate(total_enrolled = sum(enrolled)) %>% 
+  mutate(perEnroll = round(100 * enrolled/total_enrolled, 1), 
+         perPersist = round(100 * persisted/enrolled, 1))
+)
+
+
+
+
+
+chart2year <- bind_rows(plotdf %>% group_by(first_college_name_2yr) %>% 
+  summarize(enrolled = sum(enrl_1oct_grad_yr1_2yr, na.rm=TRUE), 
+            persisted = sum(enrl_grad_persist_2yr, na.rm=TRUE)) %>% 
+  ungroup %>% 
+  mutate(total_enrolled = sum(enrolled)) %>% 
+  mutate(perEnroll = round(100 * enrolled/total_enrolled, 1), 
+         perPersist = round(100 * persisted/enrolled, 1)),
+  plotdf %>% 
+  summarize(enrolled = sum(enrl_1oct_grad_yr1_2yr, na.rm=TRUE), 
+            persisted = sum(enrl_grad_persist_2yr, na.rm=TRUE), 
+            first_college_name_2yr = "All 2-Year Colleges") %>% 
+  ungroup %>% 
+  mutate(total_enrolled = sum(enrolled)) %>% 
+  mutate(perEnroll = round(100 * enrolled/total_enrolled, 1), 
+         perPersist = round(100 * persisted/enrolled, 1))
+)
+  
+```
+
+```{r results='markup'}
+chart4year %>% arrange(-enrolled) %>% 
+  select(first_college_name_4yr, enrolled, perEnroll, persisted, perPersist) %>%
+  head %>%
+    kable(., col.names = c("Name", "Number Enrolled", 
+                         "% Enrolled", "Number Persisted", 
+                         "% Persisted"))
+
+chart2year %>% arrange(-enrolled) %>% 
+  select(first_college_name_2yr, enrolled, perEnroll, persisted, perPersist) %>%
+  head %>%
+  kable(., col.names = c("Name", "Number Enrolled", 
+                         "% Enrolled", "Number Persisted", 
+                         "% Persisted"))
 
 ```
 
