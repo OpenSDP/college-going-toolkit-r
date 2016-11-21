@@ -15,6 +15,7 @@ knitr::opts_chunk$set(comment=NA, warning=FALSE,
 options(width=120)
 library(dplyr)
 library(magrittr)
+source("R/functions.R")
 ```
 
 
@@ -1455,4 +1456,178 @@ ggplot(chartData, aes(x = reorder(label, total_count), y = measure, group = outc
 ## Task 6: Gaps in Rates of College Enrollment Between Latino High School Graduates and White High SChool Graduates
 
 
+Purpose: This Strategic Performance Indicator explores gaps in college enrollment rates by ethnicity,
+before and after accounting for differences in prior academic achievement, socioeconomic status,
+and both of these background characteristics. While the analysis evaluates separately the college
+enrollment gaps between Black and White students and between Latino and White students, it can be
+modified to focus on the gap between any two races or ethnicities.
+
+Analysis-Specific Sample Restrictions:
+• Keep students in high school graduation cohorts you can
+observe enrolling in college the fall after graduation.
+• Keep only graduates who received regular or advanced diplomas
+(i.e. exclude students who received SPED diplomas
+and other certificates).
+• Drop race/ethnic groups with less than 20 students eligible
+to attend a four-year university. You may further restrict the
+sample to only include students from the most representative
+racial/ethnic sub-groups in your agency.
+
+Ask Yourself
+• How do racial gaps in college enrollment change after prior achievement is accounted for? How do
+these gaps change after socioeconomic status is accounted for?
+• Do these gaps still exist when you account for both prior achievement and socioeconomic status?
+Do they reverse direction, suggesting that minority students enroll in college at higher rates when
+compared with White students with similar background characteristics?
+• Do you observe differences in the degree to which the White-Black gap and the White-Latino gap
+decline after accounting for prior achievement and socioeconomic status? If the adjusted gap
+between White and Latino students, for example, is still sizeable, what additional barriers may be
+impeding access to college for Latino students?
+
+Analytic Technique: Calculate the difference between the proportion of Black (or Latino) high school
+graduates and the proportion of White high school graduates who enrolled in college—in raw terms
+and after accounting for 8th grade test scores, for eligibility for Free or Reduced Price Lunch (FRPL),
+and for both of these characteristics.
+
+```{r}
+plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end) %>% 
+  select(sid, chrt_grad, race_ethnicity, test_math_8, frpl_ever,
+         enrl_1oct_grad_yr1_any, last_hs_code) %>% 
+  filter(!is.na(frpl_ever) & !is.na(test_math_8)) %>% 
+  filter(race_ethnicity %in% c(1, 3, 5) & !is.na(race_ethnicity)) %>%
+  filter(!is.na(enrl_1oct_grad_yr1_any))
+
+plotdf$race_ethnicity <- as_factor(plotdf$race_ethnicity)
+plotdf$race_ethnicity <- relevel(plotdf$race_ethnicity, ref = "White")
+plotdf$cluster_var <- paste(plotdf$chrt_grad, plotdf$last_hs_code, sep = "-")
+
+library(broom)
+# Estimate unadjusted enrollment gap
+mod1 <- lm(enrl_1oct_grad_yr1_any ~ race_ethnicity, data = plotdf)
+betas_unadj <- tidy(mod1)
+# Cluster?
+clusterSE <- get_CL_vcov(mod1, plotdf$cluster_var)
+betas_unadj$std.error <- sqrt(diag(clusterSE))
+betas_unadj <- betas_unadj[, 1:3]
+betas_unadj$model <- "Unadjusted enrollment gap"
+# Estimate enrollment gap adjusting for prior achievement
+mod2 <- lm(enrl_1oct_grad_yr1_any ~ race_ethnicity + test_math_8, data = plotdf)
+betas_adj_prior_ach <- tidy(mod2)
+# Cluster?
+clusterSE <- get_CL_vcov(mod2, plotdf$cluster_var)
+betas_adj_prior_ach$std.error <- sqrt(diag(clusterSE))
+betas_adj_prior_ach <- betas_adj_prior_ach[, 1:3]
+betas_adj_prior_ach$model <- "Gap adjusted for prior achievement"
+# Estimate enrollment gap adjusting for frpl status
+plotdf$frpl_ever <- ifelse(plotdf$frpl_ever > 0, 1, 0)
+mod3 <- lm(enrl_1oct_grad_yr1_any ~ race_ethnicity + frpl_ever, data = plotdf)
+betas_adj_frpl <- tidy(mod3)
+# Cluster?
+clusterSE <- get_CL_vcov(mod3, plotdf$cluster_var)
+betas_adj_frpl$std.error <- sqrt(diag(clusterSE))
+betas_adj_frpl <- betas_adj_frpl[, 1:3]
+betas_adj_frpl$model <- "Gap adjusted for FRPL status"
+# Estimate enrollment gap adjusting for prior achievement and frpl status
+mod4 <- lm(enrl_1oct_grad_yr1_any ~ race_ethnicity + frpl_ever + test_math_8, 
+           data = plotdf)
+betas_adj_frpl_prior <- tidy(mod4)
+# Cluster?
+clusterSE <- get_CL_vcov(mod4, plotdf$cluster_var)
+betas_adj_frpl_prior$std.error <- sqrt(diag(clusterSE))
+betas_adj_frpl_prior <- betas_adj_frpl_prior[, 1:3]
+betas_adj_frpl_prior$model <- "Gap adjusted for prior achievement & FRPL status"
+
+chartData <- bind_rows(betas_unadj, betas_adj_frpl, betas_adj_prior_ach, 
+                    betas_adj_frpl_prior)
+rm(plotdf, betas_unadj, betas_adj_frpl, betas_adj_frpl_prior, 
+   betas_adj_prior_ach)
+
+
+
+```
+
+```{r}
+
+ggplot(chartData[chartData$term == "race_ethnicityHispanic", ],
+       aes(x = model, y = -estimate, fill = model)) + 
+  geom_bar(stat = 'identity', color = I("black")) + 
+  scale_fill_hue(h = c(210, 250), l = 30, c = 70) +
+  guides(fill = guide_legend("", keywidth = 6, nrow = 2)) + 
+  geom_text(aes(label = round(100 * -estimate, 0)), vjust = -0.3) +
+  scale_y_continuous(limits = c(-0.2, 0.5), breaks = seq(-0.2, 0.5, 0.1), 
+                     label = percent, name = "Percentage Points") + 
+  theme_classic() + theme(legend.position = "bottom", axis.text.x = element_blank(), 
+                          axis.ticks.x = element_blank()) + 
+  labs(title = "Differences in Rates of College Enrollment \nBetween Latino and White High School Graduates", 
+       x = "",
+       caption = "Sample: 2007-2008 through 2008-2009 high school graduates. Postsecondary enrollment outcomes from NSC matched records. \n All other data from Agency administrative records.")
+  
+
+```
+
+### Task 7: College Enrollment Rates by 8th Grade Achievement Quartile Bubbles
+
+Purpose: This SPI highlights the variation in college-going rates across high schools when students
+with similar prior achievement are compared. To conduct these comparisons, we first sort all incoming
+ninth-graders into quartiles based on their 8th grade test scores. We then examine college-going rates
+by high school among graduates within each of these quartiles.
+
+Analysis-Specific Sample Restrictions:
+• Keep students in high school graduation cohorts you can observe
+enrolling in college the fall after graduation AND have
+non-missing eighth grade test scores.
+• Drop high schools with less than 20 students in each quartile
+enrolled in ninth grade across the cohorts.
+• Keep only graduates who received regular or advanced diplomas
+(i.e. exclude students who received SPED diplomas
+and other certificates).
+
+Ask Yourself
+• How do college enrollment rates vary across high schools for students within the same quartile of
+8th grade test scores (that is, when we compare students with similar prior achievement)?
+• What is the difference between the high schools with the lowest and with the highest rates in each
+quartile?
+• Are across-school differences in colleges enrollment rates particularly large for students of certain
+achievement profile—for example, for students with 8th grade test scores in the bottom quartile?
+
+Analytic Technique: Calculate the share of students in each 8th grade test score quartile at each high
+school who enroll in college seamlessly after high school graduation.
+
+```{r}
+plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end) %>% 
+  select(sid, chrt_grad, qrt_8_math, hs_diploma,
+         enrl_1oct_grad_yr1_any, last_hs_name) %>% 
+  filter(!is.na(qrt_8_math)) %>% 
+  filter(!is.na(enrl_1oct_grad_yr1_any))
+
+chartData <- plotdf %>% group_by(last_hs_name, qrt_8_math) %>% 
+  summarize(enroll_count = sum(enrl_1oct_grad_yr1_any),
+            diploma_count = sum(hs_diploma)) %>% 
+  mutate(pct_enrl = enroll_count/diploma_count)
+
+agencyData <- plotdf %>% group_by(qrt_8_math) %>% 
+  summarize(enroll_count = sum(enrl_1oct_grad_yr1_any),
+            diploma_count = sum(hs_diploma)) %>% 
+  mutate(pct_enrl = enroll_count/diploma_count) %>% as.data.frame
+
+
+```
+
+```{r}
+
+ggplot(chartData, aes(x = factor(qrt_8_math), y = pct_enrl)) + 
+  geom_point(aes(size = diploma_count), shape = 1) + 
+  scale_size(range = c(3, 12), breaks = seq(0, 350, 75)) + 
+  geom_point(data=agencyData, aes(x = factor(qrt_8_math), 
+                                  y = pct_enrl, size = NULL), 
+             color = I("red"), size = I(4)) +
+  theme_classic() + 
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2), label = percent) +
+  labs(y = "Percent of High School Graduates", 
+       x = "Quartile of Prior Achievement", 
+       title = "College Enrollment Rates Among High School Gradautes", 
+       subtitle = "Within Quartile of Prior Achievement, by High School", 
+        caption = "Sample: 2007-2008 through 2008-2009 high school graduates. Postsecondary enrollment outcomes from NSC matched records. \n All other data from Agency administrative records.")
+
+```
 
