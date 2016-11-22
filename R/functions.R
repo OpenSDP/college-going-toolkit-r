@@ -42,7 +42,7 @@ get_CL_vcov <- function(model, cluster){
 }
 
 
-
+# Zero NA?
 # Assign one value
 # Task 1
 

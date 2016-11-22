@@ -1,13 +1,4 @@
----
-title: "SDP Analyze Tasks"
-author: "Strategic Data Project"
-date: "November 16, 2016"
-output: 
-  html_document: 
-    toc: yes
----
-
-```{r, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, comment=NA}
+## ---- echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, comment=NA----
 # Set options for knitr
 library(knitr)
 knitr::opts_chunk$set(comment=NA, warning=FALSE, 
@@ -17,22 +8,8 @@ options(width=120)
 library(dplyr)
 library(magrittr)
 source("R/functions.R")
-```
 
-
-
-
-# SDP College Going Analysis
-
-# A: Attainment Along the Education Pipeline
-
-## Task 1: Overall Progression
-
-Analytic Technique: Calculate the proportion of first-time ninth graders that 
-progress to each step along the education pipeline.
-
-
-```{r echo=TRUE}
+## ----echo=TRUE-----------------------------------------------------------
 # // Step 1: Load the college-going analysis file into Stata
 # Read in Stata
 library(haven) # required for .dta files
@@ -43,9 +20,8 @@ tmpfileName <- "analysis/CG_Analysis.dta"
 con <- unz(description = "data/analysis.zip", filename = tmpfileName, 
            open = "rb")
 cgdata <- read_stata(con) # read data in the data subdirectory
-```
 
-```{r setglobals}
+## ----setglobals----------------------------------------------------------
 #// Step 1a: Read in global variables
 # // Ninth grade cohorts you can observe persisting to the second year of college
 chrt_ninth_begin_persist_yr2 = 2005
@@ -66,10 +42,8 @@ chrt_grad_end = 2009
 # // High school graduation cohorts you can observe enrolling in college two years after hs graduation
 # /*global chrt_grad_begin_delayed = 2008
 # global chrt_grad_end_delayed = 2008*/
-```
 
-
-```{r}
+## ------------------------------------------------------------------------
 # // Step 2: Keep students in ninth grade cohorts you can observe persisting to the second year of college
 
 plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & chrt_ninth <= chrt_ninth_end_persist_yr2)
@@ -112,9 +86,8 @@ minSchool$school_name <- "AGENCY MIN HS"
 schoolData <- bind_rows(schoolData, agencyData, 
                         minSchool, maxSchool)
 rm(agencyData, minSchool, maxSchool)
-```
 
-```{r}
+## ------------------------------------------------------------------------
 # // Step 6: Format the outcome variables so they read as percentages in the graph
 
 # // Step 7: Reformat the data file so that one variable contains all the outcomes of interest
@@ -152,12 +125,8 @@ ggplot(schoolData[schoolData$subset,],
 All other data from Agency administrative records.")
 
 
-```
 
-
-## Task 2: Progression by Student Race/Ethnicity
-
-```{r}
+## ------------------------------------------------------------------------
 
 plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & chrt_ninth <= chrt_ninth_end_persist_yr2)
 
@@ -219,11 +188,8 @@ ggplot(progressRace[progressRace$subset,],
        caption = "Sample: 2004-2005 Agency first-time ninth graders. Postsecondary enrollment outcomes from NSC matched records.
 All other data from Agency administrative records.")
 
-```
 
-## Task 3: Progression by Student Race/Ethnicity, Among FRPL-Eligible Students
-
-```{r}
+## ------------------------------------------------------------------------
 #TODO: equal to 1 seems wrong
 ## TODO: Graduation seems way off
 plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & chrt_ninth <= chrt_ninth_end_persist_yr2) %>% filter(frpl_ever_hs > 0)
@@ -287,11 +253,8 @@ ggplot(progressRaceFRL[progressRaceFRL$subset,],
        subtitle = "Among Students Qualifying for Free or Reduced Price Lunch \n By Student Race/Ethnicity", x = "",
        caption = "Sample: 2004-2005 Agency first-time ninth graders. Postsecondary enrollment outcomes from NSC matched records.
 All other data from Agency administrative records.")
-```
 
-## Task 4: Progression by Students' On-Track Status After Ninth Grade
-
-```{r}
+## ------------------------------------------------------------------------
 
 plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & chrt_ninth <= chrt_ninth_end_persist_yr2) %>% filter(ontrack_sample == 1)
 
@@ -362,34 +325,8 @@ ggplot(progressTrack,
        subtitle = "By Course Credits and GPA after First High School Year", x = "",
        caption = "Sample: 2004-2005 Agency first-time ninth graders. Postsecondary enrollment outcomes from NSC matched records.
 All other data from Agency administrative records.")
-```
 
-# B: Ninth to Tenth Grade Transition by On-Track Status
-
-## Task 1 Proportion of Students On-Track at the End of Ninth Grade by High School
-
-Purpose: This analysis illustrates what percent of students are on-track after ninth grade graduate
-from each high school and the agency as a whole. Different levels of on-track for graduation are distinguished
-by high school.
-
-Analysis-Specific Sample Restrictions: Keep students in ninth
-grade cohorts you can observe graduating high school on time
-AND are part of the on-track sample (attended the first semester
-of ninth grade and never transferred into or out of the system).
-
-Ask Yourself
-- How does the percent of students on-track differ by high school (consider the overall height of each
-bar)?
-- How does the percent of students on-track for an advanced versus general diploma differ by high
-school (consider the different components of each bar)?
-
-Possible Next Steps or Action Plans: Overall school-level results can be disaggregated by student
-subgroups of interest, (race, FRPL status, and eighth grade academic achievement).
-
-Analytic Technique:Calculate the proportion of students on-track at each school, and across the
-agency.
-
-```{r}
+## ------------------------------------------------------------------------
 plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & chrt_ninth <= chrt_ninth_end_persist_yr2) %>% filter(ontrack_sample == 1)
 
 # // Step 3: Create variables for the outcomes "regular diploma recipients", "seamless transitioners" and "second year persisters"
@@ -449,32 +386,8 @@ ggplot(progressBars, aes(x = reorder(first_hs_name, n/count),
        caption = "Sample: 2004-2005 Agency first-time ninth graders. Postsecondary enrollment outcomes from NSC matched records.
 All other data from Agency administrative records.")
 
-```
 
-
-## Task 2: Ninth To Tenth Grade Transition by On-Track Status
-
-Purpose: This analysis explores how on-track status after ninth grade (the horizontal axis) predicts ontrack
-status in tenth grade (the vertical axis). This analysis is useful for developing early dropout warning
-indicators for at-risk students as early as the second semester of ninth grade.
-
-Analysis-Specific Sample Restrictions: Keep students in ninth
-grade cohorts you can observe graduating high school on time
-AND are part of the on-track sample (attended the first semester
-of ninth grade and never transferred into or out of the system).
-
-Ask Yourself
-- What percent of those in a specific on-track category at the end of ninth grade stay in that same
-on-track category? For example, what percent of off-track ninth graders continue off-track in tenth
-grade?
-- How might you use an early warning system to help students get back on-track for graduation?
-
-Possible Next Steps or Action Plans: Identify additional risk factors, (chronic absenteeism, prior
-academic achievement etc.) which can be incorporated into analyses like the one above. This could be
-used to further understand which students struggle, why they struggle, and interventions to keep them
-enrolled and engaged.
-
-```{r}
+## ------------------------------------------------------------------------
 plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
                    chrt_ninth <= chrt_ninth_end_persist_yr2) %>% 
   filter(ontrack_sample == 1)
@@ -547,30 +460,8 @@ ggplot(onTrackBar, aes(x = reorder(ot, n/count),
        subtitle = "End of Ninth Grade On-Track Status \n By High School", 
        caption = paste0("Sample: 2004-2005 Agency first-time ninth graders. \n", 
                         "Postsecondary enrollment outcomes from NSC matched records. All other data from Agency administrative records."))
-```
 
-# C: High School Graduation
-
-Purpose: This analysis explores variation in high school completion rates across 
-high schools in the system for both on-time and late high school graduates.
-
-Analysis-Specific Sample Restrictions: Keep students in ninth
-grade cohorts you can observe graduating high school one year late
-
-Ask Yourself
-- Does the ordering of high school completion rates coincide with beliefs key 
-stakeholders have about these high schools?
-- Which high schools have the highest and lowest completion rates? Do you know 
-why?
-
-## Task 1: High School Completion Rates By School
-
-Analytic Technique: Calculate the proportion of students who complete high school 
-by school.
-
-
-
-```{r}
+## ------------------------------------------------------------------------
 plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
                    chrt_ninth <= chrt_ninth_end_persist_yr2) 
 
@@ -610,11 +501,8 @@ ggplot(schoolLevel, aes(x = reorder(first_hs_name, measure), y = measure,
        x = "",
        caption = paste0("Sample: 2004-2005 Agency first-time ninth graders. \n", 
                         "Data from Agency administrative records."))
-```
 
-## Task 2: High SChool Completion Rates by Average 8th Grade Achievement
-
-```{r}
+## ------------------------------------------------------------------------
 plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
                    chrt_ninth <= chrt_ninth_end_persist_yr2) %>% 
   filter(!is.na(test_math_8_std))
@@ -634,9 +522,8 @@ schoolLevel <- bind_rows(
 # // Step 8: Prepare to graph the results
 schoolLevel$first_hs_name <- gsub(" High School", "", schoolLevel$first_hs_name)
 
-```
 
-```{r}
+## ------------------------------------------------------------------------
 
 
 ggplot(schoolLevel[schoolLevel$first_hs_name != "Agency AVERAGE", ], 
@@ -676,35 +563,8 @@ ggplot(schoolLevel[schoolLevel$first_hs_name != "Agency AVERAGE", ],
        subtitle = "By Student Achievement Profile Upon High SChool Entry",
        caption = paste0("Sample: 2004-2005 through 2005-2006 Agency first-time ninth graders with eighth grade math test scores. \n", 
                         "Data from Agency administrative records."))
-```
 
-
-## Task 3: High SChool Completion Rates by 8TH Grade Achievement Quartiles
-
-
-Purpose: This analysis examines variation in completion rates for high schools 
-among students with 8th grade test scores in the same quartile. The analysis is useful to explore high school completion
-rates across schools with students in the same quartile or range of achievement. Each high school is
-repeated as a blue bar in each quartile.
-
-Analysis-Specific Sample Restrictions:
-• Keep students in ninth grade cohorts you can observe
-graduating high school AND have non-missing eighth grade
-math scores.
-• Drop high schools with less than 20 students in each quartile
-enrolled in ninth grade across the cohorts.
-
-Ask Yourself
-• Looking at the average in each quartile (orange bars), how do 8th grade test scores relate to high
-school graduation?
-• For each quartile of 8th grade test scores (the blue bars), how do graduation rates vary by high
-school? What is the difference between top and bottom high schools in each quartile?
-
-Possible Next Steps or Action Plans: Highlight comparison schools to show variation across quartiles
-and explore reasons why students at different schools, but with similar academic profiles at high
-school entry, are more or less likely to graduate.
-
-```{r}
+## ------------------------------------------------------------------------
 plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
                    chrt_ninth <= chrt_ninth_end_persist_yr2) %>% 
   filter(!is.na(test_math_8_std))
@@ -723,9 +583,8 @@ schoolLevel <- bind_rows(
 # // Step 8: Prepare to graph the results
 schoolLevel$first_hs_name <- gsub(" High School", "", schoolLevel$first_hs_name)
 
-```
 
-```{r}
+## ------------------------------------------------------------------------
 library(gridExtra)
 p2 <-  ggplot(schoolLevel[schoolLevel$qrt_8_math == 2 & 
                        schoolLevel$first_hs_name != "Agency AVERAGE", ], 
@@ -780,35 +639,8 @@ grid.arrange(grobs=wrap, nrow=1,
                               "ninth graders with eighth grade math test scores. \n",
                               "Data from Agency administrative records."))
 
-```
 
-## Task 4: Racial Gaps in Completion Overall and by 8th Grade Achievement Quartiles
-
-Purpose: This analysis displays an overall graduation gap by race, and examines the extent to which
-this gap is explained by average differences in academic achievement between racial sub-groups at
-high school entry. The analysis is useful to diagnose whether racial gaps in high school result from
-persistent academic achievement gaps that emerge in early grades, or if other factors unique to the
-high school experience drive high school completion rate differences by race.
-
-
-Analysis-Specific Sample Restrictions:
-• Keep students in ninth grade cohorts you can observe
-graduating high school AND have non-missing eighth grade
-math scores.
-• Drop any race/ethnic sub-groups with at least 20 students
-in each quartile (for the second graph). You may further
-restrict the sample to only include students from the most
-representative racial/ethnic sub-groups in your agency.
-
-Ask Yourself
-• How do racial gaps in graduation rates change after prior achievement is accounted for? Do these
-gaps change for different prior achievement quartiles?
-
-Possible Next Steps or Action Plans: Repeat analyses for only students that qualify for free or reduced
-price lunch (FRPL) to explore if racial gaps are better explained by disparities in prior academic
-achievement and family socioeconomic status.
-
-```{r}
+## ------------------------------------------------------------------------
 plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
                    chrt_ninth <= chrt_ninth_end_persist_yr2) %>% 
   filter(!is.na(test_math_8_std))
@@ -841,9 +673,8 @@ plotTwo$qrt_label <- factor(plotTwo$qrt_label,
 # // Step 7: Reformat the data file so that one variable contains all the outcomes of interest
 # // Step 8: Prepare to graph the results
 # schoolLevel$first_hs_name <- gsub(" High School", "", schoolLevel$first_hs_name)
-```
 
-```{r}
+## ------------------------------------------------------------------------
 
 ggplot(plotOne, aes( x= reorder(race, -N), y = ontimeGrad, fill = race)) + 
   geom_bar(stat = "identity", color = I("black")) + 
@@ -874,31 +705,8 @@ ggplot(plotTwo, aes( x = qrt_label,
        caption = "Sample: 2004-2005 through 2005-2006 Agency first-time ninth graders. \n All data from Agency administrative records.")
 
   
-```
 
-## Task 5: Enrollment Outcome in Year Four By On-Track Status At the End of Ninth Grade
-
-Purpose: This analysis explores how strongly student performance in ninth grade predicts high school
-graduation three years later. Building upon our analysis of the relationship between student performance
-in ninth and tenth grade, the analysis assesses the utility of using course-level performance
-data early in students’ high school careers to assess risk of non-completion, and target students in
-need of academic and/or socio-emotional support.
-
-Analysis-Specific Sample Restrictions:
-• Keep students in ninth grade cohorts you can observe
-graduating high school AND are part of the on-track sample
-(attended the first semester of ninth grade and never transferred
-into or out of the system).
-
-Ask Yourself
-• How does on-track status at the end of ninth grade relate to high school completion status at the
-end of four years?
-
-Possible Next Steps or Action Plans: Repeat analyses for only students that qualify for free or reduced
-price lunch (FRPL) to explore whether racial gaps are better explained by disparities in prior academic
-achievement and family socioeconomic status.
-
-```{r}
+## ------------------------------------------------------------------------
 plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
                    chrt_ninth <= chrt_ninth_end_persist_yr2) %>% 
   filter(!is.na(cum_gpa_yr1)) %>% 
@@ -921,9 +729,8 @@ plotOne <- plotdf %>% group_by(ontrackStatus, statusVar) %>%
   mutate(sum = sum(count))
 plotOne$count[plotOne$statusVar == "Dropped Out"] <- -plotOne$count[plotOne$statusVar == "Dropped Out"]
 plotOne$count[plotOne$statusVar == "Disappeared"] <- -plotOne$count[plotOne$statusVar == "Disappeared"]  
-```
 
-```{r}
+## ------------------------------------------------------------------------
 
 ggplot(plotOne, aes(x = ontrackStatus, y = count/sum, fill = statusVar, 
                     group = statusVar)) + 
@@ -941,43 +748,8 @@ ggplot(plotOne, aes(x = ontrackStatus, y = count/sum, fill = statusVar,
   theme_classic() + theme(legend.position = c(0.2, 0.8),
                           axis.text = element_text(color = "black")) 
 
-```
 
-# D: College Enrollment
-
-The following three analyses in College Enrollment include the three Strategic Performance Indicators
-(SPIs) SDP has released to provide deeper insight into the college-going performance of educational
-systems. These SPIs were conducted using data from a number of SDP's partner agencies. This
-section of Analyze will help you conduct these analyses yourself. You can read more about the SPIs at
-http://www.gse.harvard.edu/sdp/strategic-performance-indicators.
-
-
-## Task 1: College Enrollment Rates by High School
-
-Purpose: This analysis provides an agency snapshot of college enrollment to understand how patterns
-of college-going for high school graduates vary across high schools. By illuminating the extent
-to which enrollment varies by entry time for seamless enrollers and college level (2- vs. 4-year), the
-analysis helps diagnose compositional differences for the college-bound population by high school attended.
-
-Analysis-Specific Sample Restrictions:
-• Keep students in high school graduation cohorts you can
-observe enrolling in college the fall after graduation.
-• Drop any high schools with less than 20 students in the
-sample.
-• Include only graduates who received regular or advanced
-diplomas (i.e. exclude students who received SPED diplomas
-and other certificates).
-
-Ask Yourself
-• How do college enrollment rates differ by high schools? Why might certain schools have a greater
-percentage of high school graduates enrolling in college? Do certain schools have higher percentages
-of 2-year or delayed college enrollers?
-
-Possible Next Steps or Action Plans: Replicate this analysis to include all first-time ninth graders (i.e.
-ninth grade cohorts) in place of graduates. Additionally, create individual high school reports that provide
-more details for school administrators (top enrolling institutions of the school’s graduates).
-
-```{r}
+## ------------------------------------------------------------------------
 plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end)
 
 chartData <- 
@@ -1002,9 +774,8 @@ chartData$last_hs_name <- gsub("High School", "", chartData$last_hs_name)
 chartData$outcome[chartData$outcome == "enrl_1oct_grad_yr1_2yr"] <- "2-yr Seamless Enroller"
 chartData$outcome[chartData$outcome == "enrl_1oct_grad_yr1_4yr"] <- "4-yr Seamless Enroller"
 
-```
 
-```{r}
+## ------------------------------------------------------------------------
 
 ggplot(chartData, aes(x = reorder(last_hs_name, enroll_any), 
                       y = measure/hs_diploma, 
@@ -1029,36 +800,8 @@ ggplot(chartData, aes(x = reorder(last_hs_name, enroll_any),
         legend.position = c(0.1, 0.8), axis.ticks.x = element_blank())
 
 
-```
 
-## Task 2: Seamless and Delayed College Enrollment Rates by High School
-
-Purpose: This analysis provides an agency snapshot of college enrollment to understand how patterns
-of college-going for high school graduates vary across high schools. By illuminating the extent
-to which enrollment varies by entry time (seamless vs. delayed) and college level (2- vs. 4-year), the
-analysis helps diagnose compositional differences for the college-bound population by high school attended.
-
-Analysis-Specific Sample Restrictions:
-• Keep students in high school graduation cohorts you can
-observe enrolling in college the fall after graduation.
-• Drop any high schools with less than 20 students in the
-sample.
-• Include only graduates who received regular or advanced
-diplomas (i.e. exclude students who received SPED diplomas
-and other certificates).
-
-Ask Yourself
-• How do college enrollment rates differ by high schools? Why might certain schools have a greater
-percentage of high school graduates enrolling in college? Do certain schools have higher percentages
-of 2-year or delayed college enrollers?
-
-Possible Next Steps or Action Plans: Replicate this analysis to include all first-time ninth graders (i.e.
-ninth grade cohorts) in place of graduates. Additionally, create individual high school reports that provide
-more details for school administrators (top enrolling institutions of the school’s graduates).
-
-
-
-```{r}
+## ------------------------------------------------------------------------
 plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end) %>% 
   select(sid, chrt_grad, enrl_1oct_grad_yr1_2yr, enrl_1oct_grad_yr1_4yr,
          enrl_1oct_grad_yr1_any, enrl_ever_w2_grad_2yr, enrl_ever_w2_grad_any,
@@ -1100,9 +843,8 @@ chartData$outcome[chartData$outcome == "late_2yr"] <- "2-yr Delayed"
 chartData$outcome[chartData$outcome == "late_4yr"] <- "4-yr Delayed"
 
 
-```
 
-```{r}
+## ------------------------------------------------------------------------
 ggplot(chartData, aes(x = reorder(last_hs_name, enroll_any), 
                       y = measure/hs_diploma, 
                       fill = outcome, group = outcome)) + 
@@ -1125,30 +867,8 @@ ggplot(chartData, aes(x = reorder(last_hs_name, enroll_any),
   theme(axis.text.x = element_text(angle = 30, vjust = 0.8, color = "black"), 
         legend.position = c(0.1, 0.8), axis.ticks.x = element_blank())
 
-```
 
-## Task 3: College Enrollment Rates by Average 8th Grade Achievement
-
-Purpose: This analysis displays variations in college enrollment rates across high schools by
-examining the extent to which academic achievement at high school entry explains variation in
-college-going across high schools. This analysis is useful to identify high schools with similar
-incoming student achievement profiles but divergent college enrollment rates; or on the other hand,
-high schools with similar college-going rates but different academic performance at high school entry.
-
-Analysis-Specific Sample Restrictions:
-• Keep students in high school graduation cohorts you can observe
-enrolling in college the fall after graduation AND have
-non-missing eighth grade test scores.
-• Include only graduates who received regular or advanced
-diplomas (i.e. exclude students who received SPED diplomas
-and other certificates).
-
-Ask Yourself
-• What might explain variation in college enrollment rates for high schools with similar incoming
-achievement? What might explain variation in incoming achievement for high schools with similar
-college enrollment rates?
-
-```{r}
+## ------------------------------------------------------------------------
 plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end) %>% 
   select(sid, chrt_grad, enrl_1oct_grad_yr1_any, test_math_8_std,
          last_hs_name) %>% 
@@ -1168,10 +888,8 @@ chartData <- plotdf %>% group_by(last_hs_name) %>%
 
 chartData$last_hs_name <- gsub("High School", "", chartData$last_hs_name)
 
-```
 
-
-```{r}
+## ------------------------------------------------------------------------
 
 ggplot(chartData, aes(x = math_test, y = enroll_rate)) + 
   geom_point() + geom_text(aes(label = last_hs_name), 
@@ -1212,41 +930,8 @@ ggplot(chartData, aes(x = math_test, y = enroll_rate)) +
   theme(axis.text = element_text(color="black", size = 12))
 
 
-```
 
-## Task 4: College Enrollment Rates by 8th Grade Achievement Quartiles
-
-Purpose: This analysis explores whether variation in college enrollment across high schools is similar
-among low-, middle, and top-achieving students. It also considers whether overall variation across
-schools derives from concentrated divergence among students scoring in a particular achievement
-range. Additionally, the analysis facilitates granular school-to-school comparisons to identify those
-especially under-, or over-performing within each achievement quartile. Finally, the analysis also helps
-identify which student subgroups require additional resources and support within each school.
-
-Analysis-Specific Sample Restrictions:
-• Keep students in high school graduation cohorts you can observe
-enrolling in college the fall after graduation AND have
-non-missing eighth grade test scores.
-• Drop high schools with less than 20 students in each quartile
-enrolled in ninth grade across the cohorts.
-• Keep only graduates who received regular or advanced diplomas
-(i.e. exclude students who received SPED diplomas
-and other certificates).
-
-Ask Yourself
-• After looking at the average in each quartile (the orange bars), how do 8th grade test scores
-relate to college enrollment? Within each quartile of 8th grade test scores (the blue bars), how do
-enrollment rates vary by high school? What is the difference between top and bottom performing
-high schools in each quartile?
-
-Possible Next Steps or Action Plans: Repeat this analysis to include all first-time ninth graders (i.e.
-ninth grade cohorts) in place of graduates, and explore college enrollment within two years of high
-school completion. Additionally, replicate this analysis to explore the relationship between college
-enrollment and students’ ELA achievement at high school entry. Consider why schools with similar
-incoming student profiles may report dramatically different college-going rates. Conversely, consider
-why schools with distinct student bodies may report similar matriculation rates to college.
-
-```{r}
+## ------------------------------------------------------------------------
 plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end) %>% 
   select(sid, chrt_grad, enrl_1oct_grad_yr1_any, qrt_8_math,
          last_hs_name) %>% 
@@ -1269,9 +954,8 @@ chartData <- bind_rows(
 
 chartData$last_hs_name <- gsub("High School", "", chartData$last_hs_name)
 
-```
 
-```{r}
+## ------------------------------------------------------------------------
 p1 <- ggplot(chartData[chartData$qrt_8_math == 1, ], 
        aes(x = reorder(last_hs_name, enroll_rate), y = enroll_rate)) + 
         geom_hline(yintercept = as.numeric(AGENCYLEVEL$agency_mean_enroll),
@@ -1324,48 +1008,8 @@ grid.arrange(grobs=wrap, nrow=1,
                              "Agency graduates with eighth grade math scores. Postsecondary ",
                              "enrollment outcomes from NSC matched records.", 
                              " \n All other data from Agency administrative records."))
-```
 
-## Task 5: Rates of College Enrollment Among Graduates Highly Qualified to Attend Four-Year Colleges, by College Type
-
-Purpose: Research consistently finds wide variation in rates of persistence and completion across
-postsecondary institutions. This analysis examines whether high school graduates enroll in colleges
-and universities that provide the right academic fit to maximize their chances of completion.
-"Match"describes the extent high school graduates with strong academic records attend colleges
-and universities that allow them to take advantage of their ambition and abilities. While "matching"
-to an appropriately selective college is only one factor to consider when choosing a postsecondary
-institution, the implications of under-matching (i.e. lower rates of persistence and degree completion)
-suggest students should be encouraged to attend realistic, yet challenging postsecondary institutions.
-
-Analysis-Specific Sample Restrictions:
-• Keep students in high school graduation cohorts you can
-observe enrolling in college the fall after graduation.
-• Include only graduates who received regular or advanced
-diplomas (i.e. exclude students who received SPED diplomas
-and other certificates).
-• Include only highly qualified high school graduates (i.e.
-students who have obtained a high school diploma on time
-with 1) a cumulative GPA of 3.0 or higher and Math/Verbal
-SAT score of 1300 or higher, or 2) a cumulative GPA of 3.3 or
-higher and Math/Verbal SAT score of 1200 or higher, or 3) a
-cumulative GPA of 3.7 or higher and Math/Verbal SAT score
-of at least 1100).
-• Drop race/ethnic groups with less than 20 students eligible
-to attend a four-year university.
-
-Ask Yourself
-• Among highly qualified students, which race/ethnicities seem to face the greatest undermatch
-rates?
-
-Possible Next Steps or Action Plans: This analysis leads to important questions that warrant further
-exploration. What factors drive undermatch differences across student subgroups and high schools?
-To what extent is undermatching concentrated among first-time college-goers? To what extent is
-undermatching driven by students’ proximity to 2-year versus 4-year institutions? What college aspirations
-do incoming ninth graders hold, and do these aspirations change by the time they enter or complete
-12th grade? To what extent are teachers, counselors, and administrators supported to work with
-students to cultivate postsecondary aspirations and weigh factors in the college selection process?
-
-```{r}
+## ------------------------------------------------------------------------
 plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end) %>% 
   select(sid, chrt_grad, race_ethnicity, highly_qualified, 
          enrl_1oct_grad_yr1_any, enrl_1oct_grad_yr1_4yr, enrl_1oct_grad_yr1_2yr)
@@ -1422,9 +1066,8 @@ chartData$outcomeLabel <- factor(chartData$outcomeLabel,
                                             "Not Enrolled in College", 
                                             "Enrolled at 2-Yr College"))
 
-```
 
-```{r}
+## ------------------------------------------------------------------------
 
 myCap <- paste0("Sample: 2007-2008 through 2008-2009 Agency first-time ninth graders.", 
                 " Students who transferred into or out of Agency are excluded \n", 
@@ -1452,45 +1095,8 @@ ggplot(chartData, aes(x = reorder(label, total_count), y = measure, group = outc
        subtitle = "Among Graduates Eligible to Attend Four-Year Universities", 
        caption = myCap)
 
-```
 
-## Task 6: Gaps in Rates of College Enrollment Between Latino High School Graduates and White High SChool Graduates
-
-
-Purpose: This Strategic Performance Indicator explores gaps in college enrollment rates by ethnicity,
-before and after accounting for differences in prior academic achievement, socioeconomic status,
-and both of these background characteristics. While the analysis evaluates separately the college
-enrollment gaps between Black and White students and between Latino and White students, it can be
-modified to focus on the gap between any two races or ethnicities.
-
-Analysis-Specific Sample Restrictions:
-• Keep students in high school graduation cohorts you can
-observe enrolling in college the fall after graduation.
-• Keep only graduates who received regular or advanced diplomas
-(i.e. exclude students who received SPED diplomas
-and other certificates).
-• Drop race/ethnic groups with less than 20 students eligible
-to attend a four-year university. You may further restrict the
-sample to only include students from the most representative
-racial/ethnic sub-groups in your agency.
-
-Ask Yourself
-• How do racial gaps in college enrollment change after prior achievement is accounted for? How do
-these gaps change after socioeconomic status is accounted for?
-• Do these gaps still exist when you account for both prior achievement and socioeconomic status?
-Do they reverse direction, suggesting that minority students enroll in college at higher rates when
-compared with White students with similar background characteristics?
-• Do you observe differences in the degree to which the White-Black gap and the White-Latino gap
-decline after accounting for prior achievement and socioeconomic status? If the adjusted gap
-between White and Latino students, for example, is still sizeable, what additional barriers may be
-impeding access to college for Latino students?
-
-Analytic Technique: Calculate the difference between the proportion of Black (or Latino) high school
-graduates and the proportion of White high school graduates who enrolled in college—in raw terms
-and after accounting for 8th grade test scores, for eligibility for Free or Reduced Price Lunch (FRPL),
-and for both of these characteristics.
-
-```{r}
+## ------------------------------------------------------------------------
 plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end) %>% 
   select(sid, chrt_grad, race_ethnicity, test_math_8, frpl_ever,
          enrl_1oct_grad_yr1_any, last_hs_code) %>% 
@@ -1545,9 +1151,8 @@ rm(plotdf, betas_unadj, betas_adj_frpl, betas_adj_frpl_prior,
 
 
 
-```
 
-```{r}
+## ------------------------------------------------------------------------
 
 ggplot(chartData[chartData$term == "race_ethnicityHispanic", ],
        aes(x = model, y = -estimate, fill = model)) + 
@@ -1564,37 +1169,8 @@ ggplot(chartData[chartData$term == "race_ethnicityHispanic", ],
        caption = "Sample: 2007-2008 through 2008-2009 high school graduates. Postsecondary enrollment outcomes from NSC matched records. \n All other data from Agency administrative records.")
   
 
-```
 
-## Task 7: College Enrollment Rates by 8th Grade Achievement Quartile Bubbles
-
-Purpose: This SPI highlights the variation in college-going rates across high schools when students
-with similar prior achievement are compared. To conduct these comparisons, we first sort all incoming
-ninth-graders into quartiles based on their 8th grade test scores. We then examine college-going rates
-by high school among graduates within each of these quartiles.
-
-Analysis-Specific Sample Restrictions:
-• Keep students in high school graduation cohorts you can observe
-enrolling in college the fall after graduation AND have
-non-missing eighth grade test scores.
-• Drop high schools with less than 20 students in each quartile
-enrolled in ninth grade across the cohorts.
-• Keep only graduates who received regular or advanced diplomas
-(i.e. exclude students who received SPED diplomas
-and other certificates).
-
-Ask Yourself
-• How do college enrollment rates vary across high schools for students within the same quartile of
-8th grade test scores (that is, when we compare students with similar prior achievement)?
-• What is the difference between the high schools with the lowest and with the highest rates in each
-quartile?
-• Are across-school differences in colleges enrollment rates particularly large for students of certain
-achievement profile—for example, for students with 8th grade test scores in the bottom quartile?
-
-Analytic Technique: Calculate the share of students in each 8th grade test score quartile at each high
-school who enroll in college seamlessly after high school graduation.
-
-```{r}
+## ------------------------------------------------------------------------
 plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end) %>% 
   select(sid, chrt_grad, qrt_8_math, hs_diploma,
          enrl_1oct_grad_yr1_any, last_hs_name) %>% 
@@ -1612,9 +1188,8 @@ agencyData <- plotdf %>% group_by(qrt_8_math) %>%
   mutate(pct_enrl = enroll_count/diploma_count) %>% as.data.frame
 
 
-```
 
-```{r}
+## ------------------------------------------------------------------------
 
 ggplot(chartData, aes(x = factor(qrt_8_math), y = pct_enrl)) + 
   geom_point(aes(size = diploma_count), shape = 1) + 
@@ -1630,54 +1205,8 @@ ggplot(chartData, aes(x = factor(qrt_8_math), y = pct_enrl)) +
        subtitle = "Within Quartile of Prior Achievement, by High School", 
         caption = "Sample: 2007-2008 through 2008-2009 high school graduates. Postsecondary enrollment outcomes from NSC matched records. \n All other data from Agency administrative records.")
 
-```
 
-## Task 8: Undermatch Rates Among Highly Qualified High School Graduates
-
-Purpose: This Strategic Performance Indicator examines the prevalence of “undermatch” in the
-agency—that is, the extent to which high school graduates with strong academic records pursue
-enrollment in colleges and universities less selective than those for which they are likely qualified.
-The SPI does so by illustrating the rates at which highly qualified graduates are enrolling at 2-year
-colleges, less competitive 4-year colleges, or forgoing college altogether, instead of pursuing selective
-colleges that may provide a better academic and social fit for these students’ potential, ambition, and
-preparation.
-
-Analysis-Specific Sample Restrictions:
-• Keep students in high school graduation cohorts you can
-observe enrolling in college the fall after graduation.
-• Keep only highly qualified high school graduates (i.e. students
-who have obtained a high school diploma on time
-with 1) a cumulative GPA of 3.0 or higher and Math/Verbal
-SAT score of 1300 or higher, or 2) a cumulative GPA of 3.3 or
-higher and Math/Verbal SAT score of 1200 or higher, or 3) a
-cumulative GPA of 3.7 or higher and Math/Verbal SAT score
-of at least 1100).
-• Keep only graduates who received regular or advanced diplomas
-(i.e. exclude students who received SPED diplomas
-and other certificates).
-
-A Note on College Selectivity
-To determine the selectivity of the postsecondary institutions in which high school graduates enroll, we
-typically rely on Barron’s College Rankings. Barron’s has developed well-established college selectivity
-ratings based on the degree of admissions competitiveness at four-year colleges and universities.
-Factors used in determining these rankings include the median SAT and ACT scores, high school class
-rankings, and grade point average among incoming college freshmen. The seven selectivity rankings
-Barron’s assigns are “Most Competitive,” “Highly Competitive,” “Very Competitive,” “Competitive,”
-“Less Competitive,” “Non-Competitive,” and “Special.”
-As part of this exercise, we have provided a simplified table from which the selectivity ratings of the
-colleges and universities included in this dataset can be obtained. In conducting this analysis for your
-own agency, you need to select a source of college selectivity ratings, such as Barron’s, and use it in
-place of the college selectivity table used in this exercise.
-
-Ask Yourself
-• How do college enrollment rates vary across high schools for students within the same quartile of
-8th grade test scores (that is, when we compare students with similar prior achievement)?
-• What is the difference between the high schools with the lowest and with the highest rates in each
-quartile?
-• Are across-school differences in colleges enrollment rates particularly large for students of certain
-achievement profile—for example, for students with 8th grade test scores in the bottom quartile?
-
-```{r}
+## ------------------------------------------------------------------------
 plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end) %>% 
   select(sid, chrt_grad, highly_qualified, first_college_opeid_4yr,
          enrl_1oct_grad_yr1_any, enrl_1oct_grad_yr1_4yr, enrl_1oct_grad_yr1_2yr) %>% 
@@ -1706,9 +1235,8 @@ chartData <- plotdf %>% group_by(outcome) %>%
   summarize(count = n()) %>% ungroup %>% 
   mutate(totalCount = sum(count))
 
-```
 
-```{r}
+## ------------------------------------------------------------------------
 
 # chartData$outcome <- factor(chartData$outcome, ordered=TRUE, 
 #                             levels = c("No college", 
@@ -1734,46 +1262,8 @@ ggplot(arrange(chartData, -count),
        x = "",
        caption = "Sample: 2007-2008 through 2008-2009 high school graduates. Postsecondary enrollment outcomes from NSC matched records. \n All other data from Agency administrative records.")
 
-```
 
-# E: College Persistence
-
-For many high school graduates, college enrollment is just the first of many hurdles on the road to
-postsecondary success. While considerable attention has been paid to challenges that surround
-college preparedness, access, and enrollment, only recently has conversation expanded to consider
-barriers to degree completion. These barriers must be understood and addressed at both the
-secondary and postsecondary levels for college attainment rates to increase. In the last section of the
-education pipeline, you examine patterns of persistence to the second year of college to identify early
-indications of student progress towards degree attainment.
-To explore college persistence, use the models below:
-
-## Task 1: Persistence Rates to the Second Year of College by High School
-
-Purpose: Initial enrollment decisions can dramatically affect higher education trajectories and the
-likelihood of degree attainment. This analysis provides a snapshot of persistence to the second year of
-college by examining persistence rates across high schools in the system. The analysis illuminates differences
-in persistence by level of college first attended (two-year vs. four-year). Given another year of
-sample data, the analysis could also be conducted by time of initial entry (seamless vs. delayed enrollment).
-
-Analysis-Specific Sample Restrictions:
-• Keep students in high school graduation cohorts you can
-observe enrolling in college the fall after graduation
-• Keep only graduates who received regular or advanced diplomas
-(i.e. exclude students who received SPED diplomas
-and other certificates).
-• Drop high schools with less than 20 students in the sample.
-
-Ask Yourself
-• How does college persistence for enrollers at 2-year colleges compare to enrollers at 4-year
-colleges? Given another year of sample data, how does college persistence for seamless enrollers
-compare to delayed enrollers?
-
-Possible Next Steps or Action Plans: Consider establishing MOUs with local community colleges to
-obtain detailed data on graduates’ postsecondary pursuits at two-year colleges (Course enrollment
-and transcript data) allowing agencies to explore persistence rates by assignment to remediation
-coursework.
-
-```{r}
+## ------------------------------------------------------------------------
 plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end) %>% 
   select(sid, chrt_grad, enrl_1oct_grad_yr1_2yr, enrl_1oct_grad_yr1_4yr,
          enrl_1oct_grad_yr1_any, enrl_grad_persist_any, 
@@ -1816,10 +1306,8 @@ chartData$order[chartData$groupVar == "2-year College"] <- chartData$order[chart
 chartData$groupVar <- factor(chartData$groupVar)
 chartData$groupVar <- relevel(chartData$groupVar, ref = "4-year College")
 
-```
 
-
-```{r}
+## ------------------------------------------------------------------------
 ggplot(chartData, aes(x = reorder(last_hs_name, -order), 
                                       group = groupVar, 
                       y = persistRate, fill = groupVar, 
@@ -1841,43 +1329,8 @@ ggplot(chartData, aes(x = reorder(last_hs_name, -order),
        subtitle = "Seamless Enrollers by Type of College", 
        caption = "Sample: 2007-2008 through 2008-2009 Agency high school graduates. Postsecondary enrollment outcomes from NSC matched records. \n All other data from agency administrative records")
 
-```
 
-
-## Task 2: Persistence Across Two-Year and Four-Year Colleges
-
-Purpose: This analysis provides a snapshot of persistence to the second year of college from one type
-of college to another for different high schools in the system. The left analysis charts explores how
-seamless enrollers in 4-year colleges either persist at a 4-year or switch to a 2-year. The right analysis
-charts how seamless enrollers in 2-year colleges either persist at a 2-year or switch to a 4-year.
-
-Analysis-Specific Sample Restrictions:
-• Keep the three most recent cohorts of graduates for which
-persistence in college over four consecutive years can be
-reported.
-• Keep only graduates enrolled in 4-yr colleges and universities
-the fall following high school graduation.
-• Keep only graduates for whom cumulative high school GPAs
-can be calculated (or obtained from the agency)
-• Only include the top six enrolling 4-year colleges
-• Only report persistence rates among students falling in each
-high school GPA category if the sample includes 25 or more
-students
-
-Ask Yourself
-• How do the rates of persistence or switching differ for seamless enrollers at 4-year vs. 2-year
-colleges?
-
-Possible Next Steps or Action Plans: Create individual school-level reports for administrators and
-college counselors to communicate which postsecondary institutions are associated with greater rates
-of persistence. Additionally, conduct similar analyses that include more detailed institutional information
-that may be associated with students’ prospects of persisting (e.g. cost of tuition and room/board,
-financial aid, etc.).
-
-Analytic Technique: Calculate the proportion of 4-yr college-goers who persist through four years of
-college by the postsecondary institution first attended and cumulative high school GPA category.
-
-```{r}
+## ------------------------------------------------------------------------
 plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end) %>% 
   select(sid, chrt_grad, enrl_1oct_grad_yr1_2yr, enrl_1oct_grad_yr1_4yr,
          enrl_1oct_grad_yr1_any, enrl_1oct_grad_yr2_2yr, enrl_1oct_grad_yr2_4yr,
@@ -1934,10 +1387,8 @@ chartData$persist_pattern <- factor(as.character(chartData$persist_pattern),
                                                "Switched to 2-Year College", 
                                                "Persisted at 2-Year College", 
                                                "Persisted at 4-Year College"))
-```
 
-
-```{r}
+## ------------------------------------------------------------------------
 p1 <- ggplot(chartData[chartData$groupVar == "2-year College",], 
        aes(x = reorder(last_hs_name, rankRate), 
            y = persistRate, group = persist_pattern, 
@@ -1966,31 +1417,8 @@ p2 <- p1 %+% chartData[chartData$groupVar == "4-year College",] +
 grid.arrange(grobs= list(p2, p1), nrow=1, 
              top = "College Persistence by High School")
 
-```
 
-## Task 3: Top-Enrolling Colleges/Universities of Agency Graduates
-
-Purpose: This analysis reports enrollment and persistence rates among top-enrolling two- and fouryear
-institutions attended by graduates. This analysis illuminates differences in persistence rates to
-the second year of college among top-enrolling postsecondary institutions. Agency staff that advise
-students during their senior year may find this information useful when meeting to weigh college options.
-
-Analysis-Specific Sample Restrictions:
-• Keep only the most recent cohort of seamless college-goers
-for which persistence to the second year of college can be
-reported
-• Only include postsecondary institutions with 25 or more
-agency graduates attending.
-
-Ask Yourself
-• What are the top enrolling 4-year and 2-year colleges or universities in your agency? What are the
-persistence rates at those colleges and universities?
-
-Analytic Technique: Calculate the proportion of college-goers attending top-enrolling 2- and 4-year
-institutions, as well as the proportion of seamless enrollers who persist to the second year of any
-college, by the postsecondary institution graduates first attended.
-
-```{r}
+## ------------------------------------------------------------------------
 plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end) %>% 
   select(sid, chrt_grad, enrl_1oct_grad_yr1_2yr, enrl_1oct_grad_yr1_4yr,
          enrl_1oct_grad_yr1_any, enrl_1oct_grad_yr2_2yr, enrl_1oct_grad_yr2_4yr,
@@ -2038,9 +1466,8 @@ chart2year <- bind_rows(plotdf %>% group_by(first_college_name_2yr) %>%
          perPersist = round(100 * persisted/enrolled, 1))
 )
   
-```
 
-```{r results='markup'}
+## ----results='markup'----------------------------------------------------
 chart4year %>% arrange(-enrolled) %>% 
   select(first_college_name_4yr, enrolled, perEnroll, persisted, perPersist) %>%
   head %>%
@@ -2055,5 +1482,4 @@ chart2year %>% arrange(-enrolled) %>%
                          "% Enrolled", "Number Persisted", 
                          "% Persisted"))
 
-```
 

@@ -851,10 +851,14 @@ for each of the four years.
 
 ```{r}
 # // Create the 4 enrollment outcomes of interest by October 1st
-# foreach num of numlist 1/4 {
-# gen enrl_1oct_grad_yr`num' = .
-# gen enrl_1oct_ninth_yr`num' = .
-# }
+
+newdf <- data.frame(NA)
+for(num in 1:4) {
+  eval(parse(text=paste0("newdf$enrl_1oct_grad_yr", num, " <- 0")))
+  eval(parse(text=paste0("newdf$enrl_1oct_ninth_yr", num, " <- 0")))
+}
+newdf <- newdf[, -1]
+stunsc <- cbind(stunsc[, 1:35], newdf)
 ```
 
 Now, loop through these year values. We replace the above created placeholder 
@@ -890,43 +894,200 @@ testDF <- stunsc %>%
            enrl_1oct_grad_yr4 = ifelse((compDateE + 1095) %within% compInterval, 1, 
          as.numeric(enrl_1oct_grad_yr4)))
   
-testDF %>% filter(sid %in% c(16011, 16016)) %>% 
+
+stunsc %<>% filter(!is.na(stunsc$chrt_grad))
+
+# Big typo in the toolkit here on p. 15, should be 05-01-YYYY for the end date, no 10-01-YYYY
+# [stunsc$chrt_grad ==", i, "] 
+for(i in as.numeric(na.omit(unique(stunsc$chrt_grad)))){
+  for(j in 1:4){
+    eval(parse(text=paste0("stunsc$enrl_1oct_grad_yr", j," <- ifelse((
+                       (stunsc$enrl_1oct_grad_yr", j," == 0) &
+                           (stunsc$n_enroll_begin_date <=
+                       ymd(paste0(", i, "+", j-1, ",'-10-01')) & 
+                      ymd(paste0(", i, "+", j-1, ",'-05-01')) <= stunsc$n_enroll_end_date) &
+                      (year(stunsc$hs_diploma_date) == ", i, " &
+                      month(stunsc$hs_diploma_date) <=9) | 
+                    (year(stunsc$hs_diploma_date) == ", i-1, "& 
+                      month(stunsc$hs_diploma_date)>9)), 1, 
+                    stunsc$enrl_1oct_grad_yr", j,")")))
+    
+  }
+}
+
+table(stunsc$enrl_1oct_grad_yr1)
+table(stunsc$enrl_1oct_grad_yr2)
+table(stunsc$enrl_1oct_grad_yr3)
+table(stunsc$enrl_1oct_grad_yr4)
+
+stunsc %>% filter(sid %in% c(16011, 16016)) %>% 
   select(sid, chrt_grad, hs_diploma_date, first_enrl_date_any, n_enroll_begin_date, 
          n_enroll_end_date,
          enrl_1oct_grad_yr1, enrl_1oct_grad_yr2, enrl_1oct_grad_yr3, enrl_1oct_grad_yr4) %>% as.data.frame
 
-# // loop through the graduation years (actual and expected) that exist in your data.
-# // actual
-# levelsof chrt_grad, local(chrt_grad_values)
-# foreach yr of local chrt_grad_values {
-# // assign the outcome of interest to assume a value of 1 when students enroll on or
-# before October 1st
-# local yr1 = `yr'
-# local yr2 = `yr' + 1
-# local yr3 = `yr' + 2
-# local yr4 = `yr' + 3
-# local yr5 = `yr' + 4
-# foreach num of numlist 1/5 {
-# replace enrl_1oct_grad_yr`num' = 1 if (n_enroll_begin_date <=
-# td(1oct`yr`num'')) & (td(1oct`yr`num'') <= n_enroll_end_date) & ((year(hs_diploma_date) ==
-# (`yr') & month(hs_diploma_date) <=9) | ((year(hs_diploma_date) == `yr'-1 & month(hs_diploma_
-# date)>9)))
+
+for(i in as.numeric(unique(stunsc$ontime_yr))){
+  for(j in 1:4){
+    eval(parse(text=paste0("stunsc$enrl_1oct_ninth_yr", j," <- ifelse((
+                       (stunsc$enrl_1oct_ninth_yr", j," == 0) &
+                           (stunsc$n_enroll_begin_date <=
+                       ymd(paste0(", i, "+", j-1, ",'-10-01')) & 
+                      ymd(paste0(", i, "+", j-1, ",'-05-01')) <=
+                  stunsc$n_enroll_end_date) & (stunsc$chrt_ninth == ", i - 3, ")),
+                        1, stunsc$enrl_1oct_ninth_yr", j,")")))
+    
+  }
+}
+table(stunsc$enrl_1oct_ninth_yr1)
+table(stunsc$enrl_1oct_ninth_yr2)
+table(stunsc$enrl_1oct_ninth_yr3)
+table(stunsc$enrl_1oct_ninth_yr4)
+
+```
+
+### Task 9.3 COllapse and reshape data to make it unique by sid
+
+At this point, you have all the values that were depended on individual college enrollment episodes. Now we will
+make the data unique by student, ensuring that we have indicators for 2-year, 4-year and any college.
+Create an indicator that specifies the type of college. Make this the highest level of enrollment.
+
+```{r}
+stunsc$type <- NA
+stunsc$type[stunsc$n_college_2yr == 0 & stunsc$n_college_4yr == 0] <- "_none"
+stunsc$type[stunsc$n_college_2yr == 1] <- "_2yr"
+stunsc$type[stunsc$n_college_4yr == 1] <- "_4yr"
+```
+
+Collapse the data by the invariant variables to populate the enrollment indicators for each record by student and
+college type.
+
+Note, that when you collapse, only variables specified in the collapse command remain in your data.
+
+```{r}
+# collapse (max) enrl_*, by(sid chrt_grad chrt_ninth hs_diploma_date first_college* type)
+zedOut <- stunsc %>% 
+  select(sid, chrt_grad, chrt_ninth, hs_diploma_date,
+         type, matches("enrl_|first_college")) %>% 
+  group_by(sid, type) %>%
+  summarize_all(.funs = "max") %>% 
+# We do not need variables that refer to no college, so we can drop those.
+  filter(type !="_none")
+
+tmp <- zedOut %>% select(matches("_any|_2yr|_4yr"))
+zedOut <- zedOut %>% select(-matches("_any|_2yr|_4yr"))
+
+
+tmp %<>% distinct(sid, .keep_all = TRUE)
+```
+
+Reshape the data to have one record per student, and separate indicators for the type of college.
+
+```{r}
+# reshape wide enrl* , i(sid chrt_grad chrt_ninth hs_diploma_date first_college*) j(type) string
+
+zedOut <- as.data.frame(zedOut)
+zedOut <- reshape(zedOut, 
+                  timevar = "type", 
+                  idvar = c("sid", "chrt_grad", "chrt_ninth", 
+                            "hs_diploma_date"),
+                  direction = "wide", 
+                  sep="")
+zedOut <- inner_join(zedOut, tmp, by = c("sid" = "sid"))
+
+zedOut %>% filter(sid == 41) %>% 
+  select(sid, enrl_ever_w2_ninth_2yr, 
+         enrl_1oct_grad_yr1_2yr, enrl_1oct_ninth_yr2_2yr,
+         enrl_1oct_ninth_yr3_2yr, enrl_1oct_ninth_yr4_2yr,
+         enrl_ever_w2_ninth_4yr, 
+         enrl_1oct_grad_yr1_4yr, enrl_1oct_ninth_yr2_4yr,
+         enrl_1oct_ninth_yr3_4yr, enrl_1oct_ninth_yr4_4yr)
+
+```
+
+
+```{r}
+nrow(zedOut) == length(unique(zedOut$sid))
+# isid sid
+```
+
+Ensure that your data is unique by student id.
+
+### Task 9.4 Ensure mutual exclusivity of 2-year and 4-year college enrollment
+
+To ensure that in analyses that compare list both 2-year and 4-year enrollment students are not double counted,
+you have to ensure that these indicators are mutually exclusive. If have a student enrolled in both 2-year and
+4-year college, report the 4-year.
+
+```{r}
+
+
+varList <- c(paste0("enrl_ever_w2_", c("grad", "ninth")),
+             as.vector(outer(c("enrl_1oct_grad_", "enrl_1oct_ninth_"), 
+                c("yr1", "yr2", "yr3", "yr4"), paste, sep="")))
+
+for(i in varList){
+  var2yr <- paste0(i, "_2yr")
+  var4yr <- paste0(i, "_4yr")
+  zedOut[, var2yr] <- ifelse(zedOut[, var2yr] == 0 & zedOut[, var4yr] ==1, 
+                             0, zedOut[, var2yr])
+}
+
+zedOut$enrl_ever_w2_grad_2yr <- ifelse(is.na(zedOut$enrl_ever_w2_grad_2yr), 
+                                       0, zedOut$enrl_ever_w2_grad_2yr)
+zedOut$enrl_ever_w2_grad_4yr <- ifelse(is.na(zedOut$enrl_ever_w2_grad_4yr), 
+                                       0, zedOut$enrl_ever_w2_grad_4yr)
+zedOut$enrl_ever_w2_ninth_2yr <- ifelse(is.na(zedOut$enrl_ever_w2_ninth_2yr), 
+                                       0, zedOut$enrl_ever_w2_ninth_2yr)
+zedOut$enrl_ever_w2_ninth_4yr <- ifelse(is.na(zedOut$enrl_ever_w2_ninth_4yr), 
+                                       0, zedOut$enrl_ever_w2_ninth_4yr)
+```
+
+#### 9.5 Create "any college" version of the variables
+
+At this point, we have 2-year and 4-year variables. We create “any college” variables by setting them to 1 if either
+the 2-year or the 4-year variable is 1.
+
+```{r}
+# // create an any college version of the year-by-year college enrollment outcome
+# foreach chrt in grad ninth {
+# foreach i of numlist 1/4 {
+# egen enrl_1oct_`chrt'_yr`i'_any = rowmax(enrl_1oct_`chrt'_yr`i'_2yr
+# enrl_1oct_`chrt'_yr`i'_4yr)
 # }
 # }
-# // expected
-# levelsof ontime_yr, local(chrt_ninth_values)
-# foreach yr of local chrt_ninth_values {
-# //assign the outcome of interest to assume a value of 1 when students enroll on or
-# before October 1st
-# local yr1 = `yr'
-# local yr2 = `yr' + 1
-# local yr3 = `yr' + 2
-# local yr4 = `yr' + 3
-# local yr5 = `yr' + 4
-# foreach num of numlist 1/5 {
-# replace enrl_1oct_ninth_yr`num' = 1 if (n_enroll_begin_date <=
-# td(1oct`yr`num'')) & (td(1oct`yr`num'') <= n_enroll_end_date) & chrt_ninth == (`yr' - 3)
+# // create an any college version of the within 2 years enrollment outcome foreach chrt in grad
+# ninth {
+# egen enrl_ever_w2_`chrt'_any = rowmax(enrl_ever_w2_`chrt'_2yr enrl_ever_w2_`chrt'_4yr)
+# }
+```
+
+#### 9.6 Create persistence outcomes for graduates and ninth graders
+
+We consider that a student has persisted to the second year of college if they were enrolled in college on
+October 1st after graduation, and were also enrolled on October 1st one year later.
+Apply the same logic to creating a variable that indicates continuous enrollment over four years in college.
+
+```{r}
+# foreach chrt in grad ninth {
+# // create persistence outcomes to the second year of college
+# foreach type in 4yr 2yr any {
+# gen enrl_`chrt'_persist_`type' = (enrl_1oct_`chrt'_yr1_`type' == 1 &
+# enrl_1oct_`chrt'_yr2_any == 1) if !mi(chrt_`chrt')
+# // create persistence outcomes that denote continuous enrollment over four
+# consecutive years in college
+# gen enrl_`chrt'_all4_`type' = (enrl_1oct_`chrt'_yr1_`type' == 1 & ///
+# enrl_1oct_`chrt'_yr2_`type' == 1 & ///
+# enrl_1oct_`chrt'_yr3_`type' == 1 & ///
+# enrl_1oct_`chrt'_yr4_`type' == 1) if !mi(chrt_`chrt')
 # }
 # }
 ```
+
+Save your file as a temporary file to merge it with the Student_Collegegoing file you saved in Step 8.
+
+```{r}
+# tempfile nsc
+# save `nsc'
+```
+
 
