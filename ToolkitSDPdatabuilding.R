@@ -1,196 +1,18 @@
----
-title: "SDP Data Building Tasks"
-author: "Strategic Data Project"
-date: "October 31, 2016"
-output:
-  pdf_document:
-    toc: yes
-  html_document:
-    toc: yes
----
-
-
-# SDP Data Building Tasks
-
-
-```{r, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, comment=NA}
+## ---- echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, comment=NA----
 # Set options for knitr
 library(knitr)
 knitr::opts_chunk$set(comment=NA, warning=FALSE, 
                       error=FALSE, message=FALSE, fig.align='center')
 options(width=120)
-```
 
-
-```{r, preliminaries}
+## ---- preliminaries------------------------------------------------------
 library(tidyverse) # main suite of R packages to ease data analysis
 library(magrittr) # allows for some easier pipelines of data
 # Read in some R functions that are convenience wrappers
 source("R/functions.R")
 library(haven) # required for importing .dta files
-```
 
-## Overview
-
-Housed at the Center for Education Policy Research at Harvard University, the 
-Strategic Data Project (SDP) partners with school districts, school networks, 
-and state agencies across the US. **Our mission is to transform the use of 
-data in education to improve student achievement.** We believe that with the 
-right people, the right data, and the right analyses, we can significantly 
-improve the quality of strategic policy and management decisions. 
-
-### Core Strategies
-To achieve our mission, SDP pursues three core strategies: 
-
-1. Placing top-notch analytic leaders as ``Fellows'' for two years with our 
-partner agencies; 
-\noindent{\small SDP supports more than 40 Data and Agency Fellows serving 
-partner educational agencies -- districts, states, and charter management 
-organizations--across the nation.  This number will grow to nearly 70 in 2012.} 
-
-2. Conducting rigorous diagnostic analyses of teacher effectiveness and 
-college-going success using existing agency data; and 
-
-\noindent{\small We have completed diagnostics in teacher effectiveness 
-and / or college-going success in seven districts, with more diagnostics 
-currently underway or planned in additional district 
-and state partner agencies.} 
-
-3. Disseminating our tools, methods, and lessons learned to many more education 
-agencies. 
-
-\noindent{\small Through the diagnostic analyses, we have developed a body of 
-knowledge around effective data use.  The release of this toolkit reflects SDP's 
-third core strategy to spread knowledge and build capacity within educational 
-agencies for effective data use.} 
-
-
-### SDP DIAGNOSTICS
-
-Our second core strategy, conducting rigorous diagnostic analyses using existing 
-agency data, focuses on two core areas: **(1) college-going success and 
-attainment for students and (2) human capital** (primarily examining teacher 
-effectiveness).
-
-The diagnostics are a set of analyses that frame actionable questions for 
-education leaders.  By asking questions such as, 
-*How well do students transition to postsecondary education?* or 
-*How successfully is an agency recruiting effective teachers?* we support 
-education leaders to develop a deep understanding of student achievement in 
-their agency. In an effort to make these analyses accessible and more widely 
-used, this toolkit helps analysts collect data and produce analyses associated 
-with the SDP College-Going and Human Capital diagnostics. 
-
-Notably, the diagnostic analyses in this release of our toolkit are specific to 
-the College-Going diagnostic.  The data collection (Identify), data cleaning 
-(Clean), and best practices (Adopt) stages of the toolkit, however, are 
-applicable to either diagnostic and convey general data use guidelines valuable 
-to any analysts interested in increasing the quality and rigor of their analyses. 
-Later releases will address the analyses in our Human Capital diagnostic.
-
-## Introduction
-### SDP Data Building Tasks
-
-\normalsize
-Congratulations on identifying the data elements that are essential for 
-conducting rigorous analyses in your organization. **Clean** is the next stage 
-in the SDP Toolkit for Effective Data Use.  To successfully move through the 
-**Clean** stage, you should review the  **Identify** component of this toolkit.  
-Upon completing this stage, you will have produced clean research files that 
-will allow you to **Connect** and **Analyze** data related to college-going 
-success in your agency.
-
-### THE TASKS
-
-**Clean** consist of five tasks that share a similar structure.  The tasks are 
-geared toward analysts with at least moderately strong data background and 
-comfort with statistics.  Each task provides hands-on experience building 
-specific components of the research file used for the SDP CollegeGoing 
-Diagnostic Analyses.
-
-The tasks are listed as follows:
-- Task 1 Student Attributes
-- Task 2 Student School Year
-- Task 3 Identifying the Ninth Grade Cohort
-- Task 4 Student School Enrollment
-- Task 5 Prior Achievement
-
-Each task is accompanied by a practice file dataset upon which all data 
-snapshots and output are based. These datasets consist of simulated data that 
-have been fully de-identified.We strongly recommend that you use these datasets 
-to work through the tasks and check your answers.  The datasets are available 
-for download at (www.gse.harvard.edu/sdp/tools)[www.gse.harvard.edu/sdp/tools]. 
-Note that the tasks follow a logical sequence from Task 1 to Task 5, and some 
-tasks require the output of previous tasks.  However, because we provide all 
-necessary practice files for each task, you may also choose to work on the tasks 
-out of order.  For instance, you may be first interested in identifying the 
-ninth-grade cohort for students in your agency with Task 3. 
-
-To successfully complete all parts of this toolkit, however, you should work 
-your way through all five tasks.  The output of each task will be needed to 
-successfully complete the Connect and Analyze stages of the toolkit. Lastly, it 
-is important to note that the tasks do not show you how to develop every single 
-component and detail of the files to be used in Connect and Analyze.  Our goal 
-is to equip you with an understanding for the core process of constructing 
-robust, clean research files.  We do, however, aim to explicitly indicate what 
-additional elements are needed in the `DATA DESCRIPTION` section of each task to 
-deliver a fully realized research file.  Furthermore, we also provide a 
-`DECISION RULES GLOSSARY` in the Appendix at the end of this document to provide 
-guidance on how to approach the cleaning process for these additional elements.
-
-For those who are less familiar with or who need to brush up on Stata use, we 
-also include a `R GLOSSARY` of commonly used commands in the Appendix at the end 
-of this document.  Through this set of tasks, you will learn effective practices
-for: data transformations, new variable construction, and the implementation of 
-key decision rules.
-
-### TASK STRUCTURE
-
-The core of each task is a set of step-by-step instructions that guide you 
-through the work. For each task you will find:
-
-- Purpose --- Clarifies the importance of the task.  
-- How to Start --- Identifies the input file(s) you will need to complete the 
-task and guidelines for apply the task to your  own agency's data.
-- Data Description --- Lists the data elements you will need to complete the 
-task and describes the uniqueness of key data elements.
-- Instructions --- Provides logical instructions on transforming the data with 
-R code and fill-in-the-blank snapshots that help you visualize changes to 
-your data.
-- Solutions --- Provides answers for the data snapshot exercises.
-
-After completing these tasks, you will be well-positioned to use your own 
-agency’s data to construct similar clean research files needed in the Connect 
-and Analyze stages.
-
-Finally, if you find yourself in need of additional guidance, the friendly 
-research team at SDP is available to help: `sdp@gse.harvard.edu`
-
-## Task 1: STUDENT ATTRIBUTES
-### PURPOSE
-
-Through `Task 1: Student Attributes`, you will take the raw Student Attributes 
-file and generate a cleaned Student Attributes output file that has only one 
-observation per student. These data will allow you to examine college-going 
-outcomes by race/ethnicity.
-
-The core assignments of this task are to:
-
-1. Resolve instances in which the same student appears with different values for 
-race/ethnicity in different years. Our goal is to have only one race/ethnicity 
-associated with each student.
-
-2. Drop duplicate observations so the file is unique by student--that is, it 
-contains only one observation per student. Upon completing this task, you will 
-be have a clean Student_Attributes file that can then be used as to create the 
-analysis file in Connect.  From Task 1, Task 2 is a natural next step, in which 
-you will clean the Student_School_Year file in preparation for Task 3 and 
-Task 4.
-
-### HOW TO START
-To begin, open the provided Student_Attributes practice file.
-
-```{r echo=TRUE}
+## ----echo=TRUE-----------------------------------------------------------
 # Step 1: Load the college-going analysis file into Stata
 # library(haven) # commented out, we've already read it in above
 # To read data from a zip file and unzip it in R we can 
@@ -205,90 +27,24 @@ con <- unz(description = "data/raw.zip", filename = tmpfileName,
 # The zipfile is located in the subdirectory data, called raw.zip
 stuatt <- read_stata(con) # read data in the data subdirectory
 close(con) # close the connection to the zip file, keeps data in memory
-```
 
-The input file contains data for school years 2000-01 through 2006-07.  
-Normally race is considered a time-invariant variable that is unique by student.  
-In this instance, we deal with a case in which race is stored in a file unique 
-by student and school year, which is instead time-variant.  This task aims to 
-take convert the dataset from being time-variant to being time-invariant. 
-
-If this is your first time going through the task, we recommend starting with 
-the practice file, rather than your agency's own data file.  Doing so will help 
-you learn SDP's cleaning methodology and allow you to easily check your answers 
-from a common dataset.  You may then apply these methods to your agency's own 
-`Student_Attributes` data with confidence.  To learn more about the data you 
-will need to collect in your agency, refer to `Identify: Data Specification Guide` 
-and the `DATA DESCRIPTION` section of this document.
-
-In addition to the practice file, you may also find it useful to complete the 
-data snapshot exercises provided in the task.  These exercises will allow you to 
-visualize changes to the data occurring in each step of the task.  Solutions for 
-the exercises are provided at the end of the task. 
-
-### DATA DESCRIPTION
-
-In Identify: Data Specification Guide, we specify the data elements included in 
-the `Student_Attributes` research file.[^You may be wondering how  this specification 
-compares to the  version in Identify: Data Specification Guide. Here are the 
-primary changes: First, the `race_ethnicity` variable is coded as a string rather 
-than being numeric, as specified in the Data Specification Guide.  You will 
-correct this in the task as it will facilitate the process of making the file 
-unique by sid.Second, we are examining a time-variant data set. In the Data 
-Specification Guide, the `Student_Attributes` file is specified as being unique 
-by sid.  In this case, the data are time-variant and unique by sid and 
-`school_year`. Note that some districts may actually store `race_ethnicity` in a 
-time-variant form such as this, and it is our job through this task to make the 
-data time-invariant, i.e. each student only has a single value for `race_ethnicity` 
-across time. Third, we are examining a partial data set including only `sid`, 
-`school_year`, and `race_ethnicity`.  We do not include variables such as `male`, 
-`hs_diploma`, or `hs_diploma_type`, or `hs_diploma_date` to simplify the task.  
-These variables are essential for later analyses but are left for you to 
-complete as a further exercise.For guidance on cleaning these additional 
-variables, refer to the DECISION RULES GLOSSARY at the end of this document and 
-use this task as a reference.]
-
-In this task, we examine a partial version of the `Student_Attributes` file that 
-includes only `sid`, `school_year`, and `race_ethnicity`. This partial version is 
-presented to help you learn the `Student_Attributes` cleaning process to make a 
-file unique by sid without having to worry about additional `Student_Attributes` 
-variables such as `male`, `hs_diploma`, `hs_diploma_type`, or `hs_diploma_date`.  
-The relevant variables and definitions you will need to complete the task are 
-illustrated below:
-
-```{r echo=TRUE}
+## ----echo=TRUE-----------------------------------------------------------
 glimpse(stuatt)
-```
 
-**Uniqueness:** ideally, the data in its raw form would be unique by `sid`.  
-However, this may not be the case as some agencies might record `race_ethnicity` 
-in a time-variant manner, such as by school year. To address this, we explain 
-how to take the raw research file from being unique by `sid` and `school_year` 
-to being unique by `sid` alone.  Once the file is unique by `sid` alone, it is 
-ready to be incorporated into the analysis file in the Connect stage.
-
-Examine  your `Student_Attributes` raw research file input dataset.  According to 
-the data specification, the file should be unique by `sid`.  Examine the snapshot 
-below to determine if it is unique as described.  
-
-```{r echo=TRUE}
+## ----echo=TRUE-----------------------------------------------------------
 head(stuatt)
 # A quick way to test this in R
 nvals(stuatt$sid) == nrow(stuatt)
 # Checks that number of unique values of `sid` equals number of rows
-```
 
-```{r note1, include=FALSE}
+## ----note1, include=FALSE------------------------------------------------
 # Optional--consider removing since R does not need factors to be recoded as 
 # numeric. Recode the raw race\_ethnicity variable as numeric. Race\_ethnicity is 
 # currently coded as a string variable, which is how some  agencies may store 
 # this data . Replace the string values with numeric values as shown below. 
 # This numeric race variable will be easier to use in later stages of the task. 
-```
 
-### Step 0: Read in the Data
-
-```{r echo=TRUE}
+## ----echo=TRUE-----------------------------------------------------------
 # Read in Stata
 # library(haven) # already loaded so we comment it out
 tmpfileName <- "raw/Student_Demographics_Raw.dta"
@@ -297,14 +53,8 @@ con <- unz(description = "data/raw.zip", filename = tmpfileName,
 stuatt <- read_stata(con) # read data in the data subdirectory
 stuatt <- as.data.frame(stuatt)
 close(con)
-```
 
-
-Now drop the `first_9th_school_year_reported` variable. You will create a 
-`first_9th_school_year_reported` variable in Task 3 that also imputes this 
-variable for transfer-ins. 
-
-```{r echo=TRUE}
+## ----echo=TRUE-----------------------------------------------------------
 # In R one way to drop a variable is by assigning it a NULL value
 stuatt$first_9th_school_year_reported <- NULL
 # For testing purposes, let's specify a variable which indexes the SIDs 
@@ -312,26 +62,16 @@ stuatt$first_9th_school_year_reported <- NULL
 idx <- c(2, 8552, 12506) # Specify which SIDs are interesting
 # Now we can easily view only relevant data
 stuatt[stuatt$sid %in% idx,]
-```
 
-#### Step 1 
-*Create one consistent value for gender for each student across years*
-
-```{r echo=TRUE}
+## ----echo=TRUE-----------------------------------------------------------
 # Create one consistent value for gender for each student across years
 # View the data
 
 stuatt %>% arrange(sid, school_year) %>% 
   select(sid, school_year, male) %>% 
   filter(sid %in% idx)
-```
 
-1. *Create a variable that shows how many unique values male assumes for each 
-student. Name this variable `nvals_male`. Tabulate the variable and browse 
-the relevant data.*
-
-
-```{r}
+## ------------------------------------------------------------------------
 # Create an intermediate variable that counts the number of unique 
 # values observed for `male` per student
 
@@ -346,13 +86,8 @@ stuatt %>% select(sid, school_year, male, nvals_male) %>%
 # Or interactively in RStudio
 # stuatt %>% select(sid, school_year, male, nvals_male) %>% 
 #   filter(nvals_male > 1) %>% View
-```
 
-
-2. *Identify the modal gender. If multiple modes exist for a student, report the 
-most recent gender recorded*
-
-```{r}
+## ------------------------------------------------------------------------
 # Step 2: Identify th emodal gender, if multiple modes exist, report the most 
 # recent gender
 
@@ -384,9 +119,8 @@ stuatt <- stuatt %>% group_by(sid) %>%
 stuatt %>% select(sid, male, male_mode, nvals_male) %>% 
   filter(sid %in% idx)
 
-```
 
-```{r}
+## ------------------------------------------------------------------------
 # Replace male with male_mode where male_mode is not missing
 stuatt$male[!is.na(stuatt$male_mode)] <- 
   stuatt$male_mode[!is.na(stuatt$male_mode)]
@@ -399,9 +133,8 @@ idx <- c(8552, 12506)
 
 stuatt %>% select(sid, school_year, male, nvals_male, male_mode) %>% 
   filter(sid %in% idx)
-```
 
-```{r}
+## ------------------------------------------------------------------------
 # If multiple modes exist, report the most recent gender recorded
 stuatt %<>% arrange(sid, school_year) %>% 
   group_by(sid) %>% 
@@ -410,9 +143,8 @@ stuatt %<>% arrange(sid, school_year) %>%
 # Show sid 12506
 stuatt %>% select(sid, school_year, male, nvals_male, male_mode, temp_male_last) %>% 
   filter(sid == 12506)
-```
 
-```{r}
+## ------------------------------------------------------------------------
 # Assign temp_male_last to the male variable in cases where no mode exists
 stuatt$male[is.na(stuatt$male_mode)] <- stuatt$temp_male_last[is.na(stuatt$male_mode)]
 
@@ -421,11 +153,8 @@ stuatt %>% select(sid, school_year, male, nvals_male, male_mode, temp_male_last)
   filter(sid == 12506)
 # Drop temporary variables
 stuatt %<>% select(-nvals_male, -male_mode, -temp_male_last)
-```
 
-Let's check we got it right
-
-```{r}
+## ------------------------------------------------------------------------
 table(stuatt$male)
 
 # Check nvals without creating the variable
@@ -436,24 +165,8 @@ stuatt %>% ungroup %>%
 
 nvals(stuatt$sid)
 
-```
 
-
-##### Step 2
-*Create one consistent value for race_ethnicicty for each student across years*
-
-1. Recode the raw `race_ethnicity` variable as a numeric variable and label it. 
-Replace the string race_ethnicity variable with the numeric one.
-
-
-- 1 = African American, not Hispanic
-- 2 = Asian American
-- 3 = Hispanic
-- 4 = American Indian
-- 5 = White, not Hispanic
-- 6 = Multiple / Other
-
-```{r echo=TRUE}
+## ----echo=TRUE-----------------------------------------------------------
 # When R reads in Stata files using haven it creates a data type called 
 # labelled, for compatibility with Stata and most R functions, we convert 
 # this into a more standard factor variable
@@ -477,9 +190,8 @@ idx <- c(8552)
 stuatt %>% filter(sid %in% idx) %>% 
   select(sid, school_year, race_ethnicity, race_num)
 
-```
 
-```{r echo=TRUE}
+## ----echo=TRUE-----------------------------------------------------------
 # In R categorical variables are best represented as factors
 # Factors can have values, and labels
 # Create a labeled factor for the new race_num variable
@@ -495,34 +207,20 @@ stuatt$race_num2 <- NULL
 
 table(stuatt$race_ethnicity) # counts
 prop.table(table(stuatt$race_ethnicity))*100 #percentages
-```
 
-
-Check:  What does the distribution of your `race_ethnicity` variable look like? 
-Let's redraw the tables above in a more readable format.
-
-```{r echo=TRUE, results="markup"}
+## ----echo=TRUE, results="markup"-----------------------------------------
 library(pander) # library to beautify output
 pander(prop.table(table(stuatt$race_ethnicity))*100, style = "rmarkdown")
 pander(table(stuatt$race_ethnicity), style = "rmarkdown")
-```
 
-
-Let's also draw a figure to show this distribution.
-
-```{r echo=TRUE, fig.align='center'}
+## ----echo=TRUE, fig.align='center'---------------------------------------
 library(ggplot2) # the best R library for plotting
 
 qplot(stuatt$race_ethnicity,geom='bar') + 
   theme_classic() + labs(x = 'Race/Ethnicity', y = 'Count', 
                     title = "Frequency of Student Race")
-```
 
-
-*2. Create a variable indicating how many unique values `race_ethnicity` 
-assumes for each student called `nvals_race`.*
-
-```{r echo=TRUE, eval=TRUE}
+## ----echo=TRUE, eval=TRUE------------------------------------------------
 # Create a variable indicating how many unique values `race_ethnicity` takes 
 # for each student
 
@@ -530,14 +228,8 @@ stuatt <- stuatt %>% group_by(sid) %>%
   mutate(nvals_race = nvals(race_ethnicity))
 
 table(stuatt$nvals_race)
-```
 
-
-*3. Create a variable that shows how many unique values `race_ethnicity` 
-assumes for each student and `school_year`. Name this variable `nvals_race_yr`. 
-Tabulate the variable and browse the relevant data.*
-
-```{r echo=TRUE, eval=TRUE}
+## ----echo=TRUE, eval=TRUE------------------------------------------------
 # Create a variable that shows how many unique values `race_ethnicity` 
 # assumes for each student and school year. 
 
@@ -550,14 +242,8 @@ table(stuatt$nvals_race_yr)
 # Browse the results
 stuatt %>% select(sid, school_year, race_ethnicity, nvals_race, nvals_race_yr) %>%
   filter(nvals_race_yr > 1)
-```
 
-
-4. If more than one race is reported in the same school_year, report students as 
-multiracial, unless one of their reported race_ethnicity values is Hispanic. 
-Report the student as Hispanic in that case.
-
-```{r}
+## ------------------------------------------------------------------------
 # Generate a temporary hispanic variable
 # Use ifelse function to recode variable
 
@@ -606,21 +292,15 @@ stuatt <- select(stuatt, -nvals_race_yr)
 
 # Re arrange after binding the rows
 stuatt %<>% arrange(sid, school_year)
-```
 
-```{r checkwork}
+## ----checkwork-----------------------------------------------------------
 # Before we fixed the data we had 87534 rows
 # We had 3 students with 2 different races, so we had 6 rows where we needed 3
 # This means we had 3 extra rows
 
 nrow(stuatt) == 87534 - 3
-```
 
-
-*5 Report the modal race. If multiple modes exist for a student, report the most 
-recent race recorded.*
-
-```{r echo=TRUE, results='markup'}
+## ----echo=TRUE, results='markup'-----------------------------------------
 # Calculate the modal race for a student over time, if multiple modes exist
 # report the most recent
 stuatt %<>% group_by(sid) %>% 
@@ -636,16 +316,14 @@ stuatt$race_ethnicity[!is.na(stuatt$race_mode)] <- stuatt$race_mode[!is.na(stuat
 
 stuatt %>% filter(sid == 8552) %>% 
   select(sid, school_year, race_ethnicity, nvals_race, race_mode)
-```
 
-```{r}
+## ------------------------------------------------------------------------
 # Consider cases where the mode is not unique
 stuatt %>% filter(sid == 2) %>% 
   select(sid, school_year, race_ethnicity, nvals_race, race_mode)
 
-```
 
-```{r}
+## ------------------------------------------------------------------------
 # Define the most recent value of race observed
 stuatt %<>% group_by(sid) %>% 
   mutate(race_last = race_ethnicity[school_year == max(school_year)])
@@ -660,21 +338,11 @@ stuatt %>% filter(sid %in% c(8552, 2)) %>%
 
 # Drop temporary variables
 stuatt %<>% select(-nvals_race, -race_mode, -race_last, -race_num)
-```
 
-
-```{r}
+## ------------------------------------------------------------------------
 table(stuatt$race_ethnicity)
-```
 
-#### Step 3
-*Create consistent values for high school diploma variables.*
-
-1. Recode the `hs_diploma_type variable` as a numeric variable and label it.
-Replace the string `hs_diploma_type` variable with the numeric one. Use lower
-numbers for more competitive diploma types.
-
-```{r}
+## ------------------------------------------------------------------------
 # 1. Recode the `hs_diploma_type variable` as a numeric variable and label it.
 # Replace the string `hs_diploma_type` variable with the numeric one. Use lower
 # numbers for more competitive diploma types.
@@ -683,9 +351,8 @@ numbers for more competitive diploma types.
 # When reading the data in from a .dta file we can recover the numeric 
 # labels and ordering by using the `as_factor` function
 stuatt$dipl_num <- as_factor(stuatt$hs_diploma_type)
-```
 
-```{r}
+## ------------------------------------------------------------------------
 # To show the work this saves if the data has already been labeled, 
 # the alternative method for manually recreating this is shown below
 stuatt$dipl_num <- 4
@@ -707,9 +374,8 @@ stuatt$dipl_num <- NULL
 stuatt %>% select(sid, school_year, hs_diploma, hs_diploma_date, 
                   hs_diploma_type) %>% 
   filter(sid == 16)
-```
 
-```{r}
+## ------------------------------------------------------------------------
 # Now identify the first diploma date reported
 stuatt %<>% arrange(sid, hs_diploma_date)
 
@@ -826,11 +492,8 @@ stuatt %>%
     select(sid, school_year, hs_diploma_type) %>% 
     filter(sid %in% c(16, 20, 80)) %>% as.data.frame()
 
-```
 
-#### Step 4: Drop any unneeded variables, drop duplicates, check the data, and save the file
-
-```{r}
+## ------------------------------------------------------------------------
 # Drop school year as you no longer need it
 stuatt %<>% select(-school_year, -birth_date)
 
@@ -853,48 +516,8 @@ stuatt <- stuatt[!duplicated(stuatt),]
 
 # Clean up the workspace
 rm(con, idx, tmpfileName, stuatt)
-```
 
-
-## Task 2: STUDENT SCHOOL YEAR
-### PURPOSE
-
-In Task 2: Student School Year, you will take the `Student_Classifications_Raw` 
-file and generate a clean `Student_School_Year` output file that matches the
-specification in Identify with one observation per student and school year. To 
-do so, you will first ensure only one grade level is assigned per student per 
-school year. Then, you will process the free or reduced price lunch (FRPL)
-variable (a proxy for students’ poverty status), individualized education 
-program (IEP) variable, English language learner (ELL) variable, and gifted 
-variable. You will also examine the total days enrolled, days absent, and 
-days suspended variables. The core of this task:
-
-1. Resolve instances when students have more than one grade level in a school
-year
-2. Keep the highest value of FR PL reported by student by school year
-3. If a student has both “has IE P” and “no IE P” reported in a school year, 
-keep "has IEP"
-4. If a student has both "has ELL" and "no ELL"" reported in a school year, 
-keep "has ELL"
-5. If a student is observed as both gifted eligible and not eligible, report 
-eligible
-6. Explore `days_enrolled`, `days_absent` and `days_suspended`
-7. Drop duplicate observations to make the file unique by student and school 
-year After this, you will have a data set unique by student and school year 
-that allows you to assign students to the appropriate ninth grade cohort in 
-Task  3.
-
-### HOW TO START
-
-To begin, open the `Student_Classifications_Raw` file in Stata. If you do 
-not have Stata, you can follow the steps of the task by looking at the 
-instructions and data snippets we have provided.
-
-If this is your first time attempting Task 2, start with the provided raw 
-input file. This file teaches you SDP’s cleaning methodology and allows you to 
-check answers from a common dataset.
-
-```{r echo=TRUE}
+## ----echo=TRUE-----------------------------------------------------------
 # Read in Stata
 library(haven) # required for .dta files
 
@@ -905,11 +528,8 @@ con <- unz(description = "data/raw.zip", filename = tmpfileName,
            open = "rb")
 stuclass <- read_stata(con) # read data in the data subdirectory
 glimpse(stuclass)
-```
 
-### Step 1 Create One Consistent Grade Level for Each Student Within the Same Year
-
-```{r}
+## ------------------------------------------------------------------------
 # Step 1: Create one consistent grade level for each student within the same year
 
 # Keep the highest grade_level when a student has multiple grade levels 
@@ -940,11 +560,8 @@ stuclass %>% select(one_of(varIdx)) %>%
 
 stuclass %<>% select(-nvals_grade, -max_grade_level)
 
-```
 
-Step 2: Create one consistent FRPL value for each student in the same student-year
-
-```{r}
+## ------------------------------------------------------------------------
 # 1. Recode raw frpl variable with string type to numeric type
 
 stuclass$frpl_num <- NA
@@ -989,12 +606,8 @@ stuclass$frpl <- stuclass$highest_frpl
 
 stuclass %<>% select(-nvals_frpl, -highest_frpl)
 
-```
 
-
-** Step 3: Create one consistent IEP value for each student within the same year. **
-
-```{r}
+## ------------------------------------------------------------------------
 # Follow the same procedure as Step 1 for grade_level.
 # Report the highest value of iep by year for each student, 
 #  selecting has iep over not iep.
@@ -1004,9 +617,8 @@ stuclass %<>% group_by(sid, school_year) %>%
   ungroup() %>% 
   mutate(iep = highest_iep) %>% 
   select(-highest_iep)
-```
 
-```{r}
+## ------------------------------------------------------------------------
 # /*** Step 4: Create one consistent ELL value for each student within the same year. ***/
 # Follow the same procedure as Step 1 for grade_level.
 # // Report the highest value of ell by year for each student, selecting is ell over not ell.
@@ -1015,10 +627,8 @@ stuclass %<>% group_by(sid, school_year) %>%
   ungroup() %>% 
   mutate(ell = highest_ell) %>% 
   select(-highest_ell)
-```
 
-
-```{r}
+## ------------------------------------------------------------------------
 # /*** Step 5: Create one consistent gifted value for each student within the same year. ***/
 # Follow the same procedure as Step 1 for grade_level.
 # // Report the highest value of gifted by year for each student, selecting is enrolled in gifted program over not enrolled.
@@ -1029,9 +639,8 @@ stuclass %<>% group_by(sid, school_year) %>%
   mutate(gifted = highest_gifted) %>% 
   select(-highest_gifted)
 
-```
 
-```{r}
+## ------------------------------------------------------------------------
 # /**** Step 6: Drop any unneeded variables, drop duplicates, and save the file ****/
 # // 1. Drop duplicate observations
 
@@ -1047,47 +656,8 @@ nrow(stuclass) == nvals(paste0(stuclass$sid, stuclass$school_year))
 
 # Clean up the workspace
 rm(con, tmpfileName, stuclass, varIdx)
-```
 
-
-## Task 3: IDENTIFYING THE NINTH-GRADE COHORT
-### PURPOSE
-
-In Task 3: Identifying the Ninth Grade Cohort, you will identify the school 
-year students first appear in ninth grade using the clean 
-`Student_School_Year` research file from Task 2. This essential step allows 
-you to form student cohorts and examine longitudinal college-going outcomes.
-
-The core of this task:
-1. Flag the first school year a student enrolls in grades 9, 10, 11, or 12.
-2. Identify the school year in which the student was first observed in 9th
-grade.
-3. Impute the school year in which transfer students would have been in grade 9.
-4. Replace the first_9th_school_year_observed with the correctly imputed values.
-After completing this task, you will have a clean Student_School_Year file that
-identifies first-time ninth graders. This file is used both to assemble the
-analysis file in Connect and to complete Task 4.
-
-### HOW TO START
-
-To begin, open the `Student_School_Year` file, just created in Task 2, in Stata.
-If you do not have Stata, you can follow the steps of the task by looking at 
-the instructions and data snippets we have provided.If this is your first 
-time attempting Task 3, start with the cleaned output file from Task 2. This 
-file teaches you SDP’s cleaning methodology and allows you to check 
-answers from a common dataset.
-
-### DATA DESCRIPTION
-
-The input file in this case, `Student_School_Year`, also the output from Task 2,
-now follows the structure of `Student_School_Year` in Identify so it is 
-unique by `sid` and `school_year`. The aim of this task will be to create a 
-`first_9th_school_year_observed` variable using the variables in the file.
-
-Uniqueness: This dataset was cleaned in Task 2 and is now unique by `sid` 
-and `school_year`.
-
-```{r}
+## ------------------------------------------------------------------------
 # Read in Stata
 library(haven) # required for .dta f;iles
 
@@ -1098,14 +668,8 @@ con <- unz(description = "data/clean.zip", filename = tmpfileName,
            open = "rb")
 stusy <- read_stata(con) # read data in the data subdirectory
 glimpse(stusy)
-```
 
-
-## - TODO - ## 
-Check on p. 35-36 of the guide, incosistency on whether observed_g indicator 
-is unique by student, or by student-grade. I've coded it unique by student.
-
-```{r}
+## ------------------------------------------------------------------------
 # /*** Step 1: Flag the first school year a student enrolls in grades 9, 10, 11, or 12. ***/
 # // Create four binary indicators to flag the first school year a student enrolls in grades 9, 10, 11, or 12.
 
@@ -1156,11 +720,8 @@ table(tmp$observed_11)
 table(tmp$observed_12)
 rm(tmp)
 
-```
 
-** Step 2: Identify the school year in which the student was first observed in 9th grade. **
-
-```{r}
+## ------------------------------------------------------------------------
 # // Create a variable that lists the first school year a student is observed as enrolled in grade 9.
 
 stusy %<>% group_by(sid) %>% 
@@ -1179,11 +740,8 @@ stusy %>% ungroup %>% distinct(sid, first_9th_schyear_obs) %>%
 
 # Say something about missing values in the list...
 
-```
 
-** Step 3: Impute the school year in which transfer students would have been in grade 9. **
-
-```{r}
+## ------------------------------------------------------------------------
 # // Impute first_9th_school_year_observed as school_year - 1, school_year - 2, or school_year - 3 for students first observed in 10th, 11th or 12th grade as transfer-ins
 
 stusy$first_flag10[!is.finite(stusy$first_flag10)] <- 0
@@ -1253,11 +811,8 @@ stusy %>% select(sid, school_year, grade_level,
 # Should this be 2005 or 2007?
 
 
-```
 
-** Step 4: Adjust the imputation of first_9th_school_year_observed for students who appear in a lower grade in a later school year. **
-
-```{r}
+## ------------------------------------------------------------------------
 # // 1. Flag students who are observed to be in a lower grade in a subsequent school year.
 
 stusy %<>% arrange(sid, school_year) %>% 
@@ -1325,14 +880,8 @@ stusy %>% ungroup %>% distinct(sid, first_9th_schyear_obs) %>%
   select(first_9th_schyear_obs) %>% unlist %>% table
 
 
-```
 
-##- TODO Task 3 Slightly Different Numbers than SDP ##-
-
-** Step 5: Keep only variables relevant to future analyses, and save the file. **
-
-
-```{r}
+## ------------------------------------------------------------------------
 # // Keep relevant variables
 
 stusy %<>% select(sid, school_year, grade_level, frpl, iep, ell, gifted, 
@@ -1342,33 +891,8 @@ stusy %<>% select(sid, school_year, grade_level, frpl, iep, ell, gifted,
 # // Save the current file as Student_School_Year_Ninth.dta.
 # save “${clean}\Student_School_Year_Ninth.dta”, replace
 rm(stusy)
-```
 
-
-## Task 4: STUDENT SCHOOL ENROLLMENT
-### PURPOSE
-
-In Task 4: Student School Enrollment, you will take the Student_School_Enrollment_Raw file and generate the Student_School_Enrollment file that matches the
-specification in Identify. After matching Identify, you will take your dataset a few steps further by consolidating overlapping enrollment spells and determining the
-last withdrawal code for each student to yield the file Student_School_Enrollment_Clean.
-The core of this task:
-1. Create a school_start and school_end variable.
-2. Remove abnormal enrollment observations with missing enrollment and withdrawal dates along with enrollment or withdrawal dates that are not in the right
-order.
-3. Consolidate overlapping enrollments by student by school.
-4. Update days_enrolled based on the consolidated enrollments using the new enrollment and withdrawal dates.
-5. Determine the last withdrawal code for each student. You will use this data in later analyses to determine a student’s end of high school outcomes.
-After completing this, you will have a clean Student_School_Enrollment file. This process sets up our analyses for high school graduation and college enrollment
-and persistence outcomes.
-
-### HOW TO START
-
-To begin, open the Student_School_Enrollment_Raw file in Stata. If you do not have Stata, you can follow the steps of the task by looking at the instructions and
-data snippets we have provided.
-If this is your first time attempting Task 4, start with the provided input file. This file teaches you SDP’s cleaning methodology and allows you to check answers
-from a common dataset.
-
-```{r}
+## ------------------------------------------------------------------------
 # Read in Stata
 library(haven) # required for .dta f;iles
 
@@ -1379,10 +903,8 @@ con <- unz(description = "data/raw.zip", filename = tmpfileName,
            open = "rb")
 stuenr <- read_stata(con) # read data in the data subdirectory
 glimpse(stuenr)
-```
 
-
-```{r}
+## ------------------------------------------------------------------------
 # /*** Step 1: Create a school_start and school_end variable ***/
 # // In this example, school start is August 1, and school end is July 31 of each school year. This may be different in your agency.
 
@@ -1424,11 +946,8 @@ stuenr %<>% filter(withdrawal_date <= (school_end + 31) & !is.na(withdrawal_date
 table(stuenr$enrollment_date >= stuenr$school_start)
 table(stuenr$enrollment_date <= stuenr$school_end)
 
-```
 
-/*** Step 3: Consolidate overlapping enrollments by student by school. ***/
-
-```{r}
+## ------------------------------------------------------------------------
 # // 1. Sort enrollment spells in ascending order and then check how many overlapping enrollment spells exist for a student at the same school.
 
 
@@ -1459,12 +978,8 @@ stuenr %>% filter(sid == 2) %>%
   select(sid, school_year, school_code, enrollment_date, 
          enrollment_code_desc, withdrawal_date,
          withdrawal_code_desc)
-```
 
-**// 3. Replace the withdrawal date and withdrawal code description of the earliest enrollment spell with the latest withdrawal date.**
-
-
-```{r}
+## ------------------------------------------------------------------------
 # // Sort the data first so that latest withdrawal
 # information appears as the first record.
 
@@ -1482,11 +997,8 @@ stuenr %<>% group_by(sid, school_code, enrollment_date) %>%
   mutate(withdrawal_date = last(withdrawal_date), 
          withdrawal_code_desc = last(withdrawal_code_desc))
 
-```
 
-** Step 4: Update days_enrolled based on the consolidated enrollments using the new enrollment and withdrawal dates. **
-
-```{r}
+## ------------------------------------------------------------------------
 
 stuenr$days_enrolled <- stuenr$withdrawal_date - stuenr$enrollment_date
 
@@ -1496,12 +1008,8 @@ stuenr %>% filter(sid == 2) %>%
          withdrawal_code_desc, days_enrolled)
 
 
-```
 
-
-** Step 5: Determine the last withdrawal code for each student. You will use this data in later analyses to determine a student's end of high school outcomes. **
-
-```{r}
+## ------------------------------------------------------------------------
 
 stuenr %<>% arrange(sid, withdrawal_date)
 
@@ -1520,12 +1028,8 @@ stuenr %>% filter(sid == 16) %>%
          enrollment_code_desc, withdrawal_date,
          withdrawal_code_desc, last_withdrawal_reason)
 
-```
 
-
-** Step 6: Drop any unneeded variables, drop duplicates, and save the file **
-
-```{r}
+## ------------------------------------------------------------------------
 # // 1. Drop duplicate records
 
 stuenr %<>% select(-min_enroll_date, -lag_withdrawal_date)
@@ -1543,70 +1047,8 @@ nvals(paste0(stuenr$sid, stuenr$school_year, stuenr$school_code,
 # save “${clean}\Student_School_Enrollment_Clean.dta”, replace
 # save(stuenr, file = "clean/Student_School_Enrollment_Clean.rda")
 rm(tmp, stuenr); gc()
-```
 
-
-## Task 4: STUDENT TEST SCORES
-
-### PURPOSE
-
-structure of Identify. Through this task, you will generate three different clean output files that contain a single score and test-taking instance for
-each student:
-• Prior Achievement (one 8th grade state test score per student),
-• SAT scores (one SAT score per student), and
-• ACT scores (one ACT score per student).
-The file for Prior Achievement will contain students’ achievement on state standardized Math and English Language Arts tests in 8th grade. This
-will allow you to control for prior academic achievement when you examine college-going outcomes. The SAT and ACT score files will be used for
-defining highly qualified high school graduates.
-The core of this task:
-• Prior Achievement
-1. Clean state test scores and resolve instances where students took the same test multiple times.
-2. Standardize test scores to a mean of 0 and a standard deviation of 1. This allows you to compare across tests and years when different score scales were
-used.
-3. Generate a composite math and English score for scaled and standardized test scores in eighth grade.
-• SAT
-1. Clean SAT test scores and resolve instances where students took the same test multiple times.
-2. Generate a total SAT score based on math, verbal, and writing scores.
-• ACT
-1. Clean ACT test scores and resolve instances where students took the same test multiple times.
-After completing this, you will have a Prior_Achievement file with 8th grade test scores. You will also have SAT and ACT files. All three files will be used in
-Connect.
-
-
-### HOW TO START
-
-the steps of the task by looking at the instructions and data snippets we have provided.
-If this is your first time attempting Task 5, start with the provided input file. This file teaches you SDP’s cleaning methodology and allows you to check answers
-from a common dataset
-
-
-### DATA DESCRIPTION
-
-The input file, Student_Test_Scores, follows the structure of Student_Test_Scores in Identify so it is unique by sid, test_code, and test_date. The aim of this task
-will be to create three separate clean output files, Prior_Achievement, SAT, and ACT, that report only one test score per student. This means that for eight grade
-prior achievement duplicates of the same test taken in the same and different years will need to be resolved. Also any duplicates of SAT or ACT scores will need to
-be resolved as well.
-
-
-Prior Achievement (8th grade state test scores),
-Ideally, state test data in its raw form is unique by sid, test_subject, grade_level, and school_year. However, some students re-take the same test for the same
-grade in the same year. To fix this, you will make the 8th grade test score data in Student_Test_Scores unique by sid, test_subject, grade_level, and school_
-year by removing any same year repeat test taking instances. Then, you will manipulate the data so tests for different subjects in the same grade_level fall on
-the same row so the data is unique by sid, test_subject, and grade_level. As a final step, if a student took the same test in different years (e.g. by repeating a
-grade), you will take the earliest instance. The data will finally be unique by sid and is considered a clean file and ready to be incorporated into the analysis file in
-Connect.
-
-SAT
-Ideally, SAT test data in its raw form is unique by sid. However, some students re-take the SAT. To fix this, you will take the data unique by sid, test_subject, and
-test_date and reshape it so the data will finally be unique by sid and is considered a clean file and ready to be incorporated into the analysis file in Connect.
-
-ACT
-Ideally, ACT test data in its raw form is unique by sid. However, some students re-take the ACT. To fix this, you will take the data unique by sid, test_subject, and
-test_date and reshape it so the data will finally be unique by sid and is considered a clean file and ready to be incorporated into the analysis file in Connect.
-
-** Part I: Clean Prior Achievement Scores **
-
-```{r readstutest}
+## ----readstutest---------------------------------------------------------
 # Read in Stata
 library(haven) # required for .dta f;iles
 
@@ -1623,9 +1065,8 @@ glimpse(stutest)
 # Convert to R style
 stutest$test_subject <- as_factor(stutest$test_subject)
 stutest$test_subject <- tolower(as.character(stutest$test_subject))
-```
 
-```{r}
+## ------------------------------------------------------------------------
 # // 1. Keep only the variables you need and limit the sample to state test scores in 8th grade.
 
 
@@ -1730,10 +1171,8 @@ statetest %<>% group_by(sid) %>%
 
 # Not sure in R we need to process these separately at all!
 
-```
 
-
-```{r}
+## ------------------------------------------------------------------------
 # // 7. Verify that each student has only one state test, and drop unneeded variables.
 
 nrow(statetest) == nvals(statetest$sid)
@@ -1754,12 +1193,8 @@ statetest %<>% arrange(sid, school_year, grade_level) %>%
          scaled_math_std, scaled_ela_std, scaled_score_composite_std)
 
 # save “${clean}/Prior_Achievement.dta”, replace
-```
 
-
-** Part II: Clean SAT Scores **
-
-```{r}
+## ------------------------------------------------------------------------
 # // 1. Keep only the variables and limit the sample to SAT.
 sattest <- stutest %>% filter(test_type == "SAT")
 
@@ -1806,12 +1241,8 @@ sattest$sat_total_score_plus_writing <- sattest$sat_math_score +
 
 # // 6. Save the current file as SAT.dta.
 
-```
 
-** Part III: Clean ACT Scores **
-
-
-```{r}
+## ------------------------------------------------------------------------
 # // 1. Keep only the variables you need and limit the sample to ACT.
 
 acttest <- stutest %>% filter(test_type == "ACT")
@@ -1832,44 +1263,8 @@ nrow(acttest) == nvals(acttest$sid)
 
 # // 4. Save the current file as ACT.dta.
 rm(stutest, acttest, sattest, statetest)
-```
 
-## Task 6: STUDENT CLASS ENROLLMENT
-
-### PURPOSE
-
-In Task 6: Student Class Enrollment, you will take the Class_Raw file and the Student_Class_Enrollment file to create the Student_Class_Enrollment_
-Merged file that combines these two files together. The combined file will identify a unique observation by student and class id. To obtain this file,
-you will first clean the Class_Raw file to identify core courses in math and ELA based on the course description variable and match the specification
-in Identify. This will make the class file unique by class id. Second, you will merge the Class file and the Student Class Enrollment file and make it
-unique by student id and class id.
-The core of this task:
-1. Using the Class file:
-a. Drop incomplete observations
-b. Flag core math and English courses based on the course description
-2. Merging the Student Class Enrollment file:
-a. Merge the Class file onto the Student_Class_Enrollment_Raw file
-b. Evaluate course marks and drop courses with no record of completion
-c. Evaluate course enrollment so that each student has only one enrollment record for a course
-The Student_Class_Enrollment_Merged file will be used in Connect to create on-track indicators for students. On-track indicators explore year-byyear
-academic progress towards high school graduation and college readiness. For instance, using course credit and course grade information, one
-might ask what percent of students earn the minimum number of credits in their core courses to satisfy agency graduation requirements?
-
-### HOW TO START 
-
-To begin, open the Class_Raw file in Stata. This file contains data linking students to teachers. If you do not have Stata, you can follow the steps of the task by
-looking at the instructions and data snippets we have provided. In the second part of this task, you will then use the Student_Class_Enrollment file.
-If this is your first time attempting Task 6, start with the provided input file. This file teaches you SDP’s cleaning methodology and allows you to check answers
-from a common dataset.
-
-### DATA DESCRIPTION FOR RAW FILE 
-
-The input file, Class_Raw, varies from Class in Identify in a number of key ways. Most importantly, the data is not unique by cid as shown in Identify. For instance,
-there may be more than one course description that describes the same course. Also, a tid is not included as it is not required for the questions later asked in this
-toolkit. Support for a Class file with tid will come with the Human Capital version of the toolkit. The aim of this task then is to eliminate any duplicate course code
-descriptions and match the Class file in Identify in its structure and uniqueness so it is unique by cid alone.
-
-```{r readstuclass}
+## ----readstuclass--------------------------------------------------------
 # Read in Stata
 library(haven) # required for .dta f;iles
 
@@ -1888,11 +1283,8 @@ con <- unz(description = "data/raw.zip", filename = tmpfileName,
 stuclass <- read_stata(con) # read data in the data subdirectory
 glimpse(stuclass)
 
-```
 
-** Part I: Clean the Class file **
-
-```{r}
+## ------------------------------------------------------------------------
 
 # // 1. Identify the critical variables that identify a class.
 
@@ -1903,11 +1295,8 @@ local_ids <- c("cid", "school_year", "school_code", "section_code",
 classRaw %<>% 
   filter(complete.cases(.[, local_ids]))
 
-```
 
-** Step 1: Flag core math and English courses. **
-
-```{r}
+## ------------------------------------------------------------------------
 # // Note that agencies may have varying consistency in course
 # names and use different criteria to identify a core course
 # vs an elective.
@@ -1940,9 +1329,8 @@ classRaw$math_flag <- as.numeric(grepl("GEOM|ALGEBRA|MATH|STAT|CALC|TRIG",
 
 table(classRaw$course_code_desc, classRaw$math_flag)
 
-```
 
-```{r}
+## ------------------------------------------------------------------------
 # // 3. Repeat this process for flagging ELA courses
 
 classRaw$ela_flag <- NA
@@ -1957,11 +1345,8 @@ classRaw$ela_flag <- as.numeric(grepl("ENG|ELA",
 # // Check the results of flagging your variables
 
 table(classRaw$course_code_desc, classRaw$ela_flag)
-```
 
-*** Step 3: Drop any unneeded variables, drop duplicates, and save the temporary file **
-
-```{r}
+## ------------------------------------------------------------------------
 
 # // 1. Drop the course_code_desc, as it is no longer needed.
 
@@ -1975,16 +1360,8 @@ classRaw %>% distinct(school_year, school_code,
                       section_code, course_code) %>% 
   nrow == nrow(classRaw)
 
-```
 
-
-** Part II: Clean the Student_Class_Enrollment file. **
-
-** Step 0: Load the Student_Class_Enrollment data file. **
-
-** Step 1: Merge on the temporary Class file you saved earlier to the Student_Class_Enrollment file **
-
-```{r}
+## ------------------------------------------------------------------------
 # Merging is fun
 # keep only files merged from both files
 stuclass <- inner_join(stuclass, classRaw, by = "cid")
@@ -2077,11 +1454,8 @@ stuclass %>% ungroup %>% filter(sid == 2251 & cid == 78150780) %>%
          section_code, class_enrollment_date, 
          class_withdrawal_date, class_withdrawal_date)
 
-```
 
-** Step 5: Drop any unneeded variables, drop duplicates, and save the file **
-
-```{r}
+## ------------------------------------------------------------------------
 # // 1. Drop duplicate values
 
 stuclass %<>% ungroup %>% distinct()
@@ -2106,47 +1480,8 @@ stuclass %<>% ungroup() %>%
 # // 5. Save the current file as Student_Class_Enrollment_Merged.dta.
 
 
-```
 
-
-## Task 7 STUDENT NSC ENROLLMENT
-
-### PURPOSE
-
-In Task 7: Student NSC Enrollment, you will take the Student_NSC_Enrollment file that matches the specification in Identify and produce a Student_
-NSC_Enrollment_Indicators file that includes some of the first college enrollment indicators you will need for further analysis.
-College enrollment data is obtained from the National Student Clearninghouse (NSC). NSC matches students from a file your agency sends, including
-student id, student name, high school from where the student graduated, graduation date, and some other variables. For more information on the
-NSC matching process and requirements, visit http://www.studentclearinghouse.org/high_schools/studenttracker
-The core of this task:
-1. Rename the variables typically returned by NSC
-2. Format the date values
-3. Standardize the variables that reflect the type of college the student enrolls in
-4. Create a college graduation indicator
-5. Interpret the college enrollment status
-6. Identify the first college the student attended
-After this task, you will merge the Student_NSC_Indicators file onto the college-going analysis file from Connect. You will use this file and the high
-school graduation variables you will also create in Connect to then to generate further college-going variables, such as variables that indicating if a
-student enrolled in college the fall after graduation, enrolled in college a year after graduation, and persisted through subsequent years of college.
-
-### HOW TO START
-
-To begin, open the Student_NSC_Enrollment file in Stata. This file contains data on college enrollment and persistence for students in your agency. If you do not
-have Stata, you can follow the steps of the task by looking at the instructions and data snippets we have provided.
-If this is your first time attempting Task 7, start with the provided input file. This file teaches you SDP’s cleaning methodology and allows you to check answers
-from a common dataset.
-
-
-### DATA DESCRIPTION
-
-The input file, Student_NSC_Enrollment, follows the structure of Student_NSC_Enrollment in Identify so it is unique by sid, college_code_branch, enrollment_
-begin, and enrollment_end. This usually equates to a semester. Though the exact structure of the data you receive from NSC may vary, it will likely look
-something like this. The aim of this task then is to become familiar with the NSC data and start building college enrollment outcomes that will be expanded upon in
-Connect.
-
-** Step 0: Load the Student_NSC_Enrollment data file. **
-
-```{r}
+## ------------------------------------------------------------------------
 # Read in Stata
 library(haven) # required for .dta files
 
@@ -2157,9 +1492,8 @@ con <- unz(description = "data/raw.zip", filename = tmpfileName,
            open = "rb")
 stunsc <- read_stata(con) # read data in the data subdirectory
 glimpse(stunsc)
-```
 
-```{r}
+## ------------------------------------------------------------------------
 # // 1. Rename variables to indicate that they are NSC variables.
 
 names(stunsc) <- c("sid", "n_record_found_yn", "n_enrollment_begin", 
@@ -2223,12 +1557,8 @@ stunsc$n_enrl_status <- factor(stunsc$n_enrollment_status,
                                           "A", "D"))
 stunsc$n_enrollment_status <- NULL
 
-```
 
-
-** Step 2: Identify first college attended by type (any, 4-year and 2-year) that didn’t result in a withdrawal. **
-
-```{r}
+## ------------------------------------------------------------------------
 
 # // 1. Specify these types of college (any, 4-year, 2-year) in globals.
 # global condition_any “n_college_4yr == 1 | n_college_2yr == 1”
@@ -2326,15 +1656,10 @@ stunsc %<>% group_by(sid) %>%
 # !=.
 
 
-```
 
-
-
-** Step 3: Drop any unneeded variables, and save the file **
-```{r}
+## ------------------------------------------------------------------------
 # // 1. Drop the unneeded variables
 # drop temp* nvals* days_enrolled
 # // 2. Save the current file as Student_NSC_Enrollment_Indicators
 # save “${clean}\Student_NSC_Enrollment_Indicators.dta”, replace
-```
 

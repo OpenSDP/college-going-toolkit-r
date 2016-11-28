@@ -2,7 +2,9 @@
 title: "SDP R Glossary"
 author: "Strategic Data Project"
 date: "November 28, 2016"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -59,23 +61,80 @@ that contains a command that operates on a string.
 eval(parse(text=("summary(mtcars['Valiant', ])")))
 ```
 
+# 1. Data Management
 
+## 1.1 Handling Datasets
 
+Working directories are the number one source of confusion for new R users. 
+If you use RStudio and RStudio Projects you can eliminate a lot of confusion 
+and hassle with setting and changing working directories. 
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+To view and set th working directory use:
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+`getwd()` to view the current working directory
+`setwd("C:\MyProject")` to set the working directory to "MyProject"
 
-```{r cars}
-summary(cars)
+To remove an object from the R workspace:
+
+`rm(object)` 
+
+R can read a variety of data files. R can store files in a native file format 
+using either the `.rda` or `.RData` extension. To use files of this type: 
+
+`load('mydata.rda')`
+
+To read in data in other formats you will likely want an external library. For 
+data from other statistical software, the `haven` package is excellent at 
+reading and writing these files and has the greatest compatibility. 
+
+```
+library(haven)
+mydata <- read_stata(file = "MyStataFile.dta") 
 ```
 
-## Including Plots
+For tabular data the `readr` package is fast and easy to use. 
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```
+library(readr)
+mydata <- read_csv(file = "MyCSVfile.csv")
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Note that when reading in data you must tell R what name you will assign this 
+data in the workspace. This is because R allows you to read in multiple data 
+files simultaneously unlike many other common statistical software packages. Try 
+to use a short and meaningful name for your data.
+
+R can read Excel files directly through a variety of packages (readxlr, readxls), 
+but if possible it is usually preferred to use Excel to convert these to CSV first.
+
+You can also load data directly from a remote data source. R can connect to 
+many external data stores directly. ODBC connections are very common. To connect 
+to an ODBC connection
+
+```
+library(RODBC)
+
+```
+
+Combining datasets in R is easy. You can load multiple datasets into the workspace 
+simultaneously and combine them in a variety of ways using common values between 
+them. 
+
+The simplest syntax for merging comes from the `dplyr` package which uses a 
+command structure similar to SQL. 
+
+- `inner_join` does a 1 to 1 merge 
+- `full_join` does a many to many merge
+- `left_join` does a one to many merge
+- `right_join` does a many to one merge
+
+## 1.2 Structuring Datasets
+
+Collapsing data in R is achieved best by using the `group_by` and `summarize` 
+commands in the `dplyr` package. 
+
+
+
+
+
+
