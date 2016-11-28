@@ -2,8 +2,10 @@
 title: "SDP Data Building Tasks"
 author: "Strategic Data Project"
 date: "October 31, 2016"
-output: 
-  html_document: 
+output:
+  pdf_document:
+    toc: yes
+  html_document:
     toc: yes
 ---
 

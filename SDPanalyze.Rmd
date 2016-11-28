@@ -2,8 +2,10 @@
 title: "SDP Analyze Tasks"
 author: "Strategic Data Project"
 date: "November 16, 2016"
-output: 
-  html_document: 
+output:
+  pdf_document:
+    toc: yes
+  html_document:
     toc: yes
 ---
 

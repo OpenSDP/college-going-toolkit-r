@@ -1,0 +1,81 @@
+---
+title: "SDP R Glossary"
+author: "Strategic Data Project"
+date: "November 28, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Setting up your R Environment
+
+It is highly recommended that you use the RStudio IDE to interact with R. RStudio 
+is a free and open source IDE that is available on all computing platforms. 
+RStudio provides a number of features that make working with R more convenient. 
+
+## Getting Help
+
+In R you can get help at any time by simply typing `?` and the command of 
+of interest. For example `? summary` will open up the help page for the 
+summary function.
+
+If you are not sure of the exact name of a function you can use `??` to search 
+through the help files available in your R installation. For example `?? model` 
+will search for all files that reference the term model. 
+
+## Inserting Comments
+
+In R the `#` character is used to denote a comment. It is useful to insert 
+frequent comments that describe what your code is doing. 
+
+Anything the follows a `#` character will be ignored by R until the next 
+linebreak. To make a block of comments use the following:
+
+```
+# Commenting one line
+
+### Starting a block of comments
+### The spacing makes it clear
+### Being consistent is key
+
+```
+
+## Breaking Up Long Lines of Code
+
+If a code is long, it can be practical to break it into multiple lines. 
+In R there is no need to specifically tell R that code continues on the 
+next line. If you use the RStudio IDE it will assist you in making appropriate 
+linebreaks. 
+
+## Quotes
+
+R recognizes both `'single'` and `"double"` quotes. At times it may also be 
+necessary to use both types of quotes together, such as when passing a string 
+that contains a command that operates on a string. 
+
+```
+eval(parse(text=("summary(mtcars['Valiant', ])")))
+```
+
+
+
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
