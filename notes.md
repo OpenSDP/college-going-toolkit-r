@@ -3,9 +3,8 @@
 Need to describe: 
 - knitr as the way to combine HTML and R code together
 
-Describe working directory
-
-Describe ifelse
+X Describe working directory
+X Describe ifelse
 
 Briefly describe packages, loading functions, code extensions
 
@@ -24,4 +23,4 @@ A word on plyr vs. dplyr
 
 Why do we use numerics?
 
-Factor variable
+X Factor variable

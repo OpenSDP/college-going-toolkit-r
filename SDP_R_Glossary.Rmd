@@ -390,5 +390,472 @@ str(dataframe)
 
 ```
 
+You can also view the data using the `View` command:
+
+```
+
+View(dataframe)
+View(dataframe[dataframe$variable = value, ])
+
+```
+
+*Tabulate*
+
+In R the `table` command is useful for understanding the distribution of values 
+a variable takes. You can make 1-way to n-way tables easily. Table works best 
+for character, factor, and integer values. If you use a numeric with a high 
+number of unique values, table will not be helpful.
+
+```
+table(dataframe$somefactor)
+```
+
+If you want to look at the distribution of a numeric variable it is best to use 
+the `summary` function, or for a more detailed look, the `quantile` function.
+
+Tabulating two variable is as simple as passing them both as arguments to the 
+`table` function:
+
+```
+table(dataframe$factor1, dataframe$factor2)
+```
+
+Note that the `table` command ignores missing values by default. If your vector 
+has missing values then the sum of counts returned by the function will be shorter 
+than the length of the vector by the number of elements that take the `NA` value.
+
+*count*
+
+To just count the number of values in a vector, we use `length`. 
+
+```
+
+length(dataframe$factor)
+length(dataframe$factor[dataframe$variable == condition1])
+
+```
+
+Note that for an entire dataset, `length` is defined as the number of **columns**. 
+
+If we want to just look at the unique values in a dataset we use the `unique` 
+function. This returns a vector of all unique values of a vector. It works on 
+all variable types.
+
+```
+unique(dataframe$vector)
+
+```
+
+If we combine this with length, we count the number of distinct values a variable 
+has:
+
+```
+length(unique(dataframe$vector))
+```
+
+### 2.3 Organizing Variables
+
+There are two approaches to reordering rows in a dataset in R. The first approach uses 
+indexing:
+
+```
+dataframe <- dataframe[order(dataframe$value1, dataframe$value2), ]
+
+# To reverse the order
+dataframe <- dataframe[order(dataframe$value1, -dataframe$value2), ]
+
+```
+
+If the variables you include in the `order` statement are not integers or 
+numeric, R will attempt to use the underlying integer representation of the 
+factor variable. If they are character, it will default to alphabetic.
+
+Another way to do this is using the `arrange` command. 
+
+```
+dataframe <- arrange(dataframe, value1)
+dataframe %<>% arrange(value1)
+
+# use desc() to order descending
+dataframe <- arrange(dataframe, desc(value1))
+dataframe %<>% arrange(desc(value1))
 
 
+```
+
+A common task is to do tasks group-wise to your data where group is defined as 
+variable in the dataset. In R this is best achieved using the `dplyr` package 
+and using the `group_by` command:
+
+```
+
+dataframe %<>% group_by(groupingVar) %>% 
+  mutate(count_j = n())
+
+
+dataframe %<>% group_by(groupingVar1, groupingVar2) %>% 
+  mutate(count_jk = n())
+
+```
+
+In this case the `mutate` function allows us to append a variable to the ungrouped 
+dataset that will be repeated with the same value for each group. If we used 
+the `summarize` function like above, the dataframe would be collapsed to one 
+row per group.
+
+*order variables*
+
+The order variables appear in a dataset is most easily controlled by using their 
+numeric index. 
+
+```
+names(mydata)
+mydata <- mydata[, c(1, 3, 2, 5:9, 4)]
+```
+
+You can also order variables using the `select` function in `dplyr`:
+
+```
+
+mydata %<>% select(var1, var3, var2, var7)
+
+```
+
+*rename variables*
+
+Variable names are just a character value that is stored in the `names` object. 
+For example, `names(mydata)` returns a character vector the same length of the 
+number of columns of the dataset. To rename variables we can replace specific 
+elements in that vector. 
+
+```
+names(mydata)[2] <- "NewName"
+```
+
+We can also use the `dplyr` `rename` function:
+
+```
+
+mtcars %<>% rename(NewName = oldname)
+
+```
+
+To transform multiple names you can do the following:
+
+```
+names(mydata) <- tolower(names(mydata)) # lowercase
+names(mydata) <- toupper(names(mydata)) # uppercase
+names(mydata) <- chartr("m", "M", names(mydata)) # capitalize all m values
+
+# prefix
+names(mydata)[3:8] <- paste("prefix", names(mydata)[3:8], sep = "_")
+# suffix
+names(mydata)[3:8] <- paste(names(mydata)[3:8], "suffix", sep = "_")
+# substitute character pattern with another pattern in names
+# here replace "zzz", with empty ""
+names(mydata) <- gsub("zzz", "", names(mydata))
+```
+
+*labels*
+
+R does not have extensive codebook or variable labeling functionality. Most of 
+the time if you want labeled values you want to use a `factor` variable in R. 
+Factors can ordered or unordered. 
+
+*list unique values*
+
+To look at the distinct or unique values of a variable, use the `unique` command.
+
+### 2.4 Using system variables
+
+R does not have system variables, but you can create global variables to keep 
+track of attributes of the objects in your work environment. If you want to 
+store an integer that represents the number of rows in your data at a point in 
+time you can use the `nrow` command and create a new variable `N` to store that 
+information. However, if you add or remove rows from `mydata` this will not be 
+updated. 
+
+```
+N <- nrow(mydata)
+```
+
+## 3. Functions
+
+In R you can find functions in the base R package, in add-on "packages" of code 
+that you load into your workspace `library(mypackage)` or that you define in 
+a script and read directly into memory. 
+
+```
+# create a function that counts distinct values of a variable
+nvals <- function(x){
+  length(unique(x))
+}
+
+nvals(mydata$value1)
+
+```
+
+Functions are objects in the workspace, you assign them a name and they are 
+bound to that name. If you assign another object to that name, the function will 
+be overwritten. Functions can be made very specific to your workspace and defined 
+within your script, or you can make general functions that are helpful to you and 
+store them in an external script that you load when doing certain work:
+
+```
+
+source("path/to/mySuperCoolFunctions.R")
+
+```
+
+
+### 3.1 String Functions
+
+R has a number of standard functions for processing character or string values.
+
+`trimws(" a character ")` will eliminate all whitespace before and after a 
+a character value. It can also be used to eliminate whitespace only on a particular 
+side `trimws(" a character ", which = "left")` or 
+`trimws(" a character ", which = "right")`. 
+
+`toupper` and `tolower` convert all of the characters in a string to either 
+upper or lowercase. 
+
+Note that `trimws`, `toupper`, and `tolower` can all be used on either a single 
+character value, or a vector of length **n** character values. 
+
+If you need to do string pattern matching and replacement you will use the 
+`grep` command. 
+
+The `grep` command returns a numeric vector that indicates the position in the 
+character vector that a match is found. This makes subsetting only variables 
+that match a certain name easy.
+
+```
+grep("mpg", names(mtcars))
+
+# use in subset
+mtcars[, grep("mpg", names(mtcars))]
+
+```
+
+You can use the `grepl` function to return a vector the same length as the 
+character vector filled with TRUE values where a match is found and `FALSE` 
+for elements that do not match.
+
+For replacement and substitution you will want to try `gsub`.
+
+```
+
+mydataframe$school <- gsub("High School", "", mydataframe$school)
+
+```
+
+With any of these functions if you know regular expressions you can pass more 
+complex patterns to be matched. This can be very powerful in processing text 
+fields like names, addresses, and phone numbers. 
+
+To find more: `?regex` . You can also look at the excellent `stringr` package 
+for even more powerful functions for processing text. 
+
+### 3.2 Math Functions
+
+R provides a wide array of math functions. 
+
+```
+*min*
+*max*
+*median*
+*mean*
+*round*
+```
+
+An important thing to remember when using math functions in R is that the `NA` 
+value propogates. If a single `NA` is present in a vector then many mathematical 
+operations on that vector will return `NA`. Many mathematical operators include 
+an argument `na.rm` that allows you to tell the function to ignore missing values. 
+
+```
+mean(x, na.rm=TRUE)
+min(x, na.rm=TRUE)
+max(x, na.rm=TRUE)
+median(x, na.rm=TRUE)
+```
+
+R does not include a `mode` function by default (`?mode` brings up something else 
+entirely). Users can define their own mode function. In R you will have to define 
+your own function based on how you intend to handle ties. One example is the 
+`statamode` function in the `eeptools` package. 
+
+```
+eeptools::statamode(x)
+
+```
+
+### 3.3 Statistical Functions
+
+R has a number of convenient functions for statistical transformations of data. 
+The `scale` function pulls double duty, it can center data, scale data, or scale 
+and center data.
+
+```
+# center
+scale(mtcars$hp, scale = FALSE)
+# scale
+scale(mtcars$hp, center = FALSE)
+# scale and center
+scale(mtcars$hp)
+```
+
+This function conveniently stores the centering value (the mean) and the scale 
+factor (the standard deviation) as attributes.
+
+```
+# scale and center
+mtcars$hp_scaled <- scale(mtcars$hp)
+
+# mean
+attr(mtcars$hp_scaled, "scaled:center")
+# sd
+attr(mtcars$hp_scaled, "scaled:scale")
+```
+
+The most convenient way to bin data is to use the `ntile` function in the `dplyr` 
+package:
+
+```
+ntile(rnorm(100), 3)
+table(ntile(rnorm(100), 3))
+```
+
+### 3.4 Date Functions
+
+*as.Date*
+
+It is highly recommended that you use the free add-on package to R, `lubridate`, 
+for processing date and date-time objects in R. This package contains a number 
+of simple functions that make date/time operations intuitive and expressive.
+
+```
+library(lubridate)
+# Convert string to date
+coolDay <- mdy("05-25-1986")
+# Get month
+month(coolDay)
+# Get year
+year(coolDay)
+# Get day
+day(coolDay)
+# Get week
+week(coolDay)\
+# Day of the week
+wday(coolDay, label = TRUE, abbr = FALSE)
+```
+
+## 4. Macros
+
+R uses functions and objects instead of macros. 
+
+## 5. Operators
+
+R uses the standard logical operators `>`, `<`, `>=`, `<=`, `==`, `!=` greater 
+than, less than, greater than or equal to, less than or equal to, equal to, or 
+not equal to for comparison of values. Using these results in returning a 
+logical vector, TRUE/FALSE which can be used as an index or tabulated directly.
+
+```
+table(mydata$variable1 > 7)
+summary(mydata[mydata$variable1 > 7, ])
+```
+
+`==` and `!=` can be used for comparing character values as well.
+
+```
+mtcars$mpg[row.names(mtcars) == "Valiant"]
+summary(mtcars$mpg[row.names(mtcars) != "Valiant"])
+```
+
+For compounding logical operators R allows you to use `&` for and and `|` for 
+or. 
+
+```
+mtcars[mtcars$disp > 100 & mtcars$drat < 3,]
+mtcars[mtcars$disp > 160 | mtcars$drat < 3.25,]
+
+# You can also nest logical statements
+
+mtcars[(mtcars$disp > 160 | mtcars$drat < 3.25) & 
+          mtcars$carb == 3,]
+```
+
+Additionally useful is the `%in%` command. This allows you to test whether elements 
+in one vector match any of the elements in another vector. 
+
+```
+
+mtcars[row.names(mtcars) %in% grep("Mazda", row.names(mtcars), value=TRUE), ]
+
+```
+
+
+To test whether missing values are present, R uses the awkward `is.na()` function.
+
+```
+table(is.na(mydata$vector1))
+
+```
+
+If you want to filter out NA values from an operation, you need to use `!is.na()`:
+
+```
+summary(mydata$vector1[!is.na(mydata$vector1)])
+
+mydata$vector1[!is.na(mydata$vector1)] <- "Not Missing"
+
+```
+
+
+## 6. Commands
+
+In interactive mode, the way you will most commonly use R, there is not an 
+equivalent of assert. However, you use logical tests and ask R to issue an 
+error or warning if the tests fail. 
+
+```
+mtcars$mpg <- mtcars$mpg *100
+stopifnot(min(mtcars$mpg) < 10)
+mean(mtcars$mpg)
+```
+
+*print*
+
+Alternatively, and good for debugging, you can have R print arbitrary output to 
+the console. 
+
+```
+
+if(myValue > 7){
+  print("myValue is now greater than 7")
+}
+
+```
+
+## 7. Loops
+
+`for` loops in R are similar to `for` loops in many other languages. They consist 
+of an iterator and a vector over which to iterate:
+
+```
+for(i in 1:10){
+  print(i^2)
+}
+
+```
+
+Note that `i` is a variable defined in the global environment. It need not be 
+numeric. You can also iterate over any arbitrary vector:
+
+```
+for(letter in letters){
+  print(letter)
+}
+```
