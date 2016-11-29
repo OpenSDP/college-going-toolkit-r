@@ -6,6 +6,8 @@ Need to describe:
 X Describe working directory
 X Describe ifelse
 
+How to get started in R
+
 Briefly describe packages, loading functions, code extensions
 
 Brief description of major data types in R and why you should use them
@@ -24,3 +26,30 @@ A word on plyr vs. dplyr
 Why do we use numerics?
 
 X Factor variable
+
+- Is R screenreader accessible? RStudio?
+- Are RMarkdown PDFs accessible to a screenreader?
+- Header and footer
+- Comments in the code?
+- 
+
+1. Reading
+2. Data file
+3. Programming files
+
+Send David a list of all pages/mistakes in the Stata code/output in the toolkit
+- Check consistency in the language in the toolkit
+- Note any clarifications 
+
+For each section think about what files students should have
+- What should they have open in what program?
+
+- Custom header, custom footer, font changes to the PDF
+- Figure font sizes, colors, etc.
+
+Quickstart guide with a how-to organize data files and source files
+
+Translate the Stata Coding Style Guide
+- Adopt: Coding Style Guide
+
+mid-December polished drafts to David and Ashley
