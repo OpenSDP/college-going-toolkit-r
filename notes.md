@@ -1,6 +1,7 @@
 ## To Do / Notes
 
-Need to describe: 
+Need to describe:
+- Put functions.R functions into the SDP R Glossary and describe
 - knitr as the way to combine HTML and R code together
 
 X Describe working directory
@@ -28,7 +29,10 @@ Why do we use numerics?
 X Factor variable
 
 - Is R screenreader accessible? RStudio?
+https://r-resources.massey.ac.nz/statsoftware/
 - Are RMarkdown PDFs accessible to a screenreader?
+https://r-resources.massey.ac.nz/rmarkdown/
+https://cran.r-project.org/web/packages/BrailleR/vignettes/GettingStarted.html
 - Header and footer
 - Comments in the code?
 - 
