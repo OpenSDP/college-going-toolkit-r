@@ -33,6 +33,7 @@ https://r-resources.massey.ac.nz/statsoftware/
 - Are RMarkdown PDFs accessible to a screenreader?
 https://r-resources.massey.ac.nz/rmarkdown/
 https://cran.r-project.org/web/packages/BrailleR/vignettes/GettingStarted.html
+
 - Header and footer
 - Comments in the code?
 - 

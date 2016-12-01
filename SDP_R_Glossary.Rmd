@@ -7,8 +7,10 @@ output:
   html_document: default
 ---
 
-```{r setup, include=FALSE}
+```{r setup}
 knitr::opts_chunk$set(echo = TRUE)
+# Let's load an example dataset
+data(mtcars)
 ```
 
 ## Setting up your R Environment
@@ -35,13 +37,12 @@ frequent comments that describe what your code is doing.
 Anything the follows a `#` character will be ignored by R until the next 
 linebreak. To make a block of comments use the following:
 
-```
+```{r comments}
 # Commenting one line
 
 ### Starting a block of comments
 ### The spacing makes it clear
 ### Being consistent is key
-
 ```
 
 ## Breaking Up Long Lines of Code
@@ -57,7 +58,7 @@ R recognizes both `'single'` and `"double"` quotes. At times it may also be
 necessary to use both types of quotes together, such as when passing a string 
 that contains a command that operates on a string. 
 
-```
+```{r pasteyQuotes}
 eval(parse(text=("summary(mtcars['Valiant', ])")))
 ```
 
@@ -87,14 +88,14 @@ To read in data in other formats you will likely want an external library. For
 data from other statistical software, the `haven` package is excellent at 
 reading and writing these files and has the greatest compatibility. 
 
-```
+```{r stataExample, eval=FALSE}
 library(haven)
 mydata <- read_stata(file = "MyStataFile.dta") 
 ```
 
 For tabular data the `readr` package is fast and easy to use. 
 
-```
+```{r readrExample, eval=FALSE}
 library(readr)
 mydata <- read_csv(file = "MyCSVfile.csv")
 ```
@@ -111,7 +112,7 @@ You can also load data directly from a remote data source. R can connect to
 many external data stores directly. ODBC connections are very common. To connect 
 to an ODBC connection
 
-```
+```{r RODBCexample, eval=FALSE}
 library(RODBC)
 
 ```
@@ -134,23 +135,25 @@ Collapsing data in R is achieved best by using the `group_by` and `summarize`
 commands in the `dplyr` package. This requires being explicit about how you 
 want to summarize each field from many observations into one. 
 
-```
+```{r collapse}
 library(dplyr)
 
-collapsedData <- longData %>% group_by(idvar) %>% 
-  summarize(meanCount = mean(count))
-  
+# Let's calculate horsepower by number of cylinders
+collapsedData <- mtcars %>% group_by(cyl) %>% 
+  summarize(meanHP = mean(hp))
+
+collapsedData
 ```
 
 Alternatively, if your variables can all be summarized by the same function 
 you can do the following:
 
-```
-library(dplyr)
+```{r collapseAll}
+collapsedData <- mtcars %>% select(cyl, hp, disp, wt, drat, qsec, carb) %>% 
+  group_by(cyl) %>% 
+  summarize_all(.funs = "mean")
 
-collapsedData <- longData %>% select(var1, var2, var3, var4, idvar) %>% 
-  group_by(idvar) %>% 
-  summarize_all(funs = "mean")
+collapsedData
 
 ```
 
