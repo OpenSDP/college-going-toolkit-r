@@ -9,7 +9,7 @@ X Describe ifelse
 
 How to get started in R
 
-Briefly describe packages, loading functions, code extensions
+X Briefly describe packages, loading functions, code extensions
 
 Brief description of major data types in R and why you should use them
 
@@ -52,7 +52,7 @@ For each section think about what files students should have
 - Custom header, custom footer, font changes to the PDF
 - Figure font sizes, colors, etc.
 
-Quickstart guide with a how-to organize data files and source files
+X Quickstart guide with a how-to organize data files and source files
 
 Translate the Stata Coding Style Guide
 - Adopt: Coding Style Guide

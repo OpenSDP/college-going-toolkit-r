@@ -1,0 +1,86 @@
+---
+title: "SDP Toolkit R Quickstart Guide"
+author: "Strategic Data Project"
+date: "December 1, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Getting Started with R and RStudio
+
+## Setting up your R Environment
+
+First, [download and install R](https://www.r-project.org/) for your platform. 
+Then download and install the 
+[RStudio Integrated Development Environment (IDE)](https://www.rstudio.com/products/rstudio/download/). RStudio 
+is a free and open source IDE that is available on all computing platforms. 
+RStudio provides a number of features that make working with R more convenient 
+including code completion, code highlighting, and tools to speed up literate 
+(combining R code, R output, text, and figures in one document) programming in 
+the R environment. 
+
+## RStudio
+
+![RStudio Screenshot](img/RStudioScreenshot.png)
+
+RStudio has four main panes. By default the top left pane is the editor pane 
+where you write and edit R script files. Bottom left is the R console where you 
+can run commands, view the R command history, and see the current working directory. 
+The top right by default shows you the contents of your current R environment 
+including what datasets are currently stored in memory. The bottom right pane 
+has the viewer pane which shows the file system, plots, R help, and directory 
+of available packages. 
+
+RStudio is well documented and includes a number of cheatsheets and quick start 
+guides to help you easily find keyboard shortcuts and other features.
+
+
+## Project Organization
+
+There are many ways to organize your work, but one helpful rule is to create a 
+new folder for each analysis project. RStudio makes this easy with the idea of 
+Projects. When you create a new project in RStudio it creates a new folder and 
+launches R with the working directory set to that directory. 
+
+Organizing in this way allows you to create a folder structure to keep big 
+projects from sprawling. It is helpful to create subdirectories:
+
+- data - to hold raw data for import
+- cache - to save transformed data or intermediate calculations
+- R - to save custom R functions
+
+Using a folder scheme like this can allow you to use shorter more descriptive 
+filenames and prevent accidental deletion or overwriting of critical files. 
+As an added benefit, RStudio can autocomplete filenames and directories making 
+it faster to navigate. 
+
+You can create an R Project from within RStudio. Then you can open it using the 
+project switcher in the top right of RStudio or by double clicking the `.Rproj` 
+file in your filebrowser and opening it with R Studio.
+
+## Opening the Toolkit
+
+The toolkit is organized in just such a structure. Each section of the toolkit 
+contains three supporting files:
+
+- a PDF file that contains instructions, R code, and example output
+- a `.Rmd` file that is used to generate the PDF file, it includes text and R 
+code and can be run interactively within RStudio
+- a `.R` script that contains only the R code used in the PDF and the `.Rmd` file 
+above
+
+These files assume the existence of a `data` subdirectory with three zip files 
+containing the raw, clean, and analysis version of the toolkit data. 
+
+There is also an `R` directory which contains a single R script for loading at 
+the beginning of each toolkit session. This script defines a few custom functions 
+to make using R for the toolkit easier. When you are in the project you can load 
+all of these functions at once with the `source("R/functions.R")` command. 
+
+To begin, open the PDF file that corresponds to the first Toolkit module you will 
+work on. Then open the corresponding `.R` and `.Rmd` files and work along. 
+
+Good luck!
