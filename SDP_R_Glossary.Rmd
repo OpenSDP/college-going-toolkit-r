@@ -3,12 +3,12 @@ title: "SDP R Glossary"
 author: "Strategic Data Project"
 date: "November 28, 2016"
 output:
-  pdf_document:
-    toc: yes
-    toc_depth: 4
-    latex_engine: xelatex
-    highlight: zenburn
   html_document: default
+  pdf_document:
+    highlight: zenburn
+    latex_engine: xelatex
+    toc: yes
+    toc_depth: 2
 ---
 
 
@@ -50,6 +50,8 @@ knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
 
 
 ```{r setup}
+library(tidyverse)
+library(magrittr)
 # Let's load an example dataset
 data(mtcars)
 ```
@@ -93,7 +95,7 @@ R recognizes both `'single'` and `"double"` quotes. At times it may also be
 necessary to use both types of quotes together, such as when passing a string 
 that contains a command that operates on a string. 
 
-```{r pasteyQuotes}
+```{r pasteyQuotes, eval=FALSE}
 eval(parse(text=("summary(mtcars['Valiant', ])")))
 ```
 
@@ -239,7 +241,7 @@ commands in the `dplyr` package. This requires being explicit about how you
 want to summarize each field from many observations into one. 
 
 ```{r collapse}
-library(dplyr)
+library(dplyr); library(magrittr)
 
 # Let's calculate horsepower by number of cylinders
 collapsedData <- mtcars %>% group_by(cyl) %>% 
@@ -352,7 +354,7 @@ mtcars[, 1]
 
 To drop variables we can do any of the following
 
-```{r eval=FALSE}
+```{r, eval=FALSE}
 mtcars$hp <- NULL
 mtcars[, "hp"] <- NULL
 mtcars <- mtcars[, -4]
@@ -368,19 +370,27 @@ dataframe %<>% select(-variable)
 In R, there is no specific keep command. You can pass a numeric index of column 
 positions, or pass column names to drop any variables you do not want. 
 
+```{r}
+names(mtcars) # read column names
 ```
 
-dataframe <- dataframe[, c(1, 2, 3, 4)]
-dataframe <- dataframe[, c("variable1", "variable2", "variable3")]
-
+```{r, eval=FALSE}
+mtcars <- mtcars[, c(1:3, 8)]
+# equivalent to:
+mtcars <- mtcars[, c("mpg", "cyl", "disp", "vs")]
 ```
 
 Using `dplyr` and the `select` function there are a number of powerful ways 
 to specify which variables you want to keep. 
 
-```
+```{r, eval=FALSE}
 
-dataframe %<>% select(starts_with("variable"))
+mtcars %<>% select(starts_with("mpg"))
+mtcars %<>% select(ends_with("s"))
+mtcars %<>% select(contains("hp"))
+mtcars %<>% select(matches("*cyl"))
+mtcars %<>% select(one_of(names(mtcars)))
+mtcars %<>% select(everything())
 
 ```
 
@@ -389,52 +399,55 @@ dataframe %<>% select(starts_with("variable"))
 Variable creation in R is as simple as assigning a variable in a data.frame a 
 value.
 
-```
-dataframe$newvariable <- NA
+```{r}
+mtcars$mpgPerCyl <- NA # creates an empty vector with missing values
+mtcars$mpgPerCyl <- 4 # creates an empty vector and assigns it a constant
+
+# If your replacement is not length 1 or length of the vector, it will not 
+# work
+# mtcars$mpgPerCyl <- c(1, 5, 8) 
 
 ```
 
 If you want to assign a created variable some value based on values of other 
 variables in the data:
 
-```
-dataframe$newvariable <- NA
-dataframe$newvariable[dataframe$var1 == 'condition1'] <- 1
-dataframe$newvariable[dataframe$var1 == 'condition2'] <- 2
+```{r, eval=FALSE}
+mtcars$mpgBinary <- NA
+mtcars$mpgBinary[mtcars$mpg > 25] <- 1
+mtcars$mpgBinary[mtcars$mpg <= 25] <- 0
 
-## Alternatively
+## Alternatively you can use the ifelse function for simple assignments
 
-dataframe$newvariable <- ifelse(dataframe$var1 == "condition1", 1, 2)
+mtcars$mpgBinary <- ifelse(mtcars$mpg > 25, 1, 0)
 
 ```
 
 Generating new variables as functions of other variables is also simple:
 
-```
-
-dataframe$newvariable <- mean(dataframe$oldvar)
-dataframe$newvariable <- sum(dataframe$oldvar)
+```{r}
+mtcars$mpgMean <- mean(mtcars$mpg) 
+# the single mean(mpg) will be repeated the length of mtcars$mpg
 
 ```
 
 Generating a new variable that is a function of multiple other variables is also 
 simple
 
-```
-
-dataframe$newvariable <- dataframe$var1 + dataframe$var2
-dataframe$newvariable <- dataframe$var1 / dataframe$var2
+```{r, eval=FALSE}
+mtcars$mpgPerCyl <- mtcars$mpg / mtcars$cyl # creates vector with values right away
+mtcars$gearsAndCarbs <- mtcars$gear + mtcars$carb
 
 # Be careful of order of operations
-
-dataframe$newvariable <- dataframe$var1^2 / (dataframe$var2 - dataframe$var3)
-
-
+mtcars$ComplexVar <- mtcars$qsec^2 / (mtcars$disp - mtcars$hp)
 ```
 
-You can also generate an empty `data.frame` as well:
+You can also generate an empty `data.frame` as well. This is useful for setting 
+up a data structure you will later fill with values from other calculations. This 
+can save memory and enforce good code by declaring your expectations about the 
+results of calculations. 
 
-```
+```{r}
 mydata <- data.frame(var1 = NA, var2 = NA)
 
 ```
@@ -444,19 +457,8 @@ mydata <- data.frame(var1 = NA, var2 = NA)
 
 In R, replacing variables is as easy as overwriting them:
 
-```
-
-dataframe$oldvariable <- dataframe$newvariable
-
-
-```
-
-Of course, you need to drop the other variable still:
-
-```
-
-dataframe$newvariable <- NULL
-
+```{r, eval=FALSE}
+mtcars$ComplexVar <- mtcars$qsec^2 / (2 * mtcars$disp - mtcars$hp)
 ```
 
 *duplicates*
@@ -464,13 +466,13 @@ dataframe$newvariable <- NULL
 Dropping duplicates.
 
 R comes with the built in `duplicated` function which returns a logical vector 
-the same length as the number of rows, TRUE if the row is duplicated.
+the same length as the number of rows, TRUE if the row is duplicated. The built 
+in dataset `iris` has an example of this:
 
-```
+```{r}
 duplicated(iris)
-
 # If you only want a summary
-summary(duplicated(iris))
+table(duplicated(iris))
 
 ```
 
@@ -478,27 +480,27 @@ By default, `duplicated` checks for duplication across *all* columns in the
 data. To specify the columns of interest, just select the variables before 
 the duplicated call
 
-```
-
-duplicated(iris[, 1:2])
-
+```{r}
+# Duplicates across two columns
+table(duplicated(iris[, 1:2]))
+# Duplicates across first three columns, fewer
+table(duplicated(iris[, 1:3]))
 ```
 
 To drop duplicated rows we can pass the results of the `duplicated` call as a 
 row index to the `data.frame` itself:
 
-```
+```{r}
+nrow(iris)
 iris <- iris[duplicated(iris), ]
-
+nrow(iris)
 ```
 
 This is a bit awkward, so another way to do it is:
 
-```
-library(dplyr)
-
+```{r}
 iris %<>% distinct(.keep_all = TRUE)
-
+#.keep_all tells R we want to return all columns
 ```
 
 ### Variable types
@@ -513,19 +515,20 @@ In R there are four common variable types:
 To test what type a variable is you use the `is.type` construction, or you can 
 ask R to return the class of the variable directly:
 
-```
-is.numeric(dataframe$myvariable)
-is.integer(dataframe$myvariable)
-class(dataframe$myvariable)
+```{r}
+is.numeric(mtcars$hp)
+is.integer(mtcars$cyl)
+class(mtcars$carb)
 ```
 
 To convert between types, you use the `as.type` construction, or you can 
 set the class of the variable directly:
 
-```
-dataframe$myvariable <- as.numeric(dataframe$myvariable)
-class(dataframe$myvariable) <- "numeric"
-
+```{r}
+class(mtcars$hp)
+mtcars$hp <- as.integer(mtcars$hp)
+class(mtcars$hp) <- "integer"
+class(mtcars$hp)
 ```
 
 Note that the `as.type` functions are not particularly savvy. For example, 
@@ -537,9 +540,10 @@ the `decomma` function in the `eeptools` package handles the above case.
 
 R has convenient built in summaries for the base data types:
 
-```
-summary(dataframe$myvariable)
-summary(dataframe)
+```{r}
+summary(mtcars$carb)
+summary(mtcars)
+summary(iris)
 
 ```
 
@@ -549,18 +553,17 @@ Another summary method that is helpful is the `str` command, which provides a
 look at the first values occurring in a data.frame or variable, as well as the 
 attributes of the object.
 
-```
-str(dataframe$myvariable)
-str(dataframe)
+```{r}
+str(iris$Species)
+str(iris)
 
 ```
 
 You can also view the data using the `View` command:
 
-```
-
-View(dataframe)
-View(dataframe[dataframe$variable = value, ])
+```{r eval=FALSE}
+View(mtcars)
+View(mtcars[mtcars$hp = 110, ])
 
 ```
 
@@ -569,53 +572,71 @@ View(dataframe[dataframe$variable = value, ])
 In R the `table` command is useful for understanding the distribution of values 
 a variable takes. You can make 1-way to n-way tables easily. Table works best 
 for character, factor, and integer values. If you use a numeric with a high 
-number of unique values, table will not be helpful.
+number of unique values, `table` will not be helpful.
 
-```
-table(dataframe$somefactor)
+```{r}
+table(iris$species)
 ```
 
 If you want to look at the distribution of a numeric variable it is best to use 
 the `summary` function, or for a more detailed look, the `quantile` function.
 
-Tabulating two variable is as simple as passing them both as arguments to the 
+Tabulating two variables is as simple as passing them both as arguments to the 
 `table` function:
 
-```
-table(dataframe$factor1, dataframe$factor2)
+```{r}
+iris$SepalWidthInt <- round(iris$Sepal.Width, digits = 0)
+table(iris$SepalWidthInt, iris$Species)
 ```
 
 Note that the `table` command ignores missing values by default. If your vector 
 has missing values then the sum of counts returned by the function will be shorter 
 than the length of the vector by the number of elements that take the `NA` value.
 
+```{r}
+ProblematicVector <- c("A", "B", "C", "A", "B", "D", NA, NA, NA, NA, "A", "C", "C", 
+                       "C", "C", "C")
+N <- length(ProblematicVector)
+table(ProblematicVector)
+sum(table(ProblematicVector))
+N
+```
+
+Keep this in mind when counting proportions and percentages belonging to categories. 
+
 *count*
 
 To just count the number of values in a vector, we use `length`. 
 
-```
-
-length(dataframe$factor)
-length(dataframe$factor[dataframe$variable == condition1])
-
+```{r}
+length(mtcars$cyl)
+length(mtcars$hp[mtcars$hp > 140])
+table(mtcars$hp > 140)
 ```
 
 Note that for an entire dataset, `length` is defined as the number of **columns**. 
+
+```{r}
+length(mtcars)
+# use nrow to get the length of individual vectors
+nrow(mtcars)
+```
+
 
 If we want to just look at the unique values in a dataset we use the `unique` 
 function. This returns a vector of all unique values of a vector. It works on 
 all variable types.
 
-```
-unique(dataframe$vector)
+```{r}
+unique(mtcars$carb)
 
 ```
 
 If we combine this with length, we count the number of distinct values a variable 
 has:
 
-```
-length(unique(dataframe$vector))
+```{r}
+length(unique(mtcars$carb))
 ```
 
 ## 2.5 Organizing Variables
@@ -623,11 +644,11 @@ length(unique(dataframe$vector))
 There are two approaches to reordering rows in a dataset in R. The first approach uses 
 indexing:
 
-```
-dataframe <- dataframe[order(dataframe$value1, dataframe$value2), ]
+```{r eval=FALSE}
+mtcars <- mtcars[order(mtcars$disp, mtcars$cyl), ]
 
 # To reverse the order
-dataframe <- dataframe[order(dataframe$value1, -dataframe$value2), ]
+mtcars <- mtcars[order(-mtcars$disp, -mtcars$cyl), ]
 
 ```
 
@@ -635,32 +656,28 @@ If the variables you include in the `order` statement are not integers or
 numeric, R will attempt to use the underlying integer representation of the 
 factor variable. If they are character, it will default to alphabetic.
 
-Another way to do this is using the `arrange` command. 
+Another way to do this is using the `arrange` command from dplyr. 
 
-```
-dataframe <- arrange(dataframe, value1)
-dataframe %<>% arrange(value1)
+```{r}
+mtcars <- arrange(mtcars, cyl, disp)
+# The %<>% operator saves some typing
+mtcars %<>% arrange(cyl, disp)
 
 # use desc() to order descending
-dataframe <- arrange(dataframe, desc(value1))
-dataframe %<>% arrange(desc(value1))
-
-
+mtcars <- arrange(mtcars, desc(cyl))
+mtcars %<>% arrange(desc(cyl))
 ```
 
 A common task is to do tasks group-wise to your data where group is defined as 
 variable in the dataset. In R this is best achieved using the `dplyr` package 
 and using the `group_by` command:
 
-```
+```{r}
+mtcars %<>% group_by(gear) %>% 
+  mutate(meanHPbyGear = mean(hp))
 
-dataframe %<>% group_by(groupingVar) %>% 
-  mutate(count_j = n())
-
-
-dataframe %<>% group_by(groupingVar1, groupingVar2) %>% 
-  mutate(count_jk = n())
-
+mtcars %<>% group_by(vs, am) %>% 
+  mutate(countVSAM = n())
 ```
 
 In this case the `mutate` function allows us to append a variable to the ungrouped 
@@ -673,17 +690,18 @@ row per group.
 The order variables appear in a dataset is most easily controlled by using their 
 numeric index. 
 
-```
-names(mydata)
-mydata <- mydata[, c(1, 3, 2, 5:9, 4)]
+```{r}
+names(mtcars)
+mtcars <- mtcars[, c(1, 3, 2, 5:9, 4, 10, 11)]
+# Anything not indexed will be dropped!
+names(mtcars)
 ```
 
 You can also order variables using the `select` function in `dplyr`:
 
-```
-
-mydata %<>% select(var1, var3, var2, var7)
-
+```{r eval=FALSE}
+mtcars %<>% select(mpg, cyl, disp, hp, drat, wt)
+# Anything not selected will be dropped
 ```
 
 *rename variables*
@@ -693,32 +711,33 @@ For example, `names(mydata)` returns a character vector the same length of the
 number of columns of the dataset. To rename variables we can replace specific 
 elements in that vector. 
 
-```
-names(mydata)[2] <- "NewName"
+```{r}
+names(mtcars)[7] <- "engconfig"
+names(mtcars)
 ```
 
 We can also use the `dplyr` `rename` function:
 
-```
+```{r}
 
-mtcars %<>% rename(NewName = oldname)
+mtcars %<>% rename(engsize = disp)
 
 ```
 
 To transform multiple names you can do the following:
 
-```
-names(mydata) <- tolower(names(mydata)) # lowercase
-names(mydata) <- toupper(names(mydata)) # uppercase
-names(mydata) <- chartr("m", "M", names(mydata)) # capitalize all m values
+```{r eval=FALSE}
+names(iris) <- tolower(names(iris)) # lowercase
+names(iris) <- toupper(names(iris)) # uppercase
+names(iris) <- chartr("m", "M", names(iris)) # capitalize all m values
 
 # prefix
-names(mydata)[3:8] <- paste("prefix", names(mydata)[3:8], sep = "_")
+names(mtcars)[3:8] <- paste("prefix", names(mtcars)[3:8], sep = "_")
 # suffix
-names(mydata)[3:8] <- paste(names(mydata)[3:8], "suffix", sep = "_")
+names(mtcars)[3:8] <- paste(names(mtcars)[3:8], "suffix", sep = "_")
 # substitute character pattern with another pattern in names
 # here replace "zzz", with empty ""
-names(mydata) <- gsub("zzz", "", names(mydata))
+names(mtcars) <- gsub("zzz", "", names(mtcars))
 ```
 
 *labels*
@@ -740,33 +759,45 @@ time you can use the `nrow` command and create a new variable `N` to store that
 information. However, if you add or remove rows from `mydata` this will not be 
 updated. 
 
-```
+```{r}
 N <- nrow(mydata)
+N
 ```
+
+R does have environment variables, but these are special variables that tell R 
+how to connect with other programs or to behave in a particular mode. 
 
 # 3. Functions
 
 In R you can find functions in the base R package, in add-on "packages" of code 
-that you load into your workspace `library(mypackage)` or that you define in 
+that you load into your workspace with `library(mypackage)` or that you define in 
 a script and read directly into memory. 
 
-```
+```{r functions}
 # create a function that counts distinct values of a variable
 nvals <- function(x){
   length(unique(x))
 }
 
-nvals(mydata$value1)
+nvals(mtcars$carb)
 
 ```
 
 Functions are objects in the workspace, you assign them a name and they are 
 bound to that name. If you assign another object to that name, the function will 
-be overwritten. Functions can be made very specific to your workspace and defined 
+be overwritten. If you want to look at any function in R, you can just type in 
+it's name to inspect the source. This is most useful for user defined functions 
+or functions in add-on packages:
+
+```{r}
+dplyr::ntile
+```
+
+Functions can be made very specific to your workspace and defined 
 within your script, or you can make general functions that are helpful to you and 
 store them in an external script that you load when doing certain work:
 
-```
+```{r eval=FALSE}
 
 source("path/to/mySuperCoolFunctions.R")
 
@@ -795,9 +826,9 @@ The `grep` command returns a numeric vector that indicates the position in the
 character vector that a match is found. This makes subsetting only variables 
 that match a certain name easy.
 
-```
-grep("mpg", names(mtcars))
-
+```{r}
+# Return only the column positions that match
+grep("cyl", names(mtcars))
 # use in subset
 mtcars[, grep("mpg", names(mtcars))]
 
@@ -807,11 +838,17 @@ You can use the `grepl` function to return a vector the same length as the
 character vector filled with TRUE values where a match is found and `FALSE` 
 for elements that do not match.
 
-For replacement and substitution you will want to try `gsub`.
-
+```{r}
+grepl("cyl", names(mtcars))
 ```
 
-mydataframe$school <- gsub("High School", "", mydataframe$school)
+For replacement and substitution you will want to try `gsub`.
+
+```{r}
+data(mtcars)
+row.names(mtcars)
+
+gsub("Maserati", "!!!!MASERATI!!!", row.names(mtcars))
 
 ```
 
@@ -827,11 +864,11 @@ for even more powerful functions for processing text.
 R provides a wide array of math functions. 
 
 ```
-*min*
-*max*
-*median*
-*mean*
-*round*
+min
+max
+median
+mean
+round
 ```
 
 An important thing to remember when using math functions in R is that the `NA` 
@@ -839,20 +876,26 @@ value propogates. If a single `NA` is present in a vector then many mathematical
 operations on that vector will return `NA`. Many mathematical operators include 
 an argument `na.rm` that allows you to tell the function to ignore missing values. 
 
-```
-mean(x, na.rm=TRUE)
-min(x, na.rm=TRUE)
-max(x, na.rm=TRUE)
-median(x, na.rm=TRUE)
+```{r}
+mtcars$hp[8] <- NA # add a missing value to demo
+mean(mtcars$hp)
+mean(mtcars$hp, na.rm=TRUE)
+min(mtcars$hp)
+max(mtcars$hp)
+median(mtcars$hp)
+min(mtcars$hp, na.rm=TRUE)
+max(mtcars$hp, na.rm=TRUE)
+median(mtcars$hp, na.rm=TRUE)
 ```
 
 R does not include a `mode` function by default (`?mode` brings up something else 
 entirely). Users can define their own mode function. In R you will have to define 
 your own function based on how you intend to handle ties. One example is the 
-`statamode` function in the `eeptools` package. 
+`statamode` function in the `eeptools` package. To call a function in a package 
+without loading the whole package you can use the shortcut `::`
 
-```
-eeptools::statamode(x)
+```{r}
+eeptools::statamode(mtcars$cyl)
 
 ```
 
@@ -862,19 +905,22 @@ R has a number of convenient functions for statistical transformations of data.
 The `scale` function pulls double duty, it can center data, scale data, or scale 
 and center data.
 
-```
+```{r}
+data(mtcars)
+# regular
+summary(mtcars$hp)
 # center
-scale(mtcars$hp, scale = FALSE)
+summary(scale(mtcars$hp, scale = FALSE))
 # scale
-scale(mtcars$hp, center = FALSE)
+summary(scale(mtcars$hp, center = FALSE))
 # scale and center
-scale(mtcars$hp)
+summary(scale(mtcars$hp))
 ```
 
 This function conveniently stores the centering value (the mean) and the scale 
 factor (the standard deviation) as attributes.
 
-```
+```{r}
 # scale and center
 mtcars$hp_scaled <- scale(mtcars$hp)
 
@@ -887,9 +933,11 @@ attr(mtcars$hp_scaled, "scaled:scale")
 The most convenient way to bin data is to use the `ntile` function in the `dplyr` 
 package:
 
-```
-ntile(rnorm(100), 3)
-table(ntile(rnorm(100), 3))
+```{r}
+# Create example data, 25 draws from a random normal distribution
+xvar <- rnorm(25)
+ntile(xvar, 3)
+table(ntile(xvar, 3))
 ```
 
 ## 3.4 Date Functions
@@ -900,7 +948,7 @@ It is highly recommended that you use the free add-on package to R, `lubridate`,
 for processing date and date-time objects in R. This package contains a number 
 of simple functions that make date/time operations intuitive and expressive.
 
-```
+```{r}
 library(lubridate)
 # Convert string to date
 coolDay <- mdy("05-25-1986")
@@ -911,7 +959,7 @@ year(coolDay)
 # Get day
 day(coolDay)
 # Get week
-week(coolDay)\
+week(coolDay)
 # Day of the week
 wday(coolDay, label = TRUE, abbr = FALSE)
 ```
@@ -927,14 +975,14 @@ than, less than, greater than or equal to, less than or equal to, equal to, or
 not equal to for comparison of values. Using these results in returning a 
 logical vector, TRUE/FALSE which can be used as an index or tabulated directly.
 
-```
-table(mydata$variable1 > 7)
-summary(mydata[mydata$variable1 > 7, ])
+```{r}
+table(mtcars$hp > 300)
+summary(mtcars[mtcars$hp > 250, ])
 ```
 
 `==` and `!=` can be used for comparing character values as well.
 
-```
+```{r}
 mtcars$mpg[row.names(mtcars) == "Valiant"]
 summary(mtcars$mpg[row.names(mtcars) != "Valiant"])
 ```
@@ -942,7 +990,7 @@ summary(mtcars$mpg[row.names(mtcars) != "Valiant"])
 For compounding logical operators R allows you to use `&` for and and `|` for 
 or. 
 
-```
+```{r}
 mtcars[mtcars$disp > 100 & mtcars$drat < 3,]
 mtcars[mtcars$disp > 160 | mtcars$drat < 3.25,]
 
@@ -955,8 +1003,7 @@ mtcars[(mtcars$disp > 160 | mtcars$drat < 3.25) &
 Additionally useful is the `%in%` command. This allows you to test whether elements 
 in one vector match any of the elements in another vector. 
 
-```
-
+```{r}
 mtcars[row.names(mtcars) %in% grep("Mazda", row.names(mtcars), value=TRUE), ]
 
 ```
@@ -1024,3 +1071,15 @@ for(letter in letters){
   print(letter)
 }
 ```
+
+# 8. The Tidyverse
+
+The "tidyverse" is a name for a collection of R packages that make R code much 
+easier to read and easier to remember. The SDP toolkit makes use of a number of 
+these packages, most importantly, `dplyr`. 
+
+## 8.1 Pipelines
+
+A key features of the tidyverse is that your code can be made easier to read 
+through the use of pipelines. 
+

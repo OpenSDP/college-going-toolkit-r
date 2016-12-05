@@ -1,5 +1,11 @@
 Questions for David and Ashley
 
+In SDP R Glossary
+
+- Is the glossary too long? 
+- Is it too short?
+- Is any content missing?
+
 In Toolkit Data Building Tasks:
 
 - Should the decision rules glossary be included in the R version, or will 
