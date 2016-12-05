@@ -124,9 +124,24 @@ $(document).ready(function () {
 </div>
 
 
+<div id="getting-started-with-r-and-rstudio" class="section level1">
+<h1>1. Getting Started with R and RStudio</h1>
 <div id="setting-up-your-r-environment" class="section level2">
 <h2>Setting up your R Environment</h2>
-<p>It is highly recommended that you use the RStudio IDE to interact with R. RStudio is a free and open source IDE that is available on all computing platforms. RStudio provides a number of features that make working with R more convenient.</p>
+<p>First, download and install R for your platform. Then download and install the RStudio Integrated Development Environment (IDE). RStudio is a free and open source IDE that is available on all computing platforms. RStudio provides a number of features that make working with R more convenient including code completion, code highlighting, and tools to speed up literate (combining R code, R output, text, and figures in one document) programming in the R environment.</p>
+<p>Consult the Quickstart guide for more details about getting started with R.</p>
+</div>
+<div id="external-packages" class="section level2">
+<h2>External Packages</h2>
+<p>Unlike other statistical software, much of the power of R lies in user contributed packages that you can install to add functionality to the base R system. In R you load packages by using the <code>library()</code> function. You can install packages from CRAN, a respository of user-produced packages, using the built in <code>install.packages()</code> function. You can update installed packages using the <code>update.packages()</code> function.</p>
+<pre class="r"><code>library(tidyverse)
+install.packages(&quot;tidyverse&quot;)
+update.packages()</code></pre>
+<p>R has some example data built in which we will use in the examples below. You can load it like this.</p>
+<pre class="r"><code>library(tidyverse)
+library(magrittr)
+# Let's load an example dataset
+data(mtcars)</code></pre>
 </div>
 <div id="getting-help" class="section level2">
 <h2>Getting Help</h2>
@@ -137,12 +152,11 @@ $(document).ready(function () {
 <h2>Inserting Comments</h2>
 <p>In R the <code>#</code> character is used to denote a comment. It is useful to insert frequent comments that describe what your code is doing.</p>
 <p>Anything the follows a <code>#</code> character will be ignored by R until the next linebreak. To make a block of comments use the following:</p>
-<pre><code># Commenting one line
+<pre class="r"><code># Commenting one line
 
 ### Starting a block of comments
 ### The spacing makes it clear
-### Being consistent is key
-</code></pre>
+### Being consistent is key</code></pre>
 </div>
 <div id="breaking-up-long-lines-of-code" class="section level2">
 <h2>Breaking Up Long Lines of Code</h2>
@@ -151,30 +165,36 @@ $(document).ready(function () {
 <div id="quotes" class="section level2">
 <h2>Quotes</h2>
 <p>R recognizes both <code>'single'</code> and <code>&quot;double&quot;</code> quotes. At times it may also be necessary to use both types of quotes together, such as when passing a string that contains a command that operates on a string.</p>
-<pre><code>eval(parse(text=(&quot;summary(mtcars['Valiant', ])&quot;)))</code></pre>
+<pre class="r"><code>eval(parse(text=(&quot;summary(mtcars['Valiant', ])&quot;)))</code></pre>
+</div>
 </div>
 <div id="data-management" class="section level1">
-<h1>1. Data Management</h1>
+<h1>2. Data Management</h1>
 <div id="handling-datasets" class="section level2">
-<h2>1.1 Handling Datasets</h2>
-<p>Working directories are the number one source of confusion for new R users. If you use RStudio and RStudio Projects you can eliminate a lot of confusion and hassle with setting and changing working directories.</p>
-<p>To view and set th working directory use:</p>
+<h2>2.1 Handling Datasets</h2>
+<p>Working directories are the number one source of confusion for new R users. A working directory is where R will first look for files and folders. You can find files and folers beyond this directory by using relative paths.</p>
+<p>If you use RStudio and RStudio Projects you can eliminate a lot of confusion and hassle with setting and changing working directories. Create a new project in RStudio and it will always open in its own folder with the working directory set to that folder.</p>
+<p>To view and set the working directory use:</p>
 <p><code>getwd()</code> to view the current working directory <code>setwd(&quot;C:\MyProject&quot;)</code> to set the working directory to “MyProject”</p>
 <p>To remove an object from the R workspace:</p>
 <p><code>rm(object)</code></p>
 <p>R can read a variety of data files. R can store files in a native file format using either the <code>.rda</code> or <code>.RData</code> extension. To use files of this type:</p>
 <p><code>load('mydata.rda')</code></p>
 <p>To read in data in other formats you will likely want an external library. For data from other statistical software, the <code>haven</code> package is excellent at reading and writing these files and has the greatest compatibility.</p>
-<pre><code>library(haven)
+<pre class="r"><code>library(haven)
 mydata &lt;- read_stata(file = &quot;MyStataFile.dta&quot;) </code></pre>
-<p>For tabular data the <code>readr</code> package is fast and easy to use.</p>
-<pre><code>library(readr)
+<p>For flat text files like a <code>.csv</code> or <code>.tsv</code> or fixed-width files use <code>readr</code>.</p>
+<pre class="r"><code>library(readr)
 mydata &lt;- read_csv(file = &quot;MyCSVfile.csv&quot;)</code></pre>
 <p>Note that when reading in data you must tell R what name you will assign this data in the workspace. This is because R allows you to read in multiple data files simultaneously unlike many other common statistical software packages. Try to use a short and meaningful name for your data.</p>
-<p>R can read Excel files directly through a variety of packages (readxlr, readxls), but if possible it is usually preferred to use Excel to convert these to CSV first.</p>
+<p>R can read Excel files directly through a variety of packages (<code>readxl</code>), but if possible it is usually preferred to use Excel to convert these to CSV first.</p>
 <p>You can also load data directly from a remote data source. R can connect to many external data stores directly. ODBC connections are very common. To connect to an ODBC connection</p>
-<pre><code>library(RODBC)
-</code></pre>
+<pre class="r"><code>library(RODBC)
+channel &lt;- odbcConnect(dsn = &quot;mydatasource&quot;, 
+                       uid=&quot;mylogin&quot;, pwd=&quot;mypassword&quot;)
+
+dat1 &lt;- sqlQuery(channel, &quot;SELECT COLUMN1, COLUMN2, COLUMN3
+                            FROM SCHEMA.TABLE&quot;)</code></pre>
 <p>Combining datasets in R is easy. You can load multiple datasets into the workspace simultaneously and combine them in a variety of ways using common values between them.</p>
 <p>The simplest syntax for merging comes from the <code>dplyr</code> package which uses a command structure similar to SQL.</p>
 <ul>
@@ -184,116 +204,272 @@ mydata &lt;- read_csv(file = &quot;MyCSVfile.csv&quot;)</code></pre>
 <li><code>right_join</code> does a many to one merge</li>
 </ul>
 </div>
+<div id="dataframes" class="section level2">
+<h2>1.2 Dataframes</h2>
+<p>A dataset is represented in R, most commonly, as a dataframe. Dataframes are the tabular representation of data you read in. A dataframe is a rectangular representation where data types must be consistent within columns, but can vary between columns.</p>
+<p>R has a number of very powerful features for working with single dataframes. The ability to have multiple dataframes in memory simultaneously a source of much of the difference between R and other statistical programming languages.</p>
+<p>When working with dataframes you need to understand a few key functions and operators. <code>$</code> is an operator that allows you to access elements of a dataframe. Whenever you want to access a specific column by name you can use the <code>$</code> operator. Here is an example:</p>
+<pre class="r"><code>mtcars$hp</code></pre>
+<pre><code>##  [1] 110 110  93 110 175 105 245  62  95 123 123 180 180 180 205 215 230
+## [18]  66  52  65  97 150 150 245 175  66  91 113 264 175 335 109</code></pre>
+<p>I am telling R that I want to access the <code>hp</code> column in the <code>mtcars</code> dataframe. This can get a bit cumbersome at times, for example when you want to access data conditionally:</p>
+<pre class="r"><code>mtcars$hp[mtcars$carb &gt; 2]</code></pre>
+<pre><code>##  [1] 110 110 245 123 123 180 180 180 205 215 230 245 264 175 335</code></pre>
+<p>In this case the <code>[]</code> serves as an index to the full <code>mtcars$hp</code> object. Even though we are looking to index the <code>mtcars$hp</code> object, we still need to tell R that the index we want to use is from <code>mtcars</code>. The flexibility of allowing indexes from anywhere comes at the cost of more verbose code. In the toolkit and later in this glossary there are some techniques using external packages that can help in the case of working with a single dataframe.</p>
+<p>Three more essential functions to quickly understanding your data are:</p>
+<pre class="r"><code>str(mtcars)</code></pre>
+<pre><code>## 'data.frame':    32 obs. of  11 variables:
+##  $ mpg : num  21 21 22.8 21.4 18.7 18.1 14.3 24.4 22.8 19.2 ...
+##  $ cyl : num  6 6 4 6 8 6 8 4 4 6 ...
+##  $ disp: num  160 160 108 258 360 ...
+##  $ hp  : num  110 110 93 110 175 105 245 62 95 123 ...
+##  $ drat: num  3.9 3.9 3.85 3.08 3.15 2.76 3.21 3.69 3.92 3.92 ...
+##  $ wt  : num  2.62 2.88 2.32 3.21 3.44 ...
+##  $ qsec: num  16.5 17 18.6 19.4 17 ...
+##  $ vs  : num  0 0 1 1 0 1 0 1 1 1 ...
+##  $ am  : num  1 1 1 0 0 0 0 0 0 0 ...
+##  $ gear: num  4 4 4 3 3 3 3 4 4 4 ...
+##  $ carb: num  4 4 1 1 2 1 4 2 2 4 ...</code></pre>
+<p>This function shows the names of variables, dimensions of the dataset, the type of variable each variable is, and the first few values.</p>
+<pre class="r"><code>summary(mtcars)</code></pre>
+<pre><code>##       mpg             cyl             disp             hp       
+##  Min.   :10.40   Min.   :4.000   Min.   : 71.1   Min.   : 52.0  
+##  1st Qu.:15.43   1st Qu.:4.000   1st Qu.:120.8   1st Qu.: 96.5  
+##  Median :19.20   Median :6.000   Median :196.3   Median :123.0  
+##  Mean   :20.09   Mean   :6.188   Mean   :230.7   Mean   :146.7  
+##  3rd Qu.:22.80   3rd Qu.:8.000   3rd Qu.:326.0   3rd Qu.:180.0  
+##  Max.   :33.90   Max.   :8.000   Max.   :472.0   Max.   :335.0  
+##       drat             wt             qsec             vs        
+##  Min.   :2.760   Min.   :1.513   Min.   :14.50   Min.   :0.0000  
+##  1st Qu.:3.080   1st Qu.:2.581   1st Qu.:16.89   1st Qu.:0.0000  
+##  Median :3.695   Median :3.325   Median :17.71   Median :0.0000  
+##  Mean   :3.597   Mean   :3.217   Mean   :17.85   Mean   :0.4375  
+##  3rd Qu.:3.920   3rd Qu.:3.610   3rd Qu.:18.90   3rd Qu.:1.0000  
+##  Max.   :4.930   Max.   :5.424   Max.   :22.90   Max.   :1.0000  
+##        am              gear            carb      
+##  Min.   :0.0000   Min.   :3.000   Min.   :1.000  
+##  1st Qu.:0.0000   1st Qu.:3.000   1st Qu.:2.000  
+##  Median :0.0000   Median :4.000   Median :2.000  
+##  Mean   :0.4062   Mean   :3.688   Mean   :2.812  
+##  3rd Qu.:1.0000   3rd Qu.:4.000   3rd Qu.:4.000  
+##  Max.   :1.0000   Max.   :5.000   Max.   :8.000</code></pre>
+<p>This function provides a column-wise summary of each variable in the dataset.</p>
+<pre class="r"><code>head(mtcars)</code></pre>
+<pre><code>##                    mpg cyl disp  hp drat    wt  qsec vs am gear carb
+## Mazda RX4         21.0   6  160 110 3.90 2.620 16.46  0  1    4    4
+## Mazda RX4 Wag     21.0   6  160 110 3.90 2.875 17.02  0  1    4    4
+## Datsun 710        22.8   4  108  93 3.85 2.320 18.61  1  1    4    1
+## Hornet 4 Drive    21.4   6  258 110 3.08 3.215 19.44  1  0    3    1
+## Hornet Sportabout 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2
+## Valiant           18.1   6  225 105 2.76 3.460 20.22  1  0    3    1</code></pre>
+<p>This function lets us look at the top few (or bottom few if you use <code>tail()</code>) rows of the data. You can also use the <code>View()</code> function to interactively browse the data in RStudio.</p>
+</div>
 <div id="structuring-datasets" class="section level2">
-<h2>1.2 Structuring Datasets</h2>
+<h2>2.2 Structuring Datasets</h2>
 <p>Collapsing data in R is achieved best by using the <code>group_by</code> and <code>summarize</code> commands in the <code>dplyr</code> package. This requires being explicit about how you want to summarize each field from many observations into one.</p>
-<pre><code>library(dplyr)
+<pre class="r"><code>library(dplyr); library(magrittr)
 
-collapsedData &lt;- longData %&gt;% group_by(idvar) %&gt;% 
-  summarize(meanCount = mean(count))
-  </code></pre>
+# Let's calculate horsepower by number of cylinders
+collapsedData &lt;- mtcars %&gt;% group_by(cyl) %&gt;% 
+  summarize(meanHP = mean(hp))
+
+collapsedData</code></pre>
+<pre><code>## # A tibble: 3 × 2
+##     cyl    meanHP
+##   &lt;dbl&gt;     &lt;dbl&gt;
+## 1     4  82.63636
+## 2     6 122.28571
+## 3     8 209.21429</code></pre>
 <p>Alternatively, if your variables can all be summarized by the same function you can do the following:</p>
-<pre><code>library(dplyr)
+<pre class="r"><code>collapsedData &lt;- mtcars %&gt;% select(cyl, hp, disp, wt, drat, qsec) %&gt;% 
+  group_by(cyl) %&gt;% 
+  summarize_all(.funs = &quot;mean&quot;)
 
-collapsedData &lt;- longData %&gt;% select(var1, var2, var3, var4, idvar) %&gt;% 
-  group_by(idvar) %&gt;% 
-  summarize_all(funs = &quot;mean&quot;)
-</code></pre>
+collapsedData</code></pre>
+<pre><code>## # A tibble: 3 × 6
+##     cyl        hp     disp       wt     drat     qsec
+##   &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+## 1     4  82.63636 105.1364 2.285727 4.070909 19.13727
+## 2     6 122.28571 183.3143 3.117143 3.585714 17.97714
+## 3     8 209.21429 353.1000 3.999214 3.229286 16.77214</code></pre>
 <p>Any variables not specified will be dropped, but you can retain the original data and just create a new object, e.g. <code>collapsedData</code>, for your summarized data.</p>
 <p><em>reshape</em></p>
 <p>Reshaping data in R can follow two main approaches. If you need to reshape an entire dataset, the base R <code>reshape</code> command is powerful and flexible. Read the documentation carefully.</p>
+<pre class="r"><code>stocks &lt;- data.frame(
+  time = as.Date('2009-01-01') + 0:9,
+  X = rnorm(10, 0, 1),
+  Y = rnorm(10, 0, 2),
+  Z = rnorm(10, 0, 4)
+)
+
+stocksLong &lt;- reshape(stocks, idvar = &quot;time&quot;, 
+                      varying = list(2:4),
+                      direction = &quot;long&quot;, v.names = &quot;price&quot;, 
+                      times = c(&quot;X&quot;, &quot;Y&quot;, &quot;Z&quot;), timevar = &quot;stock&quot;, 
+                      new.row.names = 1:30)
+head(stocksLong)</code></pre>
+<pre><code>##         time stock       price
+## 1 2009-01-01     X  0.08955568
+## 2 2009-01-02     X -0.42056805
+## 3 2009-01-03     X  0.29146412
+## 4 2009-01-04     X  0.06891264
+## 5 2009-01-05     X  1.26967810
+## 6 2009-01-06     X -1.14958862</code></pre>
+<p>Because it is so powerful and flexible, the code is cumbersome and difficult to understand. It requires consulting the documentation to keep track of how each of the parameters works in each of the two modes – reshaping wide or long – and this makes your code harder to read and harder to write.</p>
 <p>If you need to expand or contract a few variables by an identifier column, the <code>tidyr</code> package provides an easy to remember syntax and interface to quickly do this.</p>
-<div id="handling-variables" class="section level3">
-<h3>2.1 Handling variables</h3>
+<pre class="r"><code>library(tidyr)
+
+stocks &lt;- data.frame(
+  time = as.Date('2009-01-01') + 0:9,
+  X = rnorm(10, 0, 1),
+  Y = rnorm(10, 0, 2),
+  Z = rnorm(10, 0, 4)
+)
+head(stocks)</code></pre>
+<pre><code>##         time          X          Y         Z
+## 1 2009-01-01 -0.5461431 -1.3249361  1.818432
+## 2 2009-01-02  1.4066449 -1.4112537  4.468013
+## 3 2009-01-03 -1.3060585  4.4032879 -3.006694
+## 4 2009-01-04  2.3554455 -2.1139028 -2.602693
+## 5 2009-01-05 -0.8400267 -3.4670449 -3.076083
+## 6 2009-01-06  0.8604293  0.4293325  2.272092</code></pre>
+<p>To reshape this in R using <code>tidyr</code> we use the simple vocabulary of either gathering some variables together, or spreading some variables out. Here we have three columns that are really a variable (the stock name), and the value in each column is really a variable (price). In general R, strongly prefers <strong>long</strong> format data.</p>
+<pre class="r"><code>stocksm &lt;- stocks %&gt;% gather(stock, price, -time)
+head(stocksm)</code></pre>
+<pre><code>##         time stock      price
+## 1 2009-01-01     X -0.5461431
+## 2 2009-01-02     X  1.4066449
+## 3 2009-01-03     X -1.3060585
+## 4 2009-01-04     X  2.3554455
+## 5 2009-01-05     X -0.8400267
+## 6 2009-01-06     X  0.8604293</code></pre>
+<p>Once we have gathered the data together to represent time, price, and stock name we can easily reshape it to meet our needs:</p>
+<pre class="r"><code>stocksm %&gt;% spread(stock, price) %&gt;% head</code></pre>
+<pre><code>##         time          X          Y         Z
+## 1 2009-01-01 -0.5461431 -1.3249361  1.818432
+## 2 2009-01-02  1.4066449 -1.4112537  4.468013
+## 3 2009-01-03 -1.3060585  4.4032879 -3.006694
+## 4 2009-01-04  2.3554455 -2.1139028 -2.602693
+## 5 2009-01-05 -0.8400267 -3.4670449 -3.076083
+## 6 2009-01-06  0.8604293  0.4293325  2.272092</code></pre>
+<pre class="r"><code>stocksm %&gt;% spread(time, price) %&gt;% head</code></pre>
+<pre><code>##   stock 2009-01-01 2009-01-02 2009-01-03 2009-01-04 2009-01-05 2009-01-06
+## 1     X -0.5461431   1.406645  -1.306059   2.355446 -0.8400267  0.8604293
+## 2     Y -1.3249361  -1.411254   4.403288  -2.113903 -3.4670449  0.4293325
+## 3     Z  1.8184315   4.468013  -3.006694  -2.602693 -3.0760828  2.2720921
+##   2009-01-07 2009-01-08 2009-01-09 2009-01-10
+## 1 -1.5164815 -0.7517794  1.5833328  0.4015715
+## 2  0.7044428 -1.3245267 -0.8765846 -0.6753689
+## 3  5.1066914  2.0139881  7.6212418 -2.8506882</code></pre>
+<p>This declarative style of writing code is easier to read in the future.</p>
+</div>
+<div id="variables" class="section level2">
+<h2>Variables</h2>
+</div>
+<div id="handling-variables" class="section level2">
+<h2>2.3 Handling variables</h2>
 <p>In R there is an important distinction between variables contained within a <code>data.frame</code> and variables stored in the global environment.</p>
 <p>Variables stored in a <code>data.frame</code> are accessed by any of the following methods:</p>
-<pre><code>
-dataframe$variable
-dataframe[, &quot;variable&quot;]
-dataframe[, 1]
-</code></pre>
+<pre class="r"><code>mtcars$hp
+mtcars[, &quot;hp&quot;]
+mtcars[, 1]</code></pre>
 <p><em>drop</em></p>
 <p>To drop variables we can do any of the following</p>
-<pre><code>dataframe$variable &lt;- NULL
-dataframe[, &quot;variable&quot;] &lt;- NULL
-dataframe &lt;- dataframe[, -1]
+<pre class="r"><code>mtcars$hp &lt;- NULL
+mtcars[, &quot;hp&quot;] &lt;- NULL
+mtcars &lt;- mtcars[, -4]
 
 # dplyr
 library(dplyr); library(magrittr)
-dataframe %&lt;&gt;% select(-variable)
-</code></pre>
+dataframe %&lt;&gt;% select(-variable)</code></pre>
 <p><em>keep</em></p>
 <p>In R, there is no specific keep command. You can pass a numeric index of column positions, or pass column names to drop any variables you do not want.</p>
-<pre><code>
-dataframe &lt;- dataframe[, c(1, 2, 3, 4)]
-dataframe &lt;- dataframe[, c(&quot;variable1&quot;, &quot;variable2&quot;, &quot;variable3&quot;)]
-</code></pre>
+<pre class="r"><code>names(mtcars) # read column names</code></pre>
+<pre><code>##  [1] &quot;mpg&quot;  &quot;cyl&quot;  &quot;disp&quot; &quot;hp&quot;   &quot;drat&quot; &quot;wt&quot;   &quot;qsec&quot; &quot;vs&quot;   &quot;am&quot;   &quot;gear&quot;
+## [11] &quot;carb&quot;</code></pre>
+<pre class="r"><code>mtcars &lt;- mtcars[, c(1:3, 8)]
+# equivalent to:
+mtcars &lt;- mtcars[, c(&quot;mpg&quot;, &quot;cyl&quot;, &quot;disp&quot;, &quot;vs&quot;)]</code></pre>
 <p>Using <code>dplyr</code> and the <code>select</code> function there are a number of powerful ways to specify which variables you want to keep.</p>
-<pre><code>
-dataframe %&lt;&gt;% select(starts_with(&quot;variable&quot;))
-</code></pre>
+<pre class="r"><code>mtcars %&lt;&gt;% select(starts_with(&quot;mpg&quot;))
+mtcars %&lt;&gt;% select(ends_with(&quot;s&quot;))
+mtcars %&lt;&gt;% select(contains(&quot;hp&quot;))
+mtcars %&lt;&gt;% select(matches(&quot;*cyl&quot;))
+mtcars %&lt;&gt;% select(one_of(names(mtcars)))
+mtcars %&lt;&gt;% select(everything())</code></pre>
 <p><em>generate</em></p>
 <p>Variable creation in R is as simple as assigning a variable in a data.frame a value.</p>
-<pre><code>dataframe$newvariable &lt;- NA
-</code></pre>
+<pre class="r"><code>mtcars$mpgPerCyl &lt;- NA # creates an empty vector with missing values
+mtcars$mpgPerCyl &lt;- 4 # creates an empty vector and assigns it a constant
+
+# If your replacement is not length 1 or length of the vector, it will not 
+# work
+# mtcars$mpgPerCyl &lt;- c(1, 5, 8) </code></pre>
 <p>If you want to assign a created variable some value based on values of other variables in the data:</p>
-<pre><code>dataframe$newvariable &lt;- NA
-dataframe$newvariable[dataframe$var1 == 'condition1'] &lt;- 1
-dataframe$newvariable[dataframe$var1 == 'condition2'] &lt;- 2
+<pre class="r"><code>mtcars$mpgBinary &lt;- NA
+mtcars$mpgBinary[mtcars$mpg &gt; 25] &lt;- 1
+mtcars$mpgBinary[mtcars$mpg &lt;= 25] &lt;- 0
 
-## Alternatively
+## Alternatively you can use the ifelse function for simple assignments
 
-dataframe$newvariable &lt;- ifelse(dataframe$var1 == &quot;condition1&quot;, 1, 2)
-</code></pre>
+mtcars$mpgBinary &lt;- ifelse(mtcars$mpg &gt; 25, 1, 0)</code></pre>
 <p>Generating new variables as functions of other variables is also simple:</p>
-<pre><code>
-dataframe$newvariable &lt;- mean(dataframe$oldvar)
-dataframe$newvariable &lt;- sum(dataframe$oldvar)
-</code></pre>
+<pre class="r"><code>mtcars$mpgMean &lt;- mean(mtcars$mpg) 
+# the single mean(mpg) will be repeated the length of mtcars$mpg</code></pre>
 <p>Generating a new variable that is a function of multiple other variables is also simple</p>
-<pre><code>
-dataframe$newvariable &lt;- dataframe$var1 + dataframe$var2
-dataframe$newvariable &lt;- dataframe$var1 / dataframe$var2
+<pre class="r"><code>mtcars$mpgPerCyl &lt;- mtcars$mpg / mtcars$cyl # creates vector with values right away
+mtcars$gearsAndCarbs &lt;- mtcars$gear + mtcars$carb
 
 # Be careful of order of operations
-
-dataframe$newvariable &lt;- dataframe$var1^2 / (dataframe$var2 - dataframe$var3)
-
-</code></pre>
-<p>You can also generate an empty <code>data.frame</code> as well:</p>
-<pre><code>mydata &lt;- data.frame(var1 = NA, var2 = NA)
-</code></pre>
+mtcars$ComplexVar &lt;- mtcars$qsec^2 / (mtcars$disp - mtcars$hp)</code></pre>
+<p>You can also generate an empty <code>data.frame</code> as well. This is useful for setting up a data structure you will later fill with values from other calculations. This can save memory and enforce good code by declaring your expectations about the results of calculations.</p>
+<pre class="r"><code>mydata &lt;- data.frame(var1 = NA, var2 = NA)</code></pre>
 <p><em>replace</em></p>
 <p>In R, replacing variables is as easy as overwriting them:</p>
-<pre><code>
-dataframe$oldvariable &lt;- dataframe$newvariable
-
-</code></pre>
-<p>Of course, you need to drop the other variable still:</p>
-<pre><code>
-dataframe$newvariable &lt;- NULL
-</code></pre>
+<pre class="r"><code>mtcars$ComplexVar &lt;- mtcars$qsec^2 / (2 * mtcars$disp - mtcars$hp)</code></pre>
 <p><em>duplicates</em></p>
 <p>Dropping duplicates.</p>
-<p>R comes with the built in <code>duplicated</code> function which returns a logical vector the same length as the number of rows, TRUE if the row is duplicated.</p>
-<pre><code>duplicated(iris)
-
-# If you only want a summary
-summary(duplicated(iris))
-</code></pre>
+<p>R comes with the built in <code>duplicated</code> function which returns a logical vector the same length as the number of rows, TRUE if the row is duplicated. The built in dataset <code>iris</code> has an example of this:</p>
+<pre class="r"><code>duplicated(iris)</code></pre>
+<pre><code>##   [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+##  [12] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+##  [23] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+##  [34] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+##  [45] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+##  [56] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+##  [67] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+##  [78] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+##  [89] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+## [100] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+## [111] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+## [122] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+## [133] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE
+## [144] FALSE FALSE FALSE FALSE FALSE FALSE FALSE</code></pre>
+<pre class="r"><code># If you only want a summary
+table(duplicated(iris))</code></pre>
+<pre><code>## 
+## FALSE  TRUE 
+##   149     1</code></pre>
 <p>By default, <code>duplicated</code> checks for duplication across <em>all</em> columns in the data. To specify the columns of interest, just select the variables before the duplicated call</p>
-<pre><code>
-duplicated(iris[, 1:2])
-</code></pre>
+<pre class="r"><code># Duplicates across two columns
+table(duplicated(iris[, 1:2]))</code></pre>
+<pre><code>## 
+## FALSE  TRUE 
+##   117    33</code></pre>
+<pre class="r"><code># Duplicates across first three columns, fewer
+table(duplicated(iris[, 1:3]))</code></pre>
+<pre><code>## 
+## FALSE  TRUE 
+##   144     6</code></pre>
 <p>To drop duplicated rows we can pass the results of the <code>duplicated</code> call as a row index to the <code>data.frame</code> itself:</p>
-<pre><code>iris &lt;- iris[duplicated(iris), ]
-</code></pre>
+<pre class="r"><code>nrow(iris)</code></pre>
+<pre><code>## [1] 150</code></pre>
+<pre class="r"><code>iris &lt;- iris[duplicated(iris), ]
+nrow(iris)</code></pre>
+<pre><code>## [1] 1</code></pre>
 <p>This is a bit awkward, so another way to do it is:</p>
-<pre><code>library(dplyr)
-
-iris %&lt;&gt;% distinct(.keep_all = TRUE)
-</code></pre>
-</div>
+<pre class="r"><code>iris %&lt;&gt;% distinct(.keep_all = TRUE)
+#.keep_all tells R we want to return all columns</code></pre>
 <div id="variable-types" class="section level3">
 <h3>Variable types</h3>
 <p>In R there are four common variable types:</p>
@@ -304,194 +480,114 @@ iris %&lt;&gt;% distinct(.keep_all = TRUE)
 <li>factor</li>
 </ul>
 <p>To test what type a variable is you use the <code>is.type</code> construction, or you can ask R to return the class of the variable directly:</p>
-<pre><code>is.numeric(dataframe$myvariable)
-is.integer(dataframe$myvariable)
-class(dataframe$myvariable)</code></pre>
+<pre class="r"><code>is.numeric(mtcars$hp)</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<pre class="r"><code>is.integer(mtcars$cyl)</code></pre>
+<pre><code>## [1] FALSE</code></pre>
+<pre class="r"><code>class(mtcars$carb)</code></pre>
+<pre><code>## [1] &quot;numeric&quot;</code></pre>
 <p>To convert between types, you use the <code>as.type</code> construction, or you can set the class of the variable directly:</p>
-<pre><code>dataframe$myvariable &lt;- as.numeric(dataframe$myvariable)
-class(dataframe$myvariable) &lt;- &quot;numeric&quot;
-</code></pre>
+<pre class="r"><code>class(mtcars$hp)</code></pre>
+<pre><code>## [1] &quot;numeric&quot;</code></pre>
+<pre class="r"><code>mtcars$hp &lt;- as.integer(mtcars$hp)
+class(mtcars$hp) &lt;- &quot;integer&quot;
+class(mtcars$hp)</code></pre>
+<pre><code>## [1] &quot;integer&quot;</code></pre>
 <p>Note that the <code>as.type</code> functions are not particularly savvy. For example, <code>as.numeric(&quot;1,000,000&quot;)</code> will return <code>NA</code>. There are a number of packages that implement special parsers for dealing with these types of variables, for example, the <code>decomma</code> function in the <code>eeptools</code> package handles the above case.</p>
 </div>
 </div>
 <div id="summarizing-variables" class="section level2">
-<h2>2.2 Summarizing variables</h2>
+<h2>2.4 Summarizing variables</h2>
 <p>R has convenient built in summaries for the base data types:</p>
-<pre><code>summary(dataframe$myvariable)
-summary(dataframe)
-</code></pre>
+<pre class="r"><code>summary(mtcars$carb)</code></pre>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   1.000   2.000   2.000   2.812   4.000   8.000</code></pre>
+<pre class="r"><code>summary(mtcars)</code></pre>
+<pre><code>##       mpg             cyl             disp             hp       
+##  Min.   :10.40   Min.   :4.000   Min.   : 71.1   Min.   : 52.0  
+##  1st Qu.:15.43   1st Qu.:4.000   1st Qu.:120.8   1st Qu.: 96.5  
+##  Median :19.20   Median :6.000   Median :196.3   Median :123.0  
+##  Mean   :20.09   Mean   :6.188   Mean   :230.7   Mean   :146.7  
+##  3rd Qu.:22.80   3rd Qu.:8.000   3rd Qu.:326.0   3rd Qu.:180.0  
+##  Max.   :33.90   Max.   :8.000   Max.   :472.0   Max.   :335.0  
+##       drat             wt             qsec             vs        
+##  Min.   :2.760   Min.   :1.513   Min.   :14.50   Min.   :0.0000  
+##  1st Qu.:3.080   1st Qu.:2.581   1st Qu.:16.89   1st Qu.:0.0000  
+##  Median :3.695   Median :3.325   Median :17.71   Median :0.0000  
+##  Mean   :3.597   Mean   :3.217   Mean   :17.85   Mean   :0.4375  
+##  3rd Qu.:3.920   3rd Qu.:3.610   3rd Qu.:18.90   3rd Qu.:1.0000  
+##  Max.   :4.930   Max.   :5.424   Max.   :22.90   Max.   :1.0000  
+##        am              gear            carb         mpgPerCyl
+##  Min.   :0.0000   Min.   :3.000   Min.   :1.000   Min.   :4  
+##  1st Qu.:0.0000   1st Qu.:3.000   1st Qu.:2.000   1st Qu.:4  
+##  Median :0.0000   Median :4.000   Median :2.000   Median :4  
+##  Mean   :0.4062   Mean   :3.688   Mean   :2.812   Mean   :4  
+##  3rd Qu.:1.0000   3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:4  
+##  Max.   :1.0000   Max.   :5.000   Max.   :8.000   Max.   :4  
+##     mpgMean     
+##  Min.   :20.09  
+##  1st Qu.:20.09  
+##  Median :20.09  
+##  Mean   :20.09  
+##  3rd Qu.:20.09  
+##  Max.   :20.09</code></pre>
+<pre class="r"><code>summary(iris)</code></pre>
+<pre><code>##   Sepal.Length  Sepal.Width   Petal.Length  Petal.Width        Species 
+##  Min.   :5.8   Min.   :2.7   Min.   :5.1   Min.   :1.9   setosa    :0  
+##  1st Qu.:5.8   1st Qu.:2.7   1st Qu.:5.1   1st Qu.:1.9   versicolor:0  
+##  Median :5.8   Median :2.7   Median :5.1   Median :1.9   virginica :1  
+##  Mean   :5.8   Mean   :2.7   Mean   :5.1   Mean   :1.9                 
+##  3rd Qu.:5.8   3rd Qu.:2.7   3rd Qu.:5.1   3rd Qu.:1.9                 
+##  Max.   :5.8   Max.   :2.7   Max.   :5.1   Max.   :1.9</code></pre>
 <p>These return a 5 number summary of numeric variables and other useful information.</p>
 <p>Another summary method that is helpful is the <code>str</code> command, which provides a look at the first values occurring in a data.frame or variable, as well as the attributes of the object.</p>
-<pre><code>str(dataframe$myvariable)
-str(dataframe)
-</code></pre>
+<pre class="r"><code>str(iris$Species)</code></pre>
+<pre><code>##  Factor w/ 3 levels &quot;setosa&quot;,&quot;versicolor&quot;,..: 3</code></pre>
+<pre class="r"><code>str(iris)</code></pre>
+<pre><code>## 'data.frame':    1 obs. of  5 variables:
+##  $ Sepal.Length: num 5.8
+##  $ Sepal.Width : num 2.7
+##  $ Petal.Length: num 5.1
+##  $ Petal.Width : num 1.9
+##  $ Species     : Factor w/ 3 levels &quot;setosa&quot;,&quot;versicolor&quot;,..: 3</code></pre>
 <p>You can also view the data using the <code>View</code> command:</p>
-<pre><code>
-View(dataframe)
-View(dataframe[dataframe$variable = value, ])
-</code></pre>
+<pre class="r"><code>View(mtcars)
+View(mtcars[mtcars$hp = 110, ])</code></pre>
 <p><em>Tabulate</em></p>
-<p>In R the <code>table</code> command is useful for understanding the distribution of values a variable takes. You can make 1-way to n-way tables easily. Table works best for character, factor, and integer values. If you use a numeric with a high number of unique values, table will not be helpful.</p>
-<pre><code>table(dataframe$somefactor)</code></pre>
+<p>In R the <code>table</code> command is useful for understanding the distribution of values a variable takes. You can make 1-way to n-way tables easily. Table works best for character, factor, and integer values. If you use a numeric with a high number of unique values, <code>table</code> will not be helpful.</p>
+<pre class="r"><code>table(iris$species)</code></pre>
+<pre><code>## &lt; table of extent 0 &gt;</code></pre>
 <p>If you want to look at the distribution of a numeric variable it is best to use the <code>summary</code> function, or for a more detailed look, the <code>quantile</code> function.</p>
-<p>Tabulating two variable is as simple as passing them both as arguments to the <code>table</code> function:</p>
-<pre><code>table(dataframe$factor1, dataframe$factor2)</code></pre>
+<p>Tabulating two variables is as simple as passing them both as arguments to the <code>table</code> function:</p>
+<pre class="r"><code>iris$SepalWidthInt &lt;- round(iris$Sepal.Width, digits = 0)
+table(iris$SepalWidthInt, iris$Species)</code></pre>
+<pre><code>##    
+##     setosa versicolor virginica
+##   3      0          0         1</code></pre>
 <p>Note that the <code>table</code> command ignores missing values by default. If your vector has missing values then the sum of counts returned by the function will be shorter than the length of the vector by the number of elements that take the <code>NA</code> value.</p>
+<pre class="r"><code>ProblematicVector &lt;- c(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;A&quot;, &quot;B&quot;, &quot;D&quot;, NA, NA, NA, NA, &quot;A&quot;, &quot;C&quot;, &quot;C&quot;, 
+                       &quot;C&quot;, &quot;C&quot;, &quot;C&quot;)
+N &lt;- length(ProblematicVector)
+table(ProblematicVector)</code></pre>
+<pre><code>## ProblematicVector
+## A B C D 
+## 3 2 6 1</code></pre>
+<pre class="r"><code>sum(table(ProblematicVector))</code></pre>
+<pre><code>## [1] 12</code></pre>
+<pre class="r"><code>N</code></pre>
+<pre><code>## [1] 16</code></pre>
+<p>Keep this in mind when counting proportions and percentages belonging to categories.</p>
 <p><em>count</em></p>
 <p>To just count the number of values in a vector, we use <code>length</code>.</p>
-<pre><code>
-length(dataframe$factor)
-length(dataframe$factor[dataframe$variable == condition1])
-</code></pre>
+<pre class="r"><code>length(mtcars$cyl)</code></pre>
+<pre><code>## [1] 32</code></pre>
+<pre class="r"><code>length(mtcars$hp[mtcars$hp &gt; 140])</code></pre>
+<pre><code>## [1] 15</code></pre>
+<pre class="r"><code>table(mtcars$hp &gt; 140)</code></pre>
+<pre><code>## 
+## FALSE  TRUE 
+##    17    15</code></pre>
 <p>Note that for an entire dataset, <code>length</code> is defined as the number of <strong>columns</strong>.</p>
-<p>If we want to just look at the unique values in a dataset we use the <code>unique</code> function. This returns a vector of all unique values of a vector. It works on all variable types.</p>
-<pre><code>unique(dataframe$vector)
-</code></pre>
-<p>If we combine this with length, we count the number of distinct values a variable has:</p>
-<pre><code>length(unique(dataframe$vector))</code></pre>
-<div id="organizing-variables" class="section level3">
-<h3>2.3 Organizing Variables</h3>
-<p>There are two approaches to reordering rows in a dataset in R. The first approach uses indexing:</p>
-<pre><code>dataframe &lt;- dataframe[order(dataframe$value1, dataframe$value2), ]
-
-# To reverse the order
-dataframe &lt;- dataframe[order(dataframe$value1, -dataframe$value2), ]
-</code></pre>
-<p>If the variables you include in the <code>order</code> statement are not integers or numeric, R will attempt to use the underlying integer representation of the factor variable. If they are character, it will default to alphabetic.</p>
-<p>Another way to do this is using the <code>arrange</code> command.</p>
-<pre><code>dataframe &lt;- arrange(dataframe, value1)
-dataframe %&lt;&gt;% arrange(value1)
-
-# use desc() to order descending
-dataframe &lt;- arrange(dataframe, desc(value1))
-dataframe %&lt;&gt;% arrange(desc(value1))
-
-</code></pre>
-<p>A common task is to do tasks group-wise to your data where group is defined as variable in the dataset. In R this is best achieved using the <code>dplyr</code> package and using the <code>group_by</code> command:</p>
-<pre><code>
-dataframe %&lt;&gt;% group_by(groupingVar) %&gt;% 
-  mutate(count_j = n())
-
-
-dataframe %&lt;&gt;% group_by(groupingVar1, groupingVar2) %&gt;% 
-  mutate(count_jk = n())
-</code></pre>
-<p>In this case the <code>mutate</code> function allows us to append a variable to the ungrouped dataset that will be repeated with the same value for each group. If we used the <code>summarize</code> function like above, the dataframe would be collapsed to one row per group.</p>
-<p><em>order variables</em></p>
-<p>The order variables appear in a dataset is most easily controlled by using their numeric index.</p>
-<pre><code>names(mydata)
-mydata &lt;- mydata[, c(1, 3, 2, 5:9, 4)]</code></pre>
-<p>You can also order variables using the <code>select</code> function in <code>dplyr</code>:</p>
-<pre><code>
-mydata %&lt;&gt;% select(var1, var3, var2, var7)
-</code></pre>
-<p><em>rename variables</em></p>
-<p>Variable names are just a character value that is stored in the <code>names</code> object. For example, <code>names(mydata)</code> returns a character vector the same length of the number of columns of the dataset. To rename variables we can replace specific elements in that vector.</p>
-<pre><code>names(mydata)[2] &lt;- &quot;NewName&quot;</code></pre>
-<p>We can also use the <code>dplyr</code> <code>rename</code> function:</p>
-<pre><code>
-mtcars %&lt;&gt;% rename(NewName = oldname)
-</code></pre>
-<p>To transform multiple names you can do the following:</p>
-<pre><code>names(mydata) &lt;- tolower(names(mydata)) # lowercase
-names(mydata) &lt;- toupper(names(mydata)) # uppercase
-names(mydata) &lt;- chartr(&quot;m&quot;, &quot;M&quot;, names(mydata)) # capitalize all m values
-
-# prefix
-names(mydata)[3:8] &lt;- paste(&quot;prefix&quot;, names(mydata)[3:8], sep = &quot;_&quot;)
-# suffix
-names(mydata)[3:8] &lt;- paste(names(mydata)[3:8], &quot;suffix&quot;, sep = &quot;_&quot;)
-# substitute character pattern with another pattern in names
-# here replace &quot;zzz&quot;, with empty &quot;&quot;
-names(mydata) &lt;- gsub(&quot;zzz&quot;, &quot;&quot;, names(mydata))</code></pre>
-<p><em>labels</em></p>
-<p>R does not have extensive codebook or variable labeling functionality. Most of the time if you want labeled values you want to use a <code>factor</code> variable in R. Factors can ordered or unordered.</p>
-<p><em>list unique values</em></p>
-<p>To look at the distinct or unique values of a variable, use the <code>unique</code> command.</p>
-</div>
-<div id="using-system-variables" class="section level3">
-<h3>2.4 Using system variables</h3>
-<p>R does not have system variables, but you can create global variables to keep track of attributes of the objects in your work environment. If you want to store an integer that represents the number of rows in your data at a point in time you can use the <code>nrow</code> command and create a new variable <code>N</code> to store that information. However, if you add or remove rows from <code>mydata</code> this will not be updated.</p>
-<pre><code>N &lt;- nrow(mydata)</code></pre>
-</div>
-</div>
-<div id="functions" class="section level2">
-<h2>3. Functions</h2>
-<p>In R you can find functions in the base R package, in add-on “packages” of code that you load into your workspace <code>library(mypackage)</code> or that you define in a script and read directly into memory.</p>
-<pre><code># create a function that counts distinct values of a variable
-nvals &lt;- function(x){
-  length(unique(x))
-}
-
-nvals(mydata$value1)
-</code></pre>
-<p>Functions are objects in the workspace, you assign them a name and they are bound to that name. If you assign another object to that name, the function will be overwritten. Functions can be made very specific to your workspace and defined within your script, or you can make general functions that are helpful to you and store them in an external script that you load when doing certain work:</p>
-<pre><code>
-source(&quot;path/to/mySuperCoolFunctions.R&quot;)
-</code></pre>
-<div id="string-functions" class="section level3">
-<h3>3.1 String Functions</h3>
-<p>R has a number of standard functions for processing character or string values.</p>
-<p><code>trimws(&quot; a character &quot;)</code> will eliminate all whitespace before and after a a character value. It can also be used to eliminate whitespace only on a particular side <code>trimws(&quot; a character &quot;, which = &quot;left&quot;)</code> or <code>trimws(&quot; a character &quot;, which = &quot;right&quot;)</code>.</p>
-<p><code>toupper</code> and <code>tolower</code> convert all of the characters in a string to either upper or lowercase.</p>
-<p>Note that <code>trimws</code>, <code>toupper</code>, and <code>tolower</code> can all be used on either a single character value, or a vector of length <strong>n</strong> character values.</p>
-<p>If you need to do string pattern matching and replacement you will use the <code>grep</code> command.</p>
-<p>The <code>grep</code> command returns a numeric vector that indicates the position in the character vector that a match is found. This makes subsetting only variables that match a certain name easy.</p>
-<pre><code>grep(&quot;mpg&quot;, names(mtcars))
-
-# use in subset
-mtcars[, grep(&quot;mpg&quot;, names(mtcars))]
-</code></pre>
-<p>You can use the <code>grepl</code> function to return a vector the same length as the character vector filled with TRUE values where a match is found and <code>FALSE</code> for elements that do not match.</p>
-<p>For replacement and substitution you will want to try <code>gsub</code>.</p>
-<pre><code>
-mydataframe$school &lt;- gsub(&quot;High School&quot;, &quot;&quot;, mydataframe$school)
-</code></pre>
-<p>With any of these functions if you know regular expressions you can pass more complex patterns to be matched. This can be very powerful in processing text fields like names, addresses, and phone numbers.</p>
-<p>To find more: <code>?regex</code> . You can also look at the excellent <code>stringr</code> package for even more powerful functions for processing text.</p>
-</div>
-<div id="math-functions" class="section level3">
-<h3>3.2 Math Functions</h3>
-<p><em>min</em> <em>max</em> <em>median</em> <em>mean</em> <em>round</em></p>
-<p><em>mode</em></p>
-</div>
-<div id="statistical-functions" class="section level3">
-<h3>3.3 Statistical Functions</h3>
-<p><em>center</em> <em>scale</em> <em>ntile</em></p>
-</div>
-<div id="date-functions" class="section level3">
-<h3>3.4 Date Functions</h3>
-<p><em>as.Date</em></p>
-<p><em>mdy</em></p>
-</div>
-</div>
-<div id="macros" class="section level2">
-<h2>4. Macros</h2>
-<p>R uses functions and objects instead of macros.</p>
-</div>
-<div id="operators" class="section level2">
-<h2>5. Operators</h2>
-<p>R uses the standard logical operators <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code>, <code>==</code>, <code>!=</code> greater than, less than, greater than or equal to, less than or equal to, equal to, or not equal to for comparison of values. Using these results in returning a logical vector, TRUE/FALSE which can be used as an index or tabulated directly.</p>
-<pre><code>table(mydata$variable1 &gt; 7)
-summary(mydata[mydata$variable1 &gt; 7, ])</code></pre>
-<p><code>==</code> and <code>!=</code> can be used for comparing character values as well.</p>
-<pre><code>mtcars$mpg[row.names(mtcars) == &quot;Valiant&quot;]
-summary(mtcars$mpg[row.names(mtcars) != &quot;Valiant&quot;])</code></pre>
-<p>For compounding logical operators R allows you to use <code>&amp;</code> for and and <code>|</code> for or.</p>
-<p>Additionally useful is the <code>%in%</code> command. This allows you to test whether elements in one vector match any of the elements in another vector.</p>
-<p>To test whether missing values are present, R uses the awkward <code>is.na()</code> function.</p>
-</div>
-<div id="commands" class="section level2">
-<h2>6. Commands</h2>
-<pre><code>mtcars$mpg &lt;- mtcars$mpg *100
-stopifnot(min(mtcars$mpg) &lt; 10)
-mean(mtcars$mpg)</code></pre>
-<p><em>print</em></p>
-<p><em>cat</em></p>
-</div>
-<div id="loops" class="section level2">
-<h2>7. Loops</h2>
-<p><code>for</code> loops</p>
 </div>
 </div>
 

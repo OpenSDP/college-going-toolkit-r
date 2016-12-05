@@ -3,12 +3,11 @@ title: "SDP R Glossary"
 author: "Strategic Data Project"
 date: "November 28, 2016"
 output:
-  html_document: default
   pdf_document:
-    highlight: zenburn
     latex_engine: xelatex
     toc: yes
     toc_depth: 2
+  html_document: default
 ---
 
 
@@ -101,7 +100,7 @@ eval(parse(text=("summary(mtcars['Valiant', ])")))
 
 # 2. Data Management
 
-## 2.1 Handling Datasets
+## Handling Datasets
 
 Working directories are the number one source of confusion for new R users. A 
 working directory is where R will first look for files and folders. You can 
@@ -234,7 +233,7 @@ This function lets us look at the top few (or bottom few if you use `tail()`)
 rows of the data. You can also use the `View()` function to interactively browse 
 the data in RStudio.
 
-## 2.2 Structuring Datasets
+## Structuring Datasets
 
 Collapsing data in R is achieved best by using the `group_by` and `summarize` 
 commands in the `dplyr` package. This requires being explicit about how you 
@@ -334,9 +333,7 @@ stocksm %>% spread(time, price) %>% head
 
 This declarative style of writing code is easier to read in the future.
 
-## Variables
-
-## 2.3 Handling variables
+## Handling variables
 
 
 In R there is an important distinction between variables contained within a 
@@ -536,7 +533,7 @@ Note that the `as.type` functions are not particularly savvy. For example,
 implement special parsers for dealing with these types of variables, for example, 
 the `decomma` function in the `eeptools` package handles the above case.
 
-## 2.4 Summarizing variables
+## Summarizing variables
 
 R has convenient built in summaries for the base data types:
 
@@ -616,6 +613,7 @@ table(mtcars$hp > 140)
 
 Note that for an entire dataset, `length` is defined as the number of **columns**. 
 
+
 ```{r}
 length(mtcars)
 # use nrow to get the length of individual vectors
@@ -626,6 +624,8 @@ nrow(mtcars)
 If we want to just look at the unique values in a dataset we use the `unique` 
 function. This returns a vector of all unique values of a vector. It works on 
 all variable types.
+
+
 
 ```{r}
 unique(mtcars$carb)
@@ -639,7 +639,7 @@ has:
 length(unique(mtcars$carb))
 ```
 
-## 2.5 Organizing Variables
+## Organizing Variables
 
 There are two approaches to reordering rows in a dataset in R. The first approach uses 
 indexing:
@@ -685,6 +685,7 @@ dataset that will be repeated with the same value for each group. If we used
 the `summarize` function like above, the dataframe would be collapsed to one 
 row per group.
 
+
 *order variables*
 
 The order variables appear in a dataset is most easily controlled by using their 
@@ -716,13 +717,6 @@ names(mtcars)[7] <- "engconfig"
 names(mtcars)
 ```
 
-We can also use the `dplyr` `rename` function:
-
-```{r}
-
-mtcars %<>% rename(engsize = disp)
-
-```
 
 To transform multiple names you can do the following:
 
@@ -750,7 +744,9 @@ Factors can ordered or unordered.
 
 To look at the distinct or unique values of a variable, use the `unique` command.
 
-## 2.6 Using system variables
+
+
+## Using system variables
 
 R does not have system variables, but you can create global variables to keep 
 track of attributes of the objects in your work environment. If you want to 
@@ -804,7 +800,7 @@ source("path/to/mySuperCoolFunctions.R")
 ```
 
 
-## 3.1 String Functions
+## String Functions
 
 R has a number of standard functions for processing character or string values.
 
@@ -859,7 +855,7 @@ fields like names, addresses, and phone numbers.
 To find more: `?regex` . You can also look at the excellent `stringr` package 
 for even more powerful functions for processing text. 
 
-## 3.2 Math Functions
+## Math Functions
 
 R provides a wide array of math functions. 
 
@@ -899,7 +895,7 @@ eeptools::statamode(mtcars$cyl)
 
 ```
 
-## 3.3 Statistical Functions
+## Statistical Functions
 
 R has a number of convenient functions for statistical transformations of data. 
 The `scale` function pulls double duty, it can center data, scale data, or scale 
@@ -940,7 +936,7 @@ ntile(xvar, 3)
 table(ntile(xvar, 3))
 ```
 
-## 3.4 Date Functions
+## Date Functions
 
 *as.Date*
 
@@ -1078,8 +1074,153 @@ The "tidyverse" is a name for a collection of R packages that make R code much
 easier to read and easier to remember. The SDP toolkit makes use of a number of 
 these packages, most importantly, `dplyr`. 
 
-## 8.1 Pipelines
+## The Packages
+
+Installing external libraries contributed by users around the world may cause 
+some unease. Will the code be stable? Does it work as expected? These are good 
+questions, especially in production level systems where you want the same code 
+to do the same tasks unattended for a long period of time. 
+
+In general packages in the `tidyverse` should be considered as meeting the 
+requirements for use in production level systems. These are all stable packages 
+and any large changes in them will be communicated loudly to users through the 
+package update process (if a function will be changed or removed your code will 
+start telling you after you update).
+
+Another advantage is that these packages all share a common philosophy to their 
+naming conventions, organization of functions, and documentation. This makes it 
+easy to anticipate how to use new functions, get help with functions, and more. 
+
+You can learn more by reading about what packages are included in this suite and 
+the design philosophy of these packages by typing:
+
+```{r eval=FALSE}
+library(tidyverse)
+vignette("manifesto")
+```
+
+
+## Pipelines
 
 A key features of the tidyverse is that your code can be made easier to read 
-through the use of pipelines. 
+through the use of code "pipes" or "pipelines". This is a new way of writing 
+code in R, but is inspired by Unix system utilities and many other programming 
+languages. 
 
+Pipelines work by passing data elements along them to specified places in the 
+next function call. 
+
+Here is how we might do an operation without a pipeline:
+
+```{r}
+data(mtcars)
+
+round(mutate
+      (summarize_all(
+        group_by(
+          filter(mtcars, hp > 100), cyl), 
+        .funs=mean), 
+        kpl = mpg * 0.4251), 
+      digits = 2)
+```
+
+We have to read this function inside out which means looking into the call and 
+trying to find where it starts (hint: `filter`), then reading the arguments 
+outward from there. For complex arguments this is hard. Alternatively we might 
+see this written more naturally and more readably this way:
+
+```{r}
+
+subData <- filter(mtcars, hp > 100)
+cylSum <- summarize_all(group_by(subData, cyl), .funs = mean)
+cylSum$kpl <- cylSum$mpg * 0.4251
+print(round(cylSum, digits = 2))
+```
+
+The above is easier to read, but it creates a lot of clutter in our workspace. 
+After this series of commands we have added `subData` and `cylSum` to the memory 
+in R. Later in our script will we remember what these objects are for? Will we 
+remember to clean them up at the end of the command? An advantage of writing 
+functions is that they do not show temporary data objects to the user and they 
+clean up after themselves. 
+
+Pipelines allow us to do gain the tidiness of functions with the readability and 
+ease of writing of the code above:
+
+```{r}
+car_data <- filter(mtcars, hp > 100) %>% 
+  group_by(cyl) %>% 
+  summarize_all(.funs = mean) %>%
+  mutate(kpl = mpg * 0.4251) %>% 
+  round(digits = 2)
+car_data
+
+```
+
+Reading the code above is natural. The transformations applied on the left 
+hand side of the `%>%` are passed into the first position of the function on the 
+right hand side of the `%>%`. You can read the `%>%` operator as the English 
+word `THEN`. This becomes a very readable block of text that is easy to follow, 
+easy to read, and easy to anticipate the expected output from. 
+
+There is another convenient `pipe` operator in the `magrittr` package which can 
+save your fingers a lot of typing -- the `%<>%` operator. It allows you to replace 
+an object on the left hand side with the transformations applied to it on the 
+right hand side. Here is how it works:
+
+```{r}
+library(magrittr) # %<>% is not automatically loaded with dplyr
+data(mtcars)
+mtcars$mpg
+mtcars$mpg %<>% sqrt
+mtcars$mpg
+```
+
+Instead of having to type `mtcars$mpg <- sqrt(mtcars$mpg)` we simply had to type 
+the object we wanted to transform, the pipe operator, and the function we wanted 
+to apply. 
+
+## Visualizing Data with ggplot2
+
+A key advantage of using R is the data visualization capabilities it has. R 
+boasts a number of ways to make statistical graphics and the more you use R 
+the more you will come across `base`, `lattice`, and `ggplot2` graphics. It 
+is recommended you start with using `ggplot2` because of its consistent language 
+and the modular way it allows users to assemble complex graphics from simple  
+parts. 
+
+```{r}
+library(ggplot2)
+data(mtcars)
+
+ggplot(mtcars, aes(x = hp, y = mpg)) + 
+  geom_point() + geom_smooth() + 
+  scale_x_continuous(limits = c(40, 360), 
+                     breaks = seq(40, 360, 60)) +
+  scale_y_continuous(limits = c(10, 40), 
+                     breaks = seq(10, 40, 5)) +
+  theme_classic()
+
+ggplot(mtcars, aes(x = hp, y = mpg)) + 
+  geom_point() + geom_smooth(method = "lm") + 
+  scale_x_continuous(limits = c(40, 360), 
+                     breaks = seq(40, 360, 60)) +
+  scale_y_continuous(limits = c(10, 40), 
+                     breaks = seq(10, 40, 5)) +
+  theme_classic() + facet_wrap(~vs, labeller = "label_both")
+
+```
+
+You can learn more about `ggplot2` from a number of high quality `ggplot2` 
+tutorials online and the excellent package documentation. 
+
+
+# R Session Information
+
+It is a good idea to include your R Session Information in scripts you run and 
+files you output so when you come back to a project you know what version of R 
+and the external packages you used it came under. 
+
+```{r}
+sessionInfo()
+```
