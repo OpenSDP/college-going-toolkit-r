@@ -159,7 +159,65 @@ command structure similar to SQL.
 - `left_join` does a one to many merge
 - `right_join` does a many to one merge
 
-## 1.2 Structuring Datasets
+
+## 1.2 Dataframes
+
+A dataset is represented in R, most commonly, as a dataframe. Dataframes are the 
+tabular representation of data you read in. A dataframe is a rectangular representation 
+where data types must be consistent within columns, but can vary between columns. 
+
+R has a number of very powerful features for working with single dataframes. The 
+ability to have multiple dataframes in memory simultaneously a source of much of 
+the difference between R and other statistical programming languages. 
+
+When working with dataframes you need to understand a few key functions and 
+operators. `$` is an operator that allows you to access elements of a dataframe. 
+Whenever you want to access a specific column by name you can use the `$` operator. 
+Here is an example:
+
+```{r}
+mtcars$hp
+```
+
+I am telling R that I want to access the `hp` column in the `mtcars` dataframe. 
+This can get a bit cumbersome at times, for example when you want to access 
+data conditionally:
+
+```{r}
+mtcars$hp[mtcars$carb > 2]
+```
+
+In this case the `[]` serves as an index to the full `mtcars$hp` object. Even 
+though we are looking to index the `mtcars$hp` object, we still need to tell R 
+that the index we want to use is from `mtcars`. The flexibility of allowing 
+indexes from anywhere comes at the cost of more verbose code. In the toolkit and 
+later in this glossary there are some techniques using external packages that 
+can help in the case of working with a single dataframe. 
+
+Three more essential functions to quickly understanding your data are:
+
+```{r}
+str(mtcars)
+```
+
+This function shows the names of variables, dimensions of the dataset, the type 
+of variable each variable is, and the first few values.
+
+```{r}
+summary(mtcars)
+```
+
+This function provides a column-wise summary of each variable in the dataset. 
+
+```{r}
+head(mtcars)
+```
+
+This function lets us look at the top few (or bottom few if you use `tail()`) 
+rows of the data. You can also use the `View()` function to interactively browse 
+the data in RStudio.
+
+## 1.3 Structuring Datasets
 
 Collapsing data in R is achieved best by using the `group_by` and `summarize` 
 commands in the `dplyr` package. This requires being explicit about how you 
@@ -179,7 +237,7 @@ Alternatively, if your variables can all be summarized by the same function
 you can do the following:
 
 ```{r collapseAll}
-collapsedData <- mtcars %>% select(cyl, hp, disp, wt, drat, qsec, carb) %>% 
+collapsedData <- mtcars %>% select(cyl, hp, disp, wt, drat, qsec) %>% 
   group_by(cyl) %>% 
   summarize_all(.funs = "mean")
 
@@ -197,9 +255,25 @@ entire dataset, the base R `reshape` command is powerful and flexible. Read
 the documentation carefully. 
 
 ```{r}
+stocks <- data.frame(
+  time = as.Date('2009-01-01') + 0:9,
+  X = rnorm(10, 0, 1),
+  Y = rnorm(10, 0, 2),
+  Z = rnorm(10, 0, 4)
+)
 
-
+stocksLong <- reshape(stocks, idvar = "time", 
+                      varying = list(2:4),
+                      direction = "long", v.names = "price", 
+                      times = c("X", "Y", "Z"), timevar = "stock", 
+                      new.row.names = 1:30)
+head(stocksLong)
 ```
+
+Because it is so powerful and flexible, the code is cumbersome and difficult to 
+understand. It requires consulting the documentation to keep track of how each 
+of the parameters works in each of the two modes -- reshaping wide or long -- and 
+this makes your code harder to read and harder to write. 
 
 If you need to expand or contract a few variables by an identifier column, the 
 `tidyr` package provides an easy to remember syntax and interface to quickly 
@@ -214,11 +288,36 @@ stocks <- data.frame(
   Y = rnorm(10, 0, 2),
   Z = rnorm(10, 0, 4)
 )
+head(stocks)
+```
+
+To reshape this in R using `tidyr` we use the simple vocabulary of either gathering 
+some variables together, or spreading some variables out. Here we have three 
+columns that are really a variable (the stock name), and the value in each 
+column is really a variable (price). In general R, strongly prefers **long** format 
+data. 
+
+
+```{r}
 stocksm <- stocks %>% gather(stock, price, -time)
-stocksm %>% spread(stock, price)
-stocksm %>% spread(time, price)
+head(stocksm)
+```
+
+Once we have gathered the data together to represent time, price, and stock name 
+we can easily reshape it to meet our needs:
+
+```{r}
+stocksm %>% spread(stock, price) %>% head
+```
+
+```{r}
+stocksm %>% spread(time, price) %>% head
 
 ```
+
+This declarative style of writing code is easier to read in the future.
+
+## Variables
 
 ### 2.1 Handling variables
 
@@ -227,22 +326,20 @@ In R there is an important distinction between variables contained within a
 
 Variables stored in a `data.frame` are accessed by any of the following methods:
 
-```
-
-dataframe$variable
-dataframe[, "variable"]
-dataframe[, 1]
-
+```{r, eval=FALSE}
+mtcars$hp
+mtcars[, "hp"]
+mtcars[, 1]
 ```
 
 *drop* 
 
 To drop variables we can do any of the following
 
-```
-dataframe$variable <- NULL
-dataframe[, "variable"] <- NULL
-dataframe <- dataframe[, -1]
+```{r eval=FALSE}
+mtcars$hp <- NULL
+mtcars[, "hp"] <- NULL
+mtcars <- mtcars[, -4]
 
 # dplyr
 library(dplyr); library(magrittr)
