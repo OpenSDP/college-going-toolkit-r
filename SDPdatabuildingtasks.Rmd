@@ -24,6 +24,7 @@ Congratulations on identifying the data elements that are essential for
 conducting rigorous analyses in your organization. **Clean** is the next stage 
 in the SDP Toolkit for Effective Data Use.  To successfully move through the 
 **Clean** stage, you should review the  **Identify** component of this toolkit.  
+
 Upon completing this stage, you will have produced clean research files that 
 will allow you to **Connect** and **Analyze** data related to college-going 
 success in your agency.
@@ -37,6 +38,7 @@ specific components of the research file used for the SDP CollegeGoing
 Diagnostic Analyses.
 
 The tasks are listed as follows:
+
 - Task 1: Student Attributes
 - Task 2: Student School Year
 - Task 3: Identifying the Ninth Grade Cohort
@@ -49,17 +51,13 @@ Each task uses a raw input file and produces a cleaned
 output file that matches Identify. 
 
 Download these raw input files along with everything else
-you need for the toolkit as a zip file at www.gse.harvard.
-edu/sdp/toolkit. When unzipped, this file will reveal an
+you need for the toolkit as a zip file at www.gse.harvard.edu/sdp/toolkit. When unzipped, this file will reveal an
 infrastructure including all the steps of the toolkit, the data
 files you need, and template files with R code.
 
-In particular, in Clean, you will be
-working with the files in the **raw**
-folder. If you are using Stata,
-you can fill in the corresponding
-do file templates in **programs** to
-go through the tasks.
+In particular, in Clean, you will be working with the files in the **raw** 
+folder. If you are using R, you can fill in the corresponding `.R` scripts
+in **programs** to go through the tasks.
 
 #### How to Start
 
@@ -69,13 +67,14 @@ for resolving data problems associated with particular
 variables. It is meant to be a quick-reference guide of
 rules that can be used with any software platform. These decision rules are then implemented in the step-by-step
 instructions the tasks provide.
+
 SDP has also created a detailed **SDP R Glossary**,
-available as a separate document, that covers the Stata
+available as a separate document, that covers the R
 commands used throughout the toolkit. Commands are
 listed alphabetically and by subject.
-As you go through a task, be sure to consult the data
-snippets in the left hand column of the page to get a visual
-sense for the changes occurring at each step.
+
+As you go through a task, be sure to consult the data and code
+snippets to get a visual sense for the changes occurring at each step.
 
 
 #### Task Structure
@@ -93,10 +92,11 @@ In each task, you will also find:
 - **Purpose:** --- Clarifies the importance of the task.  
 - **How to Start:** --- Identifies the input file(s) for the task.
 - **Data Description:** --- Describes data elements for the task.
-- **Instructions:** --- Provides instructions to transform data. These instructions 
-include: 
-  - R code to help you execute the instructions through code
-  - Data snapshots to help you visaulize changes to the data at each step
+- **Instructions:** --- Provides instructions to transform data. 
+  These instructions include: 
+    
+    - R code to help you execute the instructions through code
+    - Data snapshots to help you visaulize changes to the data at each step
 
 #### Summary
 
