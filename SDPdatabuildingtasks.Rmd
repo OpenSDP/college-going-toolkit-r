@@ -6,6 +6,7 @@ output:
   pdf_document:
     toc: yes
     toc_depth: 4
+    latex_engine: xelatex
   html_document:
     toc: yes
     toc_depth: 4
@@ -2375,6 +2376,14 @@ stunsc$n_enrl_status <- factor(stunsc$n_enrollment_status,
 stunsc$n_enrollment_status <- NULL
 ```
 
+For enrollment status, the following labels apply:
+
+- "F" = full time
+- "H" = half time
+- "L" = less than half time
+- "W" = withdrew
+- "A" = leave of absence
+- "D" = deceased
 
 #### Step 2: Identify first college attended by type (any, 4-year and 2-year) that didn’t result in a withdrawal.
 
@@ -2387,12 +2396,12 @@ stunsc$days_enrolled <- stunsc$n_enrollment_end - stunsc$n_enrollment_begin
 
 # Identify the first college a student enrolled in by type 
 # (any, 2-year, and 4-year).
-
 stunsc %>% filter(sid == 13047) %>% 
   select(sid, n_record_found_yn, n_enrollment_begin, 
          n_enrollment_end, n_college_name,  
          n_enrl_status, n_college_4yr, n_college_2yr)
 
+# Create a status flag variable that indicates minimum of partial enrollment
 stunsc %<>% group_by(sid) %>% 
   mutate(flag_status = ifelse(n_enrl_status %in% c("F", "H", "L"), 1, 0))
 
@@ -2401,14 +2410,17 @@ stunsc %>% filter(sid == 13047) %>%
          n_enrollment_end, n_college_name,  
          n_enrl_status, n_college_4yr, n_college_2yr, flag_status)
 
-stunsc %<>% group_by(sid, n_college_4yr) %>% 
-  mutate(first_enr_date_4yr = min(n_enrollment_begin[flag_status > 0])) %>%
-  ungroup %>%
-  group_by(sid, n_college_2yr) %>%
-  mutate(first_enr_date_2yr = min(n_enrollment_begin[flag_status > 0])) %>%
-  ungroup %>%
-  group_by(sid) %>%
-  mutate(first_enr_date_any = min(n_enrollment_begin[flag_status > 0])) 
+# In this block of code we are picking the first enrollment date for each of the 
+# types of schools (4yr, 2yr, any) that is enrolled at all (at least partial), 
+# and picking the first date that meets the status requirement
+
+stunsc %<>% group_by(sid) %>% 
+  arrange(sid, n_enrollment_begin, n_enrl_status, days_enrolled) %>%
+  mutate(first_enr_date_4yr = n_enrollment_begin[flag_status > 0 
+                                                     & n_college_4yr == 1][1]) %>%
+  mutate(first_enr_date_2yr = n_enrollment_begin[flag_status > 0 
+                                                   & n_college_2yr == 1][1]) %>%
+  mutate(first_enr_date_any = n_enrollment_begin[flag_status > 0][1]) 
   
 
 stunsc %>% filter(sid == 13047) %>% 
@@ -2425,53 +2437,28 @@ stunsc %>% filter(sid == 13047) %>%
          first_enr_date_2yr, first_enr_date_4yr, 
          first_enr_date_any) %>% as.data.frame
 
+# Here we are breaking ties by first picking the highest enrollment status, 
+# and in the case of a tie there, picking days enrolled
+
 stunsc %<>% group_by(sid) %>% 
-  mutate(first_college_any_opeid = n_college_opeid[first_enr_date_any == n_enrollment_begin][1],
-         first_college_4yr_opeid = n_college_opeid[first_enr_date_4yr == n_enrollment_begin & n_college_4yr > 0][1], 
-         first_college_2yr_opeid = n_college_opeid[first_enr_date_2yr == n_enrollment_begin & n_college_2yr > 0][1]) %>% 
+  arrange(sid, desc(n_enrl_status), desc(days_enrolled)) %>%
+    mutate(first_college_any_opeid = n_college_opeid[first_enr_date_any == 
+                                                       n_enrollment_begin][1],
+         first_college_4yr_opeid = n_college_opeid[first_enr_date_4yr == 
+                                      n_enrollment_begin & n_college_4yr > 0][1], 
+         first_college_2yr_opeid = n_college_opeid[first_enr_date_2yr ==
+                                  n_enrollment_begin & n_college_2yr > 0][1]) %>% 
   ungroup
 
-# # // Get the college name and id for the first enrollment date
-# 
-# stunsc %>% filter(sid == 13047) %>% 
-#   select(sid, n_college_opeid,  
-#          n_enrl_status, n_college_4yr, n_college_2yr,  
-#          first_enr_date_2yr, first_enr_date_4yr, 
-#          first_enr_date_any, 
-#          first_college_any_opeid, 
-#          first_college_4yr_opeid, first_college_2yr_opeid) %>% as.data.frame
-# 
-# # // Count how many first college names and ids you got for each student
-# # bys sid: egen nvals_first_college_`var’_`type’ = nvals(temp_first_college_`var’_`type’)
-# 
-# tmp <- stunsc %>% select(sid, first_college_any_opeid, 
-#                          first_college_4yr_opeid, first_college_2yr_opeid)
-# 
-# tmp <- tmp[!duplicated(tmp), ]
-# tmp$nunique <- apply(tmp[, 2:4], 1, function(x) length(unique(na.omit(x))))
-# 
-# stunsc <- left_join(stunsc, tmp[, c(1,5)], "sid")
-# rm(tmp); gc()
-# 
-# 
-# stunsc %>% filter(nunique > 1) %>% 
-#   select(sid, n_enrl_status, n_college_4yr, n_college_2yr, 
-#          n_enrollment_begin,
-#          n_college_opeid, first_college_any_opeid, 
-#          first_college_4yr_opeid, first_college_2yr_opeid, 
-#          days_enrolled) %>% 
-#   filter(sid == 13653) %>% as.data.frame
-# 
+# // Get the college name and id for the first enrollment date
 
-
-
-
-# // If a student started at multiple colleges of the same type on the same date, indicate this by replacing
-
-# // these values with a dummy value (“>1”) for processing.
-# replace temp_first_college_`var’_`type’ = “>1” if nvals_first_college_`var’_`type’ > 1 & nvals_first_college_`var’_`type’
-# !=.
-
+stunsc %>% filter(sid == 13047) %>%
+  select(sid, n_college_opeid,
+         n_enrl_status, n_college_4yr, n_college_2yr,
+         first_enr_date_2yr, first_enr_date_4yr,
+         first_enr_date_any,
+         first_college_any_opeid,
+         first_college_4yr_opeid, first_college_2yr_opeid) %>% as.data.frame
 
 ```
 
@@ -2480,10 +2467,13 @@ stunsc %<>% group_by(sid) %>%
 ```{r saveStuNSC}
 ## Drop the unneeded variables
 # drop temp* nvals* days_enrolled
+stunsc$flag_status <- NULL
 
+## Sort the data
+stunsc %<>% ungroup() %>% 
+  arrange(sid, n_enrollment_begin)
 
 ## Save the current file as Student_NSC_Enrollment_Indicators.dta
-
 ## Make directory and save
 # dir.create("clean")
 # save(stunsc, file = "clean/Student_NSC_Enrollment_Indicators.rda")

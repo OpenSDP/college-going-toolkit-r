@@ -1,24 +1,38 @@
 ## ---- echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, comment=NA----
 # Set options for knitr
 library(knitr)
-knitr::opts_chunk$set(comment=NA, warning=FALSE, 
+knitr::opts_chunk$set(comment=NA, warning=FALSE, echo=TRUE,
                       error=FALSE, message=FALSE, fig.align='center')
-options(width=120)
-library(dplyr)
-library(magrittr)
+options(width=80)
 
-## ----echo=TRUE-----------------------------------------------------------
-# Read in Stata
-library(haven) # required for .dta files
+## ----unevaluatedExample, eval=FALSE, echo=TRUE---------------------------
+# keep only observations if 8th grade math score is not missing
+stutest %<>% filter(!is.na(test_math_8))
 
+# check to see if the file is unique by student id
+nrow(stutest) == nvals(stutest$sid)
+
+
+## ---- loadRequiredPackages-----------------------------------------------
+## Load the packages and prepare your R environment
+library(tidyverse) # main suite of R packages to ease data analysis
+library(magrittr) # allows for some easier pipelines of data
+
+# Read in some R functions that are useful for toolkit tasks, see SDP R Glossary
+# for details
+source("R/functions.R")
+library(haven) # required for importing .dta files
+
+## ----readPriorAchievement------------------------------------------------
 # To read data from a zip file we create a connection to the path of the 
 # zip file
 tmpfileName <- "clean/Prior_Achievement.dta"
 con <- unz(description = "data/clean.zip", filename = tmpfileName, 
            open = "rb")
 stuach <- read_stata(con) # read data in the data subdirectory
+close(con)
 
-## ----echo=TRUE-----------------------------------------------------------
+## ----renameg8Vars--------------------------------------------------------
 stuach %<>% rename( 
        test_math_8_raw = raw_score_math,
        test_ela_8_raw = raw_score_ela,
@@ -29,21 +43,22 @@ stuach %<>% rename(
        test_ela_8_std = scaled_ela_std, 
        test_composite_8_std = scaled_score_composite_std)
 
-## ----echo=TRUE-----------------------------------------------------------
+## ----defineQuartiles-----------------------------------------------------
 stuach %<>% group_by(school_year) %>% 
   mutate(qrt_8_math = ntile(test_math_8, 4), 
          qrt_8_ela = ntile(test_ela_8, 4), 
          qrt_8_composite = ntile(test_composite_8, 4))
 
-## ----echo=TRUE-----------------------------------------------------------
+## ----loadSchoolData------------------------------------------------------
 # To read data from a zip file we create a connection to the path of the 
 # zip file
 tmpfileName <- "clean/School.dta"
 con <- unz(description = "data/clean.zip", filename = tmpfileName, 
            open = "rb")
 schl <- read_stata(con) # read data in the data subdirectory
+close(con)
 
-## ----echo=TRUE-----------------------------------------------------------
+## ----distinctSchools-----------------------------------------------------
 # keep only the school code and school name
 schl <- select(schl, school_name, school_code)
 # keep school_code school_name
@@ -54,35 +69,64 @@ schl <- distinct(schl)
 length(unique(schl$school_code)) == nrow(schl)
 
 
-## ------------------------------------------------------------------------
-# // creates first / last / longest hs id variables
+## ----genSchoolRenameVars-------------------------------------------------
+# creates first / last / longest hs id variables
 schl$first_hs_code <- schl$school_code
 schl$last_hs_code <- schl$school_code
 schl$longest_hs_code <- schl$school_code
 
-## ----echo=TRUE-----------------------------------------------------------
+## ----loadStudentAttributes-----------------------------------------------
 # To read data from a zip file we create a connection to the path of the 
 # zip file
 tmpfileName <- "clean/Student_Attributes.dta"
 con <- unz(description = "data/clean.zip", filename = tmpfileName, 
            open = "rb")
 stuatt <- read_stata(con) # read data in the data subdirectory
+close(con)
 
-## ----echo=TRUE-----------------------------------------------------------
+## ----mergeonStudentSchYear-----------------------------------------------
 tmpfileName <- "clean/Student_School_Year_Ninth.dta"
 con <- unz(description = "data/clean.zip", filename = tmpfileName, 
            open = "rb")
 stusy <- read_stata(con)
+close(con)
+
+# Data checks
+# Is data unique by sid and school year
+nrow(stusy) == length(unique(paste0(stusy$sid, stusy$school_year)))
+
+# How many unique grades exist?
+table(stusy$grade_level)
+
+# Does first 9th school year exist?
+"first_9th_school_year_observed" %in% names(stusy)
+
+# Optional: Get data dimensions for both frames for checking
+nrow_stusy <- nrow(stusy)
+nstu_stusy <- nvals(stusy$sid)
+nrow_stuatt <- nrow(stuatt)
+nstu_stuatt <- nvals(stuatt$sid)
+
+# Merge
 stusy <- inner_join(stusy, stuatt, by = "sid")
 
+## ----checkStuSchYearMerge------------------------------------------------
+# check the number and percentage of students appearing in both files
 
-## ----echo=TRUE-----------------------------------------------------------
-# // check the number and percentage of students appearing in both files
+# Check for perfect merge
+nrow(stusy) == nrow_stusy
+nstu_stusy == nvals(stusy$sid)
+nstu_stuatt == nvals(stusy$sid)
+
+# Check merge percentage
+nrow(stusy) / nrow_stusy
+nstu_stusy / nvals(stusy$sid)
+nstu_stuatt / nvals(stusy$sid)
 
 stusy <- arrange(stusy, sid)
 length(unique(stusy$sid)) == length(unique(stuatt$sid))
 
-## ----echo=TRUE-----------------------------------------------------------
+## ----genProgramPartVars--------------------------------------------------
 # In R this is an easy way to go by just using group_by and mutate
 tmp <- filter(stusy, (grade_level >= 9 & grade_level <= 12)) %>% 
                group_by(sid) %>% 
@@ -107,20 +151,33 @@ tmpfileName <- "clean/Student_School_Enrollment_Clean.dta"
 con <- unz(description = "data/clean.zip", filename = tmpfileName, 
            open = "rb")
 stuschl <- read_stata(con)
+close(con)
+
+# Optional - get dimensions for comparing merge
+nstu_stusy <- nvals(stusy$sid)
+nstu_stuschl <- nvals(stuschl$sid)
+nrow_stusy <- nrow(stusy)
 
 stusy <- inner_join(stusy, stuschl, by = c("sid", "school_year"))
 
-## ----echo=TRUE-----------------------------------------------------------
+## ----checkStuSchlMerge---------------------------------------------------
+# Check percentage of students and rows merged
+nvals(stusy$sid) / nstu_stusy 
+nvals(stusy$sid) / nstu_stuschl
+nrow(stusy) / nrow_stusy  
+
+# Above 0.95 so we can proceed
+
+## ----selectHSonly--------------------------------------------------------
 stusy %<>% filter(grade_level >= 9 & !is.na(grade_level) & 
                     grade_level <= 12)
 
 # TODO: Why is grade level > 12 sometimes?
 
-## ----echo=TRUE-----------------------------------------------------------
+## ----dropZeroDayAttend---------------------------------------------------
 stusy %<>% filter(days_enrolled > 0)
 
-## ----echo=TRUE-----------------------------------------------------------
-
+## ----assignFirstHS-------------------------------------------------------
 stusy %<>% arrange(sid, school_year, enrollment_date, desc(days_enrolled))
 
 stusy %<>% group_by(sid) %>%
@@ -129,12 +186,13 @@ stusy %<>% group_by(sid) %>%
          last_hs_code = last(school_code))
 
 
-## ------------------------------------------------------------------------
-# egen total_days_enrolled_in_school = sum(days_enrolled), by(sid school_code)
-# gsort sid -total_days_enrolled_in_school
-# bys sid: gen temp_longest_hs_code = school_code if _n==1
-# egen longest_hs_code = max(temp_longest_hs_code), by(sid)
+## ----genLastHSCode-------------------------------------------------------
+stusy %<>% group_by(sid) %>%
+  arrange(sid, desc(school_year), desc(withdrawal_date), desc(days_enrolled)) %>% 
+  mutate(last_hs_code = last(school_code)) %>%
+  ungroup
 
+## ----defineLongestHS-----------------------------------------------------
 stusy %<>% group_by(sid, school_code) %>% 
   mutate(total_days_enrolled_in_school = sum(days_enrolled))
 
@@ -158,8 +216,7 @@ stusy$total_day_enrolled_in_school <- NULL
 stusy$total_days_enrolled_in_school <- NULL
 stusy$total_days_enrolled_in_school_max <- NULL
 
-
-## ----echo=TRUE-----------------------------------------------------------
+## ----mergeSchoolNames----------------------------------------------------
 
 stusy <- left_join(stusy, schl[, c("school_name", "first_hs_code")], 
                    by = c("first_hs_code"))
@@ -176,42 +233,42 @@ stusy <- left_join(stusy, schl[, c("school_name", "longest_hs_code")],
 
 stusy %<>% rename(school_name_longest_hs = school_name)
 
+## ----cleanupMerge--------------------------------------------------------
+
+stusy %<>% filter(!is.na(school_name_longest_hs))
+stusy %<>% filter(!is.na(school_name_first_hs) & !is.na(school_name_last_hs))
 
 
-## ----echo=TRUE-----------------------------------------------------------
-#// define ninth grade cohort
-#rename first_9th_school_year_observed chrt_ninth
-
+## ----renameChrtNinghtVar-------------------------------------------------
+# define ninth grade cohort
+# rename first_9th_school_year_observed chrt_ninth
 stusy %<>% rename(chrt_ninth = first_9th_school_year_observed)
 
-
-## ----echo=TRUE-----------------------------------------------------------
-# // define graduation cohort
+## ----defineChrtGrad------------------------------------------------------
+# define graduation cohort
 stusy$chrt_grad <- NULL
-
 library(lubridate)
-
+# Use lubridate package to find months and years easily
 head(year(stusy$hs_diploma_date))
 head(month(stusy$hs_diploma_date))
 
-stusy$chrt_grad <- ifelse(month(stusy$hs_diploma_date) < 9, year(stusy$hs_diploma_date), 
-                          year(stusy$hs_diploma_date) + 1)
+stusy$chrt_grad <- ifelse(month(stusy$hs_diploma_date) < 9, 
+                          year(stusy$hs_diploma_date), 
+                            year(stusy$hs_diploma_date) + 1)
 
-## ------------------------------------------------------------------------
 
+## ----checkResultsChrtGrad------------------------------------------------
 stusy %>% filter(sid %in% c(16305, 16306, 16307)) %>% 
   select(sid, hs_diploma_date, chrt_ninth, chrt_grad) %>% 
   distinct(.keep_all=TRUE) 
 
-
-
-## ----echo=TRUE-----------------------------------------------------------
+## ----checkWithdrawalCodes------------------------------------------------
 stusy %>% arrange(sid) %>% 
   summarize(last_withdrawal = last(last_withdrawal_reason)) %>% 
   select(last_withdrawal) %>% unlist %>% table
 
 
-## ----echo=TRUE-----------------------------------------------------------
+## ----recodeWithdrawalCodes-----------------------------------------------
 stusy$last_wd_group <- NA
 stusy$last_wd_group[stusy$last_withdrawal_reason %in% c("Home School", 
                                                         "Other Transfer", 
@@ -224,46 +281,45 @@ stusy$last_wd_group[stusy$hs_diploma == 1] <- 1
 stusy$last_wd_group[is.na(stusy$last_wd_group)] <- 4
 table(is.na(stusy$last_wd_group))
 
-## ----echo=TRUE-----------------------------------------------------------
-# // define on-time graduates
-
+## ----defineGradTypes-----------------------------------------------------
+# define on-time graduates
 stusy$ontime_grad <- ifelse(stusy$chrt_ninth >= stusy$chrt_grad -3 & 
                         !is.na(stusy$chrt_ninth) & 
                         !is.na(stusy$chrt_grad) & 
                         stusy$hs_diploma == 1 , 1, 0)
 
-# // define late graduates
+# define late graduates
 stusy$late_grad <- ifelse(stusy$ontime_grad == 0 & 
                         !is.na(stusy$chrt_ninth) & 
                         !is.na(stusy$chrt_grad) & 
                         stusy$hs_diploma == 1 , 1, 0)
 all(stusy$late_grad + stusy$ontime_grad == stusy$hs_diploma)
 
-## ------------------------------------------------------------------------
-# // still enrolled
+## ----hsOutcomesNonGrads--------------------------------------------------
+# still enrolled
 
 maxDataYear <- max(stusy$school_year)
 stusy %<>% group_by(sid) %>% 
   mutate(still_enrl = ifelse(max(school_year) == maxDataYear & 
                                hs_diploma != 1, 1, 0))
-# // transfer out
+# transfer out
 
 stusy$transferout <- ifelse(stusy$last_wd_group == 2 & 
                               stusy$hs_diploma!=1 & 
                               stusy$still_enrl != 1, 1, 0)
-# // drop out
+# drop out
 stusy$dropout <- ifelse(stusy$last_wd_group == 3 & 
                               stusy$hs_diploma!=1 & 
                               stusy$still_enrl != 1 & 
                               stusy$transferout != 1, 1, 0)
-# // disappear
+# disappear
 stusy$disappear <- ifelse(stusy$dropout != 1 & 
                               stusy$hs_diploma!=1 & 
                               stusy$still_enrl != 1 & 
                               stusy$transferout != 1, 1, 0)
 
 
-## ------------------------------------------------------------------------
+## ----keepTimeInvariantVars-----------------------------------------------
 # // keep time-invariant variables
 stusy %<>% ungroup %>% 
   select(sid, male, race_ethnicity, 
@@ -277,40 +333,43 @@ stusy %<>% distinct(.keep_all = TRUE)
 nrow(stusy) == length(unique(stusy$sid))
 
 
-## ----echo=TRUE-----------------------------------------------------------
+## ----MergePriorAchievement-----------------------------------------------
 stusy <- left_join(stusy, stuach, by = "sid")
 
-## ----echo=TRUE-----------------------------------------------------------
+## ----checkPriorAchieveMerge----------------------------------------------
 table(is.na(stusy$qrt_8_math))
 
-## ------------------------------------------------------------------------
+## ----organizeColumns-----------------------------------------------------
 stusy %<>% select(sid, male, race_ethnicity, hs_diploma, hs_diploma_type, 
                   hs_diploma_date, frpl_ever, iep_ever, ell_ever, gifted_ever,
                   frpl_ever_hs, iep_ever_hs, ell_ever_hs, gifted_ever_hs,
                   first_hs_code, last_hs_code, longest_hs_code, school_name_first_hs, 
-                  school_name_last_hs, school_name_longest_hs, last_wd_group, chrt_ninth, 
+                  school_name_last_hs, school_name_longest_hs, last_wd_group,
+                  chrt_ninth, 
                   chrt_grad, ontime_grad, late_grad, still_enrl, transferout,
                   dropout, disappear, test_math_8_raw, test_math_8, 
                   test_math_8_std, test_ela_8_raw, test_ela_8, 
                   test_ela_8_std, test_composite_8, test_composite_8_std, 
                   qrt_8_math, qrt_8_ela, qrt_8_composite)
 
-## ------------------------------------------------------------------------
+## ----reviewVarNames------------------------------------------------------
 names(stusy)
 
-## ----echo=TRUE-----------------------------------------------------------
+## ----joinNSCData---------------------------------------------------------
 tmpfileName <- "clean/Student_NSC_Enrollment_Indicators.dta"
 con <- unz(description = "data/clean.zip", filename = tmpfileName, 
            open = "rb")
 stunsc <- read_stata(con)
+close(con)
 
-# // merge on variables needed from Student_College_Going
+# merge on variables needed from Student_College_Going to a temp file
 tmp <- select(stusy, sid, hs_diploma_date, hs_diploma, chrt_grad, chrt_ninth)
 # Use inner_join to only keep students in both
 stunsc <- inner_join(tmp, stunsc, by = c("sid")); rm(tmp)
 
-## ------------------------------------------------------------------------
-# // create and indicator to show if the student enrolled within two years of HS graduation
+## ----genTwoYearEnrollment------------------------------------------------
+## create and indicator to show if the student enrolled within two years 
+## of HS graduation
 
 stunsc$enrl_ever_w2_grad <- ifelse(stunsc$first_enrl_date_any < 
                                      (stunsc$hs_diploma_date + (365*2)) &
@@ -318,35 +377,47 @@ stunsc$enrl_ever_w2_grad <- ifelse(stunsc$first_enrl_date_any <
                                      !is.na(stunsc$first_enrl_date_any), 
                                    1, 0)
 
-## ------------------------------------------------------------------------
+## ----genEnrollForOntimeGrad----------------------------------------------
 stunsc$ontime_yr <- stunsc$chrt_ninth + 3
 stunsc$ontime_date <- mdy(paste0("09", "01", stunsc$ontime_yr))
-# // create and indicator to show if the student enrolled within two years of expected HS graduation
-stunsc$enrl_ever_w2_ninth <- ifelse(stunsc$first_enrl_date_any < (stunsc$ontime_date + (365*2)) & 
-                                      !is.na(stunsc$ontime_date) & !is.na(stunsc$first_enrl_date_any), 
+
+## create and indicator to show if the student enrolled within two years of 
+## expected HS graduation
+stunsc$enrl_ever_w2_ninth <- ifelse(stunsc$first_enrl_date_any < 
+                                      (stunsc$ontime_date + (365*2)) & 
+                                      !is.na(stunsc$ontime_date) &
+                                      !is.na(stunsc$first_enrl_date_any), 
                                     1, 0)
 
 
-## ------------------------------------------------------------------------
+## ----checkCodingNSC------------------------------------------------------
+
 stunsc %>% filter(sid %in% c(15647,15656,15658)) %>% 
   select(sid, chrt_ninth, chrt_grad, hs_diploma_date, first_enrl_date_any, 
          enrl_ever_w2_grad, ontime_yr, ontime_date, enrl_ever_w2_ninth) %>% 
   distinct(.keep_all=TRUE) %>% 
   as.data.frame
 
-## ------------------------------------------------------------------------
-# // Create the 4 enrollment outcomes of interest by October 1st
+
+## ----genPlaceholderYearVars----------------------------------------------
+# Create the 4 enrollment outcomes of interest by October 1st
+
+# Create a new data.frame with all variables and merge it onto stunsc
 
 newdf <- data.frame(NA)
+
 for(num in 1:4) {
   eval(parse(text=paste0("newdf$enrl_1oct_grad_yr", num, " <- 0")))
   eval(parse(text=paste0("newdf$enrl_1oct_ninth_yr", num, " <- 0")))
 }
+
+# Drop the first empty row
 newdf <- newdf[, -1]
+
+# We can use cbind, or column bind, instead of mergin
 stunsc <- cbind(stunsc[, 1:35], newdf)
 
-## ------------------------------------------------------------------------
-
+## ----loopPlaceholderValuesNSC--------------------------------------------
 stunsc$n_enroll_begin_date[stunsc$sid == 16011]
 
 stunsc %>% filter(sid %in% c(16011, 16016)) %>% 
@@ -419,13 +490,13 @@ table(stunsc$enrl_1oct_ninth_yr3)
 table(stunsc$enrl_1oct_ninth_yr4)
 
 
-## ------------------------------------------------------------------------
+## ----makeNSCuniqueSID----------------------------------------------------
 stunsc$type <- NA
 stunsc$type[stunsc$n_college_2yr == 0 & stunsc$n_college_4yr == 0] <- "_none"
 stunsc$type[stunsc$n_college_2yr == 1] <- "_2yr"
 stunsc$type[stunsc$n_college_4yr == 1] <- "_4yr"
 
-## ------------------------------------------------------------------------
+## ----collapsetoSIDonly---------------------------------------------------
 # collapse (max) enrl_*, by(sid chrt_grad chrt_ninth hs_diploma_date first_college* type)
 zedOut <- stunsc %>% 
   select(sid, chrt_grad, chrt_ninth, hs_diploma_date,
@@ -441,7 +512,7 @@ zedOut <- zedOut %>% select(-matches("_any|_2yr|_4yr"))
 
 tmp %<>% distinct(sid, .keep_all = TRUE)
 
-## ------------------------------------------------------------------------
+## ----reshapeNSCDataWide--------------------------------------------------
 # reshape wide enrl* , i(sid chrt_grad chrt_ninth hs_diploma_date first_college*) j(type) string
 
 zedOut <- as.data.frame(zedOut)
@@ -462,13 +533,11 @@ zedOut %>% filter(sid == 41) %>%
          enrl_1oct_ninth_yr3_4yr, enrl_1oct_ninth_yr4_4yr)
 
 
-## ------------------------------------------------------------------------
+## ----checkDimensions-----------------------------------------------------
 nrow(zedOut) == length(unique(zedOut$sid))
 # isid sid
 
-## ------------------------------------------------------------------------
-
-
+## ----checkCollegeTypeExclusivity-----------------------------------------
 varList <- c(paste0("enrl_ever_w2_", c("grad", "ninth")),
              as.vector(outer(c("enrl_1oct_grad_", "enrl_1oct_ninth_"), 
                 c("yr1", "yr2", "yr3", "yr4"), paste, sep="")))
@@ -489,7 +558,7 @@ zedOut$enrl_ever_w2_ninth_2yr <- ifelse(is.na(zedOut$enrl_ever_w2_ninth_2yr),
 zedOut$enrl_ever_w2_ninth_4yr <- ifelse(is.na(zedOut$enrl_ever_w2_ninth_4yr), 
                                        0, zedOut$enrl_ever_w2_ninth_4yr)
 
-## ------------------------------------------------------------------------
+## ----createAnyCollegeVar-------------------------------------------------
 # // create an any college version of the year-by-year college enrollment outcome
 # foreach chrt in grad ninth {
 # foreach i of numlist 1/4 {
@@ -502,7 +571,7 @@ zedOut$enrl_ever_w2_ninth_4yr <- ifelse(is.na(zedOut$enrl_ever_w2_ninth_4yr),
 # egen enrl_ever_w2_`chrt'_any = rowmax(enrl_ever_w2_`chrt'_2yr enrl_ever_w2_`chrt'_4yr)
 # }
 
-## ------------------------------------------------------------------------
+## ----createPersistenceVar------------------------------------------------
 # foreach chrt in grad ninth {
 # // create persistence outcomes to the second year of college
 # foreach type in 4yr 2yr any {

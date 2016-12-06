@@ -1,5 +1,39 @@
 Questions for David and Ashley
 
+%/ ------------
+
+Data Linking - Connect questions
+
+- Do you want to include the table and figures from "Data and Structure" and 
+"Step Components" at the top of the document? Can I screenshot these out of the 
+PDF and insert them as image files in the R version? To do this I'll need 
+finalized versions...
+
+
+- The Infrastructure section at the front will need to be updated with additional text
+and updated web addresses, etc.
+
+- On p.14 the Stata code reads:
+
+```
+// restrict to only high school
+keep if grade_level >= 9 & grade_level!=.
+```
+
+However, in the data file there are students who have a grade level > 12. 29 
+student-observations have a grade-level of 13 and 5 have a grade-level of 17. 
+If this is run in Stata, it will cause calculations to be wrong if those students 
+are not excluded.
+
+- on P.22 there is a list of variables to keep in the data file. It is included 
+in a nice rendered table. Should I include an image version of this table or 
+recreate it in R?
+
+
+%/ ------------
+
+
+
 In SDP R Glossary
 
 - Is the glossary too long? 
@@ -17,6 +51,12 @@ end or a separate document to me), but we can do what you think is best.
 have these as standalone image files in an organized way? If so, I could include 
 them fairly easily in the text. If not, I could snapshot them out of the PDF 
 and include them, but this would be more labor intensive.
+
+- In the TOC for the version I sent you the step names appear but the way they 
+are written in the original text they clearly were not designed for a TOC (they 
+have those funny variable_names_that_go_on_and_on). Should we modify the step 
+language to be more TOC friendly, or shorten the TOC text for each step to just 
+"Step 1", "Step 2" ... etc. ?
 
 - p. 36, the rendered table for sid 1:
 Check on p. 35-36 of the guide, incosistency on whether observed_9 indicator 
