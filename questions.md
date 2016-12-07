@@ -29,6 +29,12 @@ are not excluded.
 in a nice rendered table. Should I include an image version of this table or 
 recreate it in R?
 
+- on p. 38-39 the credit numbers I am getting do not square with the toolkit. 
+The toolkit finds that there are 287,426 possible credits earned. After doing 
+the filtering for students found in grade 9 and and dropping cases not found 
+in the school year enrollment file, my dataset is much smaller. I cannot seem 
+to reconcile this... can you take a look? `Student_Class_Enrollment_Merged.dta`
+
 
 %/ ------------
 

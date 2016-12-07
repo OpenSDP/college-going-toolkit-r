@@ -18,6 +18,11 @@ nvals <- function(x){
   length(unique(x))
 }
 
+zeroNA <- function(x){
+  x[is.na(x)] <- 0
+  return(x)
+}
+
 # Cluster standard errors
 get_CL_vcov <- function(model, cluster){
   # cluster is an actual vector of clusters from data passed to model
