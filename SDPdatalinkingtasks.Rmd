@@ -1102,14 +1102,12 @@ Note, that when you collapse, only variables specified in the collapse command
 remain in your data.
 
 ```{r collapsetoSIDonly}
-# collapse (max) enrl_*, by(sid chrt_grad chrt_ninth hs_diploma_date first_college* type)
-
+# We do not need variables that refer to no college, so we can drop those.
 stunsc <- stunsc %>% 
   select(sid, chrt_grad, chrt_ninth, hs_diploma_date,
          type, matches("enrl_|first_college")) %>% 
   group_by(sid, type) %>%
   summarize_all(.funs = "max") %>% 
-# We do not need variables that refer to no college, so we can drop those.
   filter(type !="_none")
 
 tmp <- stunsc %>% select(matches("_any|_2yr|_4yr"))
@@ -1123,7 +1121,6 @@ Reshape the data to have one record per student, and separate indicators for
 the type of college.
 
 ```{r reshapeNSCDataWide}
-# reshape wide enrl* , i(sid chrt_grad chrt_ninth hs_diploma_date first_college*) j(type) string
 
 stunsc <- as.data.frame(stunsc)
 stunsc <- reshape(stunsc, 
@@ -1363,7 +1360,7 @@ con <- unz(description = "data/clean.zip", filename = tmpfileName,
 stuschl <- read_stata(con)
 close(con)
 
-stuOT <- inner_join(stusy[, 1:3], stuschl, by = c("sid", "school_year"))
+stuOT <- left_join(stuschl, stusy[, 1:3], by = c("sid", "school_year"))
 rm(stusy, stuschl); gc()
 
 ```
@@ -1383,7 +1380,7 @@ table(stuOT$withdrawal_code_desc)
 
 transferCodes <- c("Home School", "Left District", "Other Transfer", 
                    "Transfer Out of District", 
-                   "Death", "")
+                   "Death")
 
 # Group by sid and test whether any withdrawal_code_desc for a student appear 
 # in the transferCodes list, this gives TRUE/FALSE
@@ -1416,7 +1413,7 @@ stusy <- stuOT %>% select(sid, school_year, grade_level) %>%
 # Confirm uniqueness of rows
 nvals(paste0(stusy$sid, stusy$school_year)) == nrow(stusy)
 # Clean up
-rm(stuOT, stuschl)
+rm(stuOT)
 ```
 
 
@@ -1439,7 +1436,7 @@ close(con)
 
 # We can only assess if a student is on track if we have course information for 
 # them. Keep only records that appear in both files using inner_join
-
+#
 stuOT <- inner_join(stuenrl, stuCG, by = c("sid"))
 rm(stuenrl, stuCG); gc()
 ```
@@ -1450,7 +1447,7 @@ keeping students who appear in both files.
 
 ```{r mergeStusyOn}
 # Use right_join to keep only sids found in stusy
-stuOT <- right_join(stuOT, stusy[, -2], by = "sid")
+stuOT <- left_join(stuOT, stusy, by = c("sid", "school_year"))
 # rm(stusy)
 ```
 
@@ -1462,7 +1459,7 @@ ensure that we have complete record for them.
 markList <- c("YL", "S1", "Q1")
 
 stuOT %<>% group_by(sid) %>% 
-  mutate(any_grade_9 = any(grade_level == 9 & !is.na(grade_level))) %>% 
+  mutate(any_grade_9 = any(grade_level[!is.na(grade_level)] == 9)) %>% 
   mutate(enrolled_grade_9 = any(marking_period[any_grade_9] %in% markList)) %>% 
   ungroup %>% 
   select(-any_grade_9)
@@ -1776,10 +1773,22 @@ close(con)
 First, calculate total credits earned.
 
 ```{r calcCreditsEarnedYear}
-
+# Cumulative credits within years
 stuOT %<>% group_by(sid, year_in_hs) %>% 
-  mutate(cum_credits_yr = sum(credits_earned))
-# Do I need to spread these out?
+  mutate(cum_credits_yr = cumsum(credits_earned)) %>% 
+  mutate(cum_credits_yr = max(cum_credits_yr))
+
+# Cumulative credits across years
+tmp <- stuOT %>% select(sid, year_in_hs, cum_credits_yr) %>% 
+  distinct(sid, year_in_hs, .keep_all = TRUE)
+
+tmp %<>% group_by(sid) %>% arrange(year_in_hs) %>% 
+  mutate(cum_credits = cumsum(cum_credits_yr)) %>% arrange(sid, year_in_hs) %>% 
+  select(-cum_credits_yr)
+  ungroup
+
+stuOT <- inner_join(stuOT, tmp, by = c("sid", "year_in_hs"))
+rm(tmp)
 
 ```
 
@@ -1790,9 +1799,31 @@ with 0 if student didn't earn credit.
 
 ```{r creditsbySubject}
 stuOT %<>% group_by(sid, year_in_hs) %>% 
-  mutate(cum_credits_yr_math = sum(credits_earned[math_flag==1]), 
-         cum_credits_yr_ela = sum(credits_earned[ela_flag==1])) %>% 
+  mutate(cum_credits_yr_math = sum(credits_earned[math_flag == 1]), 
+         cum_credits_yr_ela = sum(credits_earned[ela_flag == 1])) %>% 
   ungroup()
+
+# Cumulative credits across years
+tmp <- stuOT %>% select(sid, year_in_hs, cum_credits_yr_math, cum_credits_yr_ela) %>% 
+  distinct(sid, year_in_hs, .keep_all = TRUE)
+
+
+tmp %<>% group_by(sid) %>% arrange(year_in_hs) %>% 
+  mutate(cum_credits_math = cumsum(cum_credits_yr_math),
+         cum_credits_ela = cumsum(cum_credits_yr_ela)) %>% arrange(sid, year_in_hs) %>% 
+  select(-cum_credits_yr_ela, -cum_credits_yr_math)
+  ungroup
+
+stuOT <- inner_join(stuOT, tmp, by = c("sid", "year_in_hs"))
+rm(tmp)
+
+# stuOT %>% filter(sid == 10585) %>% 
+#  select(sid, year_in_hs, credits_earned, 
+#         math_flag, cum_credits_math, cum_credits_ela) %>% 
+#   as.data.frame %>% head(40)
+
+stuOT %<>% select(-cum_credits_yr_ela, -cum_credits_yr_math, 
+                  -cum_credits_yr)
 ```
 
 
@@ -1816,56 +1847,409 @@ DEFINITION:
 - on track by end of 11th: 15 total credits, 2 math, 3 English
 - on track by end of 12th: 20 total credits, 3 math, 4 English
 
+To do this consistently by student we operate in the long format the way R prefers 
+and group by `sid` and `year_in_hs`.
+
 ```{r onTrackFlags}
+stuOT %<>% group_by(sid, year_in_hs) %>%
+  mutate(ontrack_endyr = ifelse(cum_credits >= (first(year_in_hs) * 5) & 
+           cum_credits_math >= (ceiling(first(year_in_hs)^2 / 6)) & 
+           cum_credits_ela >= first(year_in_hs), 1, 0)) %>% ungroup
+```
 
 
+Keep only relevant variables, and make sure you only have one observation per 
+student/yr observed in high school
 
 
+```{r simplifyOTdata}
+stuOT %<>% select(sid, school_year, starts_with("hs_diploma"), 
+                        last_wd_group, starts_with("chrt_"), 
+                        ontime_grad, late_grad, still_enrl, 
+                        transferout, dropout, disappear, year_in_hs, 
+                        starts_with("cum_credits"), starts_with("ontrack_"))
+
+stuOT %<>% distinct(sid, school_year, .keep_all=TRUE)
 
 ```
 
 
-
-
-
-Now, populate the variables consistently by student.
-
-Keep only relevant variables, and make sure you only have one observation per student/yr observed in high
-school
 
 #### 2.3 Generate outcome indicators at the end of each year in high school
 
 Create labels that you can apply to the variable created for each high school year.
 
 
-2.3a Loop through the first 3 years of high school. Determine if the student is on track or off track, or has
-dropped out, disappeared or earned a General Education Diploma. Make sure that these values are populated
-consistently for each student.
+2.3a Loop through the first 3 years of high school. Determine if the student is 
+on track or off track, or has dropped out, disappeared or earned a General 
+Education Diploma. Make sure that these values are populated consistently for 
+each student.
 
+```{r codeEOYoutcomes}
+stuOT %<>% group_by(sid, year_in_hs) %>% 
+  mutate(status_eoy = ifelse(ontrack_endyr == 1, 1, 2)) %>%
+  mutate(status_eoy = ifelse(dropout == 1, 3, status_eoy)) %>%
+  mutate(status_eoy = ifelse(disappear == 1, 4, status_eoy)) %>%
+  ungroup()
 
-Students who graduated in less than 4 years are considered on track. Replace status_after_yr vars to enrolled_
-on-track for those students who graduated in less than 4 years.
+sum(table(stuOT$status_eoy)) == nrow(stuOT)
+```
 
 
 2.3b Now, define status after 4th year using diploma information.
 
+```{r}
+tmp <- stuOT %>% filter(year_in_hs == 4)  %>% 
+  group_by(sid) %>% 
+  mutate(status_eoy_yr4 = ifelse(ontime_grad == 1 & !is.na(chrt_grad), 1, 0)) %>%
+  mutate(status_eoy_yr4 = ifelse(still_enrl == 1 | late_grad ==1, 2, status_eoy)) %>%
+  mutate(status_eoy_yr4 = ifelse(is.na(hs_diploma_date) & is.na(status_eoy) & 
+                                   disappear == 1, 4, status_eoy)) %>%
+  ungroup() %>% 
+  select(sid, status_eoy_yr4)
 
-Label your variables.
+stuOT <- left_join(stuOT, tmp, by = "sid")
+
+# Replace
+stuOT$status_eoy[stuOT$year_in_hs == 4] <- stuOT$status_eoy_yr4[stuOT$year_in_hs == 4]
+stuOT$status_eoy_yr4 <- NULL
+
+```
 
 
-Keep time-invariant variables and ensure that your file is unique by student id. Then, save your on-track
-variables file.
+Reshape wide by sid
+
+```{r reshapeOTwide}
+stuOT$status_after <- stuOT$status_eoy; stuOT$status_eoy <- NULL
+stuOT$school_year <- NULL
+stuOT %<>% filter(year_in_hs < 5)
+# Reshape
+stuOT <- as.data.frame(stuOT)
+stuOT <- reshape(stuOT, idvar = names(stuOT)[1:13], 
+               timevar = "year_in_hs", 
+               direction = "wide", sep = "_yr")
+stuOT$ontrack_hsgrad_sample <- 1
+
+```
+
+Save
+
+```{r saveOTsample}
+# Save the current file as Student_OnTrack_Variables.dta
+# Create a analysis directory
+# dir.create("analysis")
+# save(stuOT, file = "analysis/Student_OnTrack_Variables.rda")
+# Or if you want to save the Stata file
+# write_dta(stuOT, file = "analysis/Student_OnTrack_Variables.dta")
+```
 
 ## Step 3: Generate GPA and Test variables
 
-In this step you will calculate GPA and credits earned in each year of high school, add SAT and ACT score
-variables, and identify if a student is considered highly qualified.
+
+
+In this step you will calculate GPA and credits earned in each year of high 
+school, add SAT and ACT score variables, and identify if a student is considered 
+highly qualified.
 
 For this step you will start with the Sample file you saved in Step 1.
 
+```{r loadDataOTagain}
+# Read in file 1
+tmpfileName <- "analysis/Student_OnTrack_Sample.dta"
+con <- unz(description = "data/analysis.zip", filename = tmpfileName, 
+           open = "rb")
+stuOT <- read_stata(con)
+close(con)
+```
+
+
 #### 3.1 Process final grades and credits
 
-First, ensure final_grade_mark and final_grade_mark_num comport. In the tabulation you should see a pattern
-that makes sense. In the sample data we provided you will notice that in addition to the regular grades (A
-through F), we have “P”, representing Pass/Fail courses, and “NGPA”, representing other non-credit bearing
-courses.
+First, ensure final_grade_mark and final_grade_mark_num comport. In the 
+tabulation you should see a pattern that makes sense. In the sample data we 
+provided you will notice that in addition to the regular grades (A through F), 
+we have “P”, representing Pass/Fail courses, and “NGPA”, representing other 
+non-credit bearingcourses.
+
+```{r inspectGradeTable}
+table(stuOT$final_grade_mark, stuOT$final_grade_mark_num)
+```
+
+For "P" and "NGPA" set credits_possible and numeric grade mark to 0 to exclude 
+from GPA calculation.
+
+```{r excludeSomeGrades}
+stuOT$credits_possible[stuOT$final_grade_mark %in% c("P", "NGPA")] <- 0
+stuOT$final_grade_mark_num[stuOT$final_grade_mark %in% c("P", "NGPA")] <- 0
+
+```
+
+
+
+Calculate GPA points by multiplying the numeric final grade marks by credits 
+possible. This allows you to weigh higher credit courses in the GPA calculation.
+
+```{r GPAcalc1}
+stuOT %<>% mutate(gpa_points = final_grade_mark_num * credits_possible)
+```
+
+Ensure that credits attempted field is populated for everyone with GPA points.
+
+
+```{r checkGPAwork}
+all(!is.na(stuOT$credits_possible), !is.na(stuOT$gpa_points))
+all(stuOT$gpa_points[stuOT$final_grade_mark %in% c("P", "NGPA")]==0)
+```
+
+
+Determine GPA earned by each student every year. Total yearly GPA is calculated 
+by dividing the total GPA points by total credits possible for the courses the 
+student enrolled in.
+
+```{r gpaEarned}
+stuOT %<>% group_by(sid, school_year) %>%
+  mutate(tot_gpa_points_yr = sum(gpa_points), 
+         tot_gpa_credits_yr = sum(credits_possible)) %>% 
+  mutate(gpa_year = tot_gpa_points_yr/tot_gpa_credits_yr) %>% ungroup
+```
+
+Now you have created GPA and credit variables by student and school year. Keep 
+these variables, and ensure your file is unique by student id and school year.
+
+```{r keepOnlyGPAvars}
+stuOT %<>% select(sid, school_year, starts_with("tot_gpa"), gpa_year)
+stuOT %<>% distinct(sid, school_year, .keep_all=TRUE)
+stuOT %<>% filter(!is.na(gpa_year))
+nrow(stuOT) == nvals(paste0(stuOT$sid, stuOT$school_year))
+
+```
+
+Calculate a cumulative GPA. Start by adding GPA points and credits across years 
+until the given year.
+
+```{r cumGPAPoints}
+stuOT %<>% group_by(sid) %>% arrange(school_year) %>% 
+  mutate(total_points = cumsum(tot_gpa_points_yr), 
+         total_credits = cumsum(tot_gpa_credits_yr)) %>% ungroup
+```
+
+Then, generate a cumulative GPA by dividing the cumulative GPA points by the 
+cumulative credits.
+
+```{r calcCumGPAandDropVars}
+stuOT$cum_gpa_yr <- stuOT$total_points/stuOT$total_credits
+sum(stuOT$cum_gpa_yr)
+stuOT %<>% select(-total_points, tot_gpa_credits_yr, -tot_gpa_points_yr, 
+                  -total_credits)
+```
+
+
+Identify final cumulative GPA in high school.
+
+```{r finalGPACum}
+
+stuOT %<>% group_by(sid) %>% arrange(school_year) %>% 
+  mutate(cum_gpa_final = last(cum_gpa_yr))
+```
+
+
+Reshape data to have one record per student, and variables for each high school 
+year.
+
+```{r reshapeWide}
+stuOT %<>% select(sid, school_year, cum_gpa_yr, cum_gpa_final) %>% 
+  group_by(sid) %>% arrange(school_year) %>% 
+  filter(row_number() < 5) %>% 
+  mutate(idx = row_number()) %>%
+  ungroup %>% arrange(sid, school_year) %>%
+  select(-school_year) %>%
+  as.data.frame()
+
+# stuOT$cum_gpa_final <- round(stuOT$cum_gpa_final, 3)
+
+tmp <- reshape(stuOT, direction = "wide", 
+               idvar = c("sid", "cum_gpa_final"), 
+               timevar = "idx")
+rm(stuOT)
+```
+
+
+Now, merge these GPA variables and the Student_OnTrack_Variables file you 
+created in Step 2. Order the variables and save the resulting file in a 
+temporary file.
+
+```{r readMergeCGOT}
+# Read in file 1
+tmpfileName <- "analysis/Student_OnTrack_Variables.dta"
+con <- unz(description = "data/analysis.zip", filename = tmpfileName, 
+           open = "rb")
+stuOT <- read_stata(con)
+close(con)
+
+cg_student <- inner_join(stuOT, tmp, by = "sid")
+rm(stuOT, tmp)
+```
+
+
+
+#### 3.2 Add SAT and ACT Scores
+
+Now you are ready to add the SAT and/or ACT scores you cleaned in Task 5 in 
+Clean. We are going to convert ACT scores to SAT score equivalent, to ensure that 
+we have the indicators on the same scale for each student. For SAT , we are 
+using the Math and ELA portion (excluding Writing). 
+
+Start by adding SAT and ACT scores to the temporary file you saved before this 
+step, then save the results in the same temporary file.
+
+
+```{r loadSATdata}
+# Read in file 1
+tmpfileName <- "clean/SAT.dta"
+con <- unz(description = "data/clean.zip", filename = tmpfileName, 
+           open = "rb")
+stuSAT <- read_stata(con)
+close(con)
+# Read in file 1
+tmpfileName <- "clean/ACT.dta"
+con <- unz(description = "data/clean.zip", filename = tmpfileName, 
+           open = "rb")
+stuACT <- read_stata(con)
+close(con)
+
+cg_student <- left_join(cg_student, stuSAT, by = "sid")
+cg_student <- left_join(cg_student, stuACT, by = "sid")
+rm(stuSAT, stuACT)
+```
+
+
+Convert ACT scores to SAT scores for all students according to ACT -SAT Concordance table stored in the `ACTtoSAT` function
+
+```{r ACTSATconvert}
+cg_student$sat_act_temp <- ACTtoSAT(cg_student$act_composite_score)
+
+```
+
+
+Generate SAT concordance.
+
+`SAT_ACT_concordance` equal to SAT `total_score` if student has SAT score and 
+does not have ACT score
+
+`SAT_ACT_concordance` equal to mean of SAT and ACT score if student has taken 
+both exams
+
+`SAT_ACT_concordance` = concordance score calculated above if a student has 
+only ACT score
+
+```{r convertACTSATConcordance}
+cg_student$sat_act_concordance <- NA
+
+cg_student$sat_act_concordance[!is.na(cg_student$sat_total_score) & 
+                                 is.na(cg_student$act_composite_score)] <-
+  cg_student$sat_total_score[!is.na(cg_student$sat_total_score) & 
+                                 is.na(cg_student$act_composite_score)]
+
+cg_student$sat_act_mean <- (cg_student$sat_total_score + cg_student$sat_act_temp) /2
+
+cg_student$sat_act_concordance[!is.na(cg_student$act_composite_score) |
+                          !is.na(cg_student$sat_total_score)] <- 
+  cg_student$sat_act_mean[!is.na(cg_student$act_composite_score) |
+                          !is.na(cg_student$sat_total_score)] 
+
+cg_student$sat_act_concordance[is.na(cg_student$sat_total_score) & 
+                           !is.na(cg_student$act_composite_score)] <- 
+  cg_student$sat_act_temp[is.na(cg_student$sat_total_score) & 
+                           !is.na(cg_student$act_composite_score)] 
+
+```
+ 
+Check for correctness
+
+```{r checkACTSATWORK}
+all(with(cg_student, 
+     table(is.na(sat_act_concordance[!is.na(sat_total_score) | 
+                                             !is.na(act_composite_score)]))
+           ))
+
+all(with(cg_student, 
+     table(!is.na(sat_act_concordance[is.na(sat_total_score) | 
+                                             is.na(act_composite_score)]))
+           ))
+
+```
+
+
+
+#### 3.3 Identify highly qualified students (eligible to attend flagship university)
+
+We use the SPI definition of highly qualified. Students are considered highly qualified if they
+- have a GPA of 3.7 or higher and an SAT score of 1100 or higher, OR
+- have a GPA of 3.3 or higher and an SAT score of 1200 or higher, OR
+- have a GPA of 3.0 or higher and an SAT score of 1300 or higher
+
+```{r encodeHighlyQualified}
+
+cg_student$highly_qualified <- NA
+
+
+
+cg_student$highly_qualified[!is.na(cg_student$chrt_grad) & 
+                              cg_student$cum_gpa_final >= 3.7 & 
+                          !is.na(cg_student$cum_gpa_final) & 
+                            cg_student$sat_act_concordance >= 1100 & 
+                            !is.na(cg_student$sat_act_concordance)] <- 1
+
+cg_student$highly_qualified[!is.na(cg_student$chrt_grad) & 
+                              cg_student$cum_gpa_final >= 3.3 & 
+                          !is.na(cg_student$cum_gpa_final) & 
+                            cg_student$sat_act_concordance >= 1200 & 
+                            !is.na(cg_student$sat_act_concordance)] <- 1
+
+cg_student$highly_qualified[!is.na(cg_student$chrt_grad) & 
+                              cg_student$cum_gpa_final >= 3.0 & 
+                          !is.na(cg_student$cum_gpa_final) & 
+                            cg_student$sat_act_concordance >= 1300 & 
+                            !is.na(cg_student$sat_act_concordance)] <- 1
+
+cg_student$highly_qualified[!is.na(cg_student$chrt_grad) &
+                              is.na(cg_student$highly_qualified)] <- 0
+
+table(is.na(cg_student$highly_qualified[is.na(cg_student$chrt_grad)]))
+table(!is.na(cg_student$highly_qualified[!is.na(cg_student$chrt_grad)]))
+```
+
+
+Keep only cohorts who have had a chance to graduate.
+
+
+```{r filterCOhortsOT}
+cg_student %<>% filter(chrt_ninth == 2005 | chrt_ninth == 2006)
+
+```
+
+
+Keep the on-track variables.
+
+```{r dropVarsOT}
+cg_student %<>% select(sid, starts_with("ontrack_"), 
+                       starts_with("cum_credits"), 
+                       starts_with("cum_gpa"), 
+                       starts_with("status_"), 
+                       sat_act_concordance, highly_qualified)
+cg_student$ontrack_sample <- 1
+```
+
+
+
+Merge the on-track variables with the analysis file and save the final college 
+going analysis file that now includes on-track indicators.
+
+```{r}
+# use "${analysis}/CG_Analysis.dta", clear
+# merge 1:1 sid using `ontrack', nogen
+# save "${analysis}/CG_Analysis.dta", replace
+```
+
+
+Your final file will look like the chart below:

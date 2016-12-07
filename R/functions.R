@@ -46,3 +46,37 @@ get_CL_vcov <- function(model, cluster){
   vcovCL <- dfc*sandwich(model, meat=crossprod(uj)/N)
   return(vcovCL)
 }
+
+# Convert SATtoACT
+# x is a vector of act scores
+ACTtoSAT <- function(x){
+  x[is.na(x)] <- 400
+  x[x  <  11] <- 400
+  x[x == 11] <- 530
+  x[x == 12] <- 590
+  x[x == 13] <- 640
+  x[x == 14] <- 690
+  x[x == 15] <- 740
+  x[x == 16] <- 790
+  x[x == 17] <- 830
+  x[x == 18] <- 870
+  x[x == 19] <- 910
+  x[x == 20] <- 950
+  x[x == 21] <- 990
+  x[x == 22] <- 1030
+  x[x == 23] <- 1070
+  x[x == 24] <- 1110
+  x[x == 25] <- 1150
+  x[x == 26] <- 1190
+  x[x == 27] <- 1220
+  x[x == 28] <- 1260
+  x[x == 29] <- 1300
+  x[x == 30] <- 1340
+  x[x == 31] <- 1340
+  x[x == 32] <- 1420
+  x[x == 33] <- 1460
+  x[x == 34] <- 1510
+  x[x == 35] <- 1560
+  x[x == 36] <- 1600
+  return(x)
+}

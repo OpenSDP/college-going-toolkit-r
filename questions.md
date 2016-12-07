@@ -29,12 +29,35 @@ are not excluded.
 in a nice rendered table. Should I include an image version of this table or 
 recreate it in R?
 
+- on p. 36 the transfer codes do not line up with the values in the data file. The 
+code suggests there should be "Left District" and a "Transfer Out of District", 
+but only the latter is actually observed in the data
+
+- I think we might want to provide a check here to show how many students are 
+dropped from the sample. I am not sure if I have it correct either as I think 
+too many students are labeled as a transfer out above (which then causes problems 
+below)
+
 - on p. 38-39 the credit numbers I am getting do not square with the toolkit. 
 The toolkit finds that there are 287,426 possible credits earned. After doing 
 the filtering for students found in grade 9 and and dropping cases not found 
 in the school year enrollment file, my dataset is much smaller. I cannot seem 
 to reconcile this... can you take a look? `Student_Class_Enrollment_Merged.dta`
 
+  - I think this is a problem related to selecting only students who appear in grade level 9
+  - I am just finding way fewer 9th graders using the filters that appear on p. 37
+  - Note that this is not an issue with the work done in the previous task, I am 
+  reading in the "Clean" files fresh from those provided by SDP with the toolkit, so 
+  the issue is either with the data file itself or with the code here (though it is 
+  a straightforward subset so I'm wondering about the data file)
+  
+- Later on loading the `OnTrack` analysis file, there are way more observations 
+and the grade level distribution looks way different
+
+
+- I think p.44 also needs a check to see how many students should be labeled as 
+`ontrack_endyr` at this point in the file. Coming from different contexts, analysts 
+may have very different expectations about how many students meet this
 
 %/ ------------
 
