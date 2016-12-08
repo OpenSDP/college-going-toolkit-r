@@ -1,4 +1,21 @@
 
+# Task Template
+
+
+**Purpose:** 
+
+
+**Required Analysis File Variables:**
+
+
+**Analysis-Specific Sample Restrictions:** 
+
+
+**Ask Yourself** 
+
+
+**Analytic Technique:** 
+
 
 We can also use the `dplyr` `rename` function:
 

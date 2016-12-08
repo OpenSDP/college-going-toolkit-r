@@ -1,5 +1,24 @@
 Questions for David and Ashley
 
+%/ ----------
+Analyze: College-Going Success Analysis Guide
+
+Should we add something about how to understand the plotting code? It is a 
+complex syntax and an example in detail (maybe in the glossary) will help.
+
+Should we add something about how this was designed to work with data in the 
+toolkit format? There are more elegant ways of solving some of these problems 
+in a native R way, but the data is not set up from the beginning that way...
+
+
+p.3 Need to update URL
+p.4 Check the SPI URL and confirm this is still useful
+p.14 typo in Analytic Technique section
+p.53 Are the SPI links current and language still relevant?
+p. 70 Step 6 is missing 
+
+Add more comments in the code or an example of how to read a plot object?
+
 %/ ------------
 
 Data Linking - Connect questions
