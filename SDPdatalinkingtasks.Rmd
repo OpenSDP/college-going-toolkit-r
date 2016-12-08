@@ -6,6 +6,7 @@ output:
   pdf_document:
     toc: yes
     toc_depth: 4
+    latex_engine: xelatex
   html_document:
     toc: yes
     toc_depth: 4
@@ -1262,9 +1263,9 @@ for(chrt in c("ninth", "grad")){
 ## Step 10: Merge the Collegoing and NSC File
 
 You’re Almost There!
-You are almost finished creating the college-going analysis file. All that is left is to merge the Student_
-CollegeGoing file with the NSC college going indicators you created in Step 9 and drop any students classified
-as transferout from the analysis. This allows your analysis file to contain student characteristics, high
+You are almost finished creating the college-going analysis file. All that is l
+eft is to merge the Student_CollegeGoing file with the NSC college going 
+indicators you created in Step 9 and drop any students classified as transferout from the analysis. This allows your analysis file to contain student characteristics, high
 school outcomes, and college enrollment and persistence outcomes. This is a 1:1 merge on student id and
 results in observations that match, as well as observations that come only from the Student_CollegeGoing
 file.
@@ -1272,7 +1273,7 @@ file.
 ```{r mergeTogether}
 out <- left_join(stuCG, stunsc, by = "sid")
 out %<>% filter(transferout != 1)
-
+cg_analysis <- out
 # Save the current file as CG_Analysis.rda
 # Create a analysis directory
 # dir.create("analysis")
@@ -1286,8 +1287,8 @@ out %<>% filter(transferout != 1)
 # save(stuCG, file = "clean/Student_CollegeGoing.rda")
 # Or if you want to save the Stata file
 # write_dta(stuCG, file = "clean/Student_CollegeGoing.dta")
-
-rm(list = ls())
+# cleanup
+rm(list = ls()[ls() != "cg_analysis"])
 ```
 
 
@@ -2241,11 +2242,14 @@ cg_student$ontrack_sample <- 1
 ```
 
 
-
 Merge the on-track variables with the analysis file and save the final college 
 going analysis file that now includes on-track indicators.
 
-```{r}
+```{r combineWithAnalysisFile}
+
+cg_analysis <- inner_join(cg_analysis, cg_student, by = "sid")
+rm(cg_student)
+
 # use "${analysis}/CG_Analysis.dta", clear
 # merge 1:1 sid using `ontrack', nogen
 # save "${analysis}/CG_Analysis.dta", replace
@@ -2253,3 +2257,9 @@ going analysis file that now includes on-track indicators.
 
 
 Your final file will look like the chart below:
+
+```{r}
+# TODO: Clean up column names to match file
+names(cg_analysis)
+```
+

@@ -18,7 +18,7 @@ output:
 First, download and install R for your platform. Then download and install the 
 RStudio Integrated Development Environment (IDE). RStudio 
 is a free and open source IDE that is available on all computing platforms. 
-RStudio provides a number of features that make working with R more convenient 
+RStudio provides a number of features for working with R 
 including code completion, code highlighting, and tools to speed up literate 
 (combining R code, R output, text, and figures in one document) programming in 
 the R environment. 
@@ -40,8 +40,8 @@ install.packages("tidyverse")
 update.packages()
 ```
 
-R has some example data built in which we will use in the examples below. You can 
-load it like this. 
+R has some example data built in which will be used in the examples below. You can 
+load the `mtcars` dataset with the command below:
 
 ```{r include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
@@ -143,8 +143,7 @@ mydata <- read_csv(file = "MyCSVfile.csv")
 
 Note that when reading in data you must tell R what name you will assign this 
 data in the workspace. This is because R allows you to read in multiple data 
-files simultaneously unlike many other common statistical software packages. Try 
-to use a short and meaningful name for your data.
+files simultaneously. Try to use a short and meaningful name for your data object.
 
 R can read Excel files directly through a variety of packages (`readxl`), 
 but if possible it is usually preferred to use Excel to convert these to CSV first.
@@ -176,7 +175,7 @@ command structure similar to SQL.
 
 
 
-## 1.2 Dataframes
+## Dataframes
 
 A dataset is represented in R, most commonly, as a dataframe. Dataframes are the 
 tabular representation of data you read in. A dataframe is a rectangular representation 
@@ -195,7 +194,7 @@ Here is an example:
 mtcars$hp
 ```
 
-I am telling R that I want to access the `hp` column in the `mtcars` dataframe. 
+The `$` teslls R that to access the `hp` column in the `mtcars` dataframe. 
 This can get a bit cumbersome at times, for example when you want to access 
 data conditionally:
 
@@ -204,8 +203,8 @@ mtcars$hp[mtcars$carb > 2]
 ```
 
 In this case the `[]` serves as an index to the full `mtcars$hp` object. Even 
-though we are looking to index the `mtcars$hp` object, we still need to tell R 
-that the index we want to use is from `mtcars`. The flexibility of allowing 
+though you want to index the `mtcars$hp` object, you still need to tell R 
+that the index you want to use is from `mtcars`. The flexibility of allowing 
 indexes from anywhere comes at the cost of more verbose code. In the toolkit and 
 later in this glossary there are some techniques using external packages that 
 can help in the case of working with a single dataframe. 
@@ -264,7 +263,7 @@ Any variables not specified will be dropped, but you can retain the original
 data and just create a new object, e.g. `collapsedData`, for your summarized 
 data. 
 
-*reshape*
+### Reshaping
 
 Reshaping data in R can follow two main approaches. If you need to reshape an 
 entire dataset, the base R `reshape` command is powerful and flexible. Read 
@@ -286,10 +285,8 @@ stocksLong <- reshape(stocks, idvar = "time",
 head(stocksLong)
 ```
 
-Because it is so powerful and flexible, the code is cumbersome and difficult to 
-understand. It requires consulting the documentation to keep track of how each 
-of the parameters works in each of the two modes -- reshaping wide or long -- and 
-this makes your code harder to read and harder to write. 
+The flexibility of the `reshape` command makes it hard sometimes to understand. 
+Consult the examples in the documentation by using `?reshape` if necessary. 
 
 If you need to expand or contract a few variables by an identifier column, the 
 `tidyr` package provides an easy to remember syntax and interface to quickly 
@@ -307,8 +304,8 @@ stocks <- data.frame(
 head(stocks)
 ```
 
-To reshape this in R using `tidyr` we use the simple vocabulary of either gathering 
-some variables together, or spreading some variables out. Here we have three 
+To reshape this in R using `tidyr`, there is a simple vocabulary of either gathering 
+some variables together, or spreading some variables out. Here there are three 
 columns that are really a variable (the stock name), and the value in each 
 column is really a variable (price). In general R, strongly prefers **long** format 
 data. 
@@ -319,8 +316,8 @@ stocksm <- stocks %>% gather(stock, price, -time)
 head(stocksm)
 ```
 
-Once we have gathered the data together to represent time, price, and stock name 
-we can easily reshape it to meet our needs:
+Once you have gathered the data together to represent time, price, and stock name 
+you can easily reshape it to meet our needs:
 
 ```{r}
 stocksm %>% spread(stock, price) %>% head
@@ -347,9 +344,9 @@ mtcars[, "hp"]
 mtcars[, 1]
 ```
 
-*drop* 
+### Dropping variables
 
-To drop variables we can do any of the following
+To drop variables you can do any of the following
 
 ```{r, eval=FALSE}
 mtcars$hp <- NULL
@@ -362,7 +359,7 @@ dataframe %<>% select(-variable)
 
 ```
 
-*keep*
+### Filtering data
 
 In R, there is no specific keep command. You can pass a numeric index of column 
 positions, or pass column names to drop any variables you do not want. 
@@ -391,7 +388,7 @@ mtcars %<>% select(everything())
 
 ```
 
-*generate*
+### Creating variables
 
 Variable creation in R is as simple as assigning a variable in a data.frame a 
 value.
@@ -449,8 +446,7 @@ mydata <- data.frame(var1 = NA, var2 = NA)
 
 ```
 
-
-*replace*
+### Replacing variables
 
 In R, replacing variables is as easy as overwriting them:
 
@@ -458,9 +454,8 @@ In R, replacing variables is as easy as overwriting them:
 mtcars$ComplexVar <- mtcars$qsec^2 / (2 * mtcars$disp - mtcars$hp)
 ```
 
-*duplicates*
+### Handling duplicates
 
-Dropping duplicates.
 
 R comes with the built in `duplicated` function which returns a logical vector 
 the same length as the number of rows, TRUE if the row is duplicated. The built 
@@ -484,7 +479,7 @@ table(duplicated(iris[, 1:2]))
 table(duplicated(iris[, 1:3]))
 ```
 
-To drop duplicated rows we can pass the results of the `duplicated` call as a 
+To drop duplicated rows the results of the `duplicated` call can be passed as a 
 row index to the `data.frame` itself:
 
 ```{r}
@@ -497,10 +492,10 @@ This is a bit awkward, so another way to do it is:
 
 ```{r}
 iris %<>% distinct(.keep_all = TRUE)
-#.keep_all tells R we want to return all columns
+#.keep_all tells R you want to return all columns, not just those that are distinct
 ```
 
-### Variable types
+## Variable types
 
 In R there are four common variable types:
 
@@ -564,7 +559,7 @@ View(mtcars[mtcars$hp = 110, ])
 
 ```
 
-*Tabulate*
+### Tabulating variables
 
 In R the `table` command is useful for understanding the distribution of values 
 a variable takes. You can make 1-way to n-way tables easily. Table works best 
@@ -601,9 +596,9 @@ N
 
 Keep this in mind when counting proportions and percentages belonging to categories. 
 
-*count*
+### Counting variables
 
-To just count the number of values in a vector, we use `length`. 
+To just count the number of values in a vector, use `length`. 
 
 ```{r}
 length(mtcars$cyl)
@@ -621,10 +616,9 @@ nrow(mtcars)
 ```
 
 
-If we want to just look at the unique values in a dataset we use the `unique` 
+To look at only the unique values in a dataset use the `unique` 
 function. This returns a vector of all unique values of a vector. It works on 
 all variable types.
-
 
 
 ```{r}
@@ -632,8 +626,8 @@ unique(mtcars$carb)
 
 ```
 
-If we combine this with length, we count the number of distinct values a variable 
-has:
+If unique is combined combine this with length, you can count the number of 
+distinct values a variable has:
 
 ```{r}
 length(unique(mtcars$carb))
@@ -681,12 +675,12 @@ mtcars %<>% group_by(vs, am) %>%
 ```
 
 In this case the `mutate` function allows us to append a variable to the ungrouped 
-dataset that will be repeated with the same value for each group. If we used 
-the `summarize` function like above, the dataframe would be collapsed to one 
+dataset that will be repeated with the same value for each group. If the 
+`summarize` function is used instead, the dataframe would be collapsed to one 
 row per group.
 
 
-*order variables*
+### Ordering variables
 
 The order variables appear in a dataset is most easily controlled by using their 
 numeric index. 
@@ -705,11 +699,11 @@ mtcars %<>% select(mpg, cyl, disp, hp, drat, wt)
 # Anything not selected will be dropped
 ```
 
-*rename variables*
+### Renaming variables
 
 Variable names are just a character value that is stored in the `names` object. 
 For example, `names(mydata)` returns a character vector the same length of the 
-number of columns of the dataset. To rename variables we can replace specific 
+number of columns of the dataset. To rename variables replace specific 
 elements in that vector. 
 
 ```{r}
@@ -734,17 +728,15 @@ names(mtcars)[3:8] <- paste(names(mtcars)[3:8], "suffix", sep = "_")
 names(mtcars) <- gsub("zzz", "", names(mtcars))
 ```
 
-*labels*
+### Labeling values
 
 R does not have extensive codebook or variable labeling functionality. Most of 
 the time if you want labeled values you want to use a `factor` variable in R. 
 Factors can ordered or unordered. 
 
-*list unique values*
+### Listing unique values
 
 To look at the distinct or unique values of a variable, use the `unique` command.
-
-
 
 ## Using system variables
 
@@ -938,8 +930,6 @@ table(ntile(xvar, 3))
 
 ## Date Functions
 
-*as.Date*
-
 It is highly recommended that you use the free add-on package to R, `lubridate`, 
 for processing date and date-time objects in R. This package contains a number 
 of simple functions that make date/time operations intuitive and expressive.
@@ -1034,7 +1024,7 @@ stopifnot(min(mtcars$mpg) < 10)
 mean(mtcars$mpg)
 ```
 
-*print*
+## Printing to the console
 
 Alternatively, and good for debugging, you can have R print arbitrary output to 
 the console. 
@@ -1110,7 +1100,7 @@ languages.
 Pipelines work by passing data elements along them to specified places in the 
 next function call. 
 
-Here is how we might do an operation without a pipeline:
+Here is how code might look without a pipeline:
 
 ```{r}
 data(mtcars)
@@ -1124,10 +1114,10 @@ round(mutate
       digits = 2)
 ```
 
-We have to read this function inside out which means looking into the call and 
+This command is read from the inside out which means looking into the call and 
 trying to find where it starts (hint: `filter`), then reading the arguments 
-outward from there. For complex arguments this is hard. Alternatively we might 
-see this written more naturally and more readably this way:
+outward from there. For complex arguments this is hard. This code can also be 
+written in stages:
 
 ```{r}
 
@@ -1137,14 +1127,13 @@ cylSum$kpl <- cylSum$mpg * 0.4251
 print(round(cylSum, digits = 2))
 ```
 
-The above is easier to read, but it creates a lot of clutter in our workspace. 
-After this series of commands we have added `subData` and `cylSum` to the memory 
-in R. Later in our script will we remember what these objects are for? Will we 
-remember to clean them up at the end of the command? An advantage of writing 
+The above is easier to read, but it creates a lot of clutter in the workspace. 
+After this series of commands `subData` and `cylSum` objects have been added to 
+the working environment in R. An advantage of writing 
 functions is that they do not show temporary data objects to the user and they 
 clean up after themselves. 
 
-Pipelines allow us to do gain the tidiness of functions with the readability and 
+Pipelines provide the tidiness of functions with the readability and 
 ease of writing of the code above:
 
 ```{r}
@@ -1160,8 +1149,8 @@ car_data
 Reading the code above is natural. The transformations applied on the left 
 hand side of the `%>%` are passed into the first position of the function on the 
 right hand side of the `%>%`. You can read the `%>%` operator as the English 
-word `THEN`. This becomes a very readable block of text that is easy to follow, 
-easy to read, and easy to anticipate the expected output from. 
+word `THEN`. This becomes a readable block of text that is easy to follow, 
+easy to read, and easy to anticipate the expected output. 
 
 There is another convenient `pipe` operator in the `magrittr` package which can 
 save your fingers a lot of typing -- the `%<>%` operator. It allows you to replace 
@@ -1176,8 +1165,8 @@ mtcars$mpg %<>% sqrt
 mtcars$mpg
 ```
 
-Instead of having to type `mtcars$mpg <- sqrt(mtcars$mpg)` we simply had to type 
-the object we wanted to transform, the pipe operator, and the function we wanted 
+Instead of having to type `mtcars$mpg <- sqrt(mtcars$mpg)` simply type 
+the object you want to transform, the pipe operator, and the function you want
 to apply. 
 
 ## Visualizing Data with ggplot2
@@ -1222,5 +1211,5 @@ files you output so when you come back to a project you know what version of R
 and the external packages you used it came under. 
 
 ```{r}
-sessionInfo()
+print(sessionInfo(),locale = FALSE)
 ```
