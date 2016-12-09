@@ -1409,8 +1409,9 @@ workspace for later.
 
 ```{r filterSaveSortStuOT}
 # Keep only relevant variables and drop duplicates
+# TODO: Explain this
 stusy <- stuOT %>% select(sid, school_year, grade_level) %>% 
-  distinct(.keep_all = TRUE)
+  distinct(school_year, grade_level)
 # Confirm uniqueness of rows
 nvals(paste0(stusy$sid, stusy$school_year)) == nrow(stusy)
 # Clean up
@@ -1448,7 +1449,8 @@ keeping students who appear in both files.
 
 ```{r mergeStusyOn}
 # Use right_join to keep only sids found in stusy
-stuOT <- left_join(stuOT, stusy, by = c("sid", "school_year"))
+stuOT <- inner_join(stuOT, stusy, by = c("sid", "school_year"))
+
 # rm(stusy)
 ```
 
@@ -1459,6 +1461,10 @@ ensure that we have complete record for them.
 ```{r filterLateHSStudents}
 markList <- c("YL", "S1", "Q1")
 
+stuOT %<>% group_by(sid, grade_level) %>% 
+  mutate(validMarking = any(marking_period %in% markList)) %>% ungroup()
+
+
 stuOT %<>% group_by(sid) %>% 
   mutate(any_grade_9 = any(grade_level[!is.na(grade_level)] == 9)) %>% 
   mutate(enrolled_grade_9 = any(marking_period[any_grade_9] %in% markList)) %>% 
@@ -1468,7 +1474,7 @@ stuOT %<>% group_by(sid) %>%
 stuOT %<>% filter(enrolled_grade_9) %>% 
   select(-enrolled_grade_9)
 
-
+# 703341
 ```
 
 Restrict to cohorts that have had time to graduate. We assume here that you 
@@ -1476,7 +1482,7 @@ have complete records until the school year before the current year.
 
 ```{r restrictCohorts}
 stuOT %<>% filter(chrt_ninth <= current_schyr - 4)
-
+ # 289,530 
 ```
 
 Identify students who don't enroll subsequently from one year to the next and 

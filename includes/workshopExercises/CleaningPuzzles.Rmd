@@ -1,0 +1,100 @@
+---
+title: "Winter Workshop Data Management Exercises"
+author: "Strategic Data Project"
+date: "December 9, 2016"
+output:
+  pdf_document:
+    latex_engine: xelatex
+---
+
+```{r environmentSetup, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, comment=NA}
+# Set options for R code output
+library(knitr)
+knitr::opts_chunk$set(comment=NA, warning=FALSE, 
+                      error=FALSE, message=FALSE, echo=TRUE,
+                      fig.align='center')
+# Set R output width to render nicely
+options(width=80)
+```
+
+# Overview
+
+First load the data.
+
+```{r loadData}
+load("../../data/CGToolkit_Student_Demog_Sch_Enr.rda")
+stuSchEnr <- out
+rm(out)
+library(tidyverse)
+```
+
+## Explore the data. 
+
+```{r}
+glimpse(stuSchEnr)
+```
+
+
+```{r}
+nrow(stuSchEnr)
+length(unique(stuSchEnr$sid))
+length(unique(stuSchEnr$school_code))
+table(stuSchEnr$school_year)
+```
+
+## Find Uniqueness
+
+What does a row mean in this data?
+
+Is it unique by student?
+
+```{r}
+nrow(stuSchEnr) == n_distinct(stuSchEnr$sid)
+```
+
+By student-year?
+
+```{r}
+nrow(stuSchEnr) == n_distinct(paste0(stuSchEnr$sid, stuSchEnr$school_year))
+```
+
+By student-year-school?
+
+```{r}
+nrow(stuSchEnr) == n_distinct(paste(stuSchEnr$sid, 
+                                     stuSchEnr$school_year, 
+                                     stuSchEnr$school_code, sep = "-"))
+```
+
+Yikes! Let's take the most granular ID (student, year, school) and see how many 
+students have multiple of these records.
+
+```{r}
+library(dplyr) 
+
+stuSchEnr %>% group_by(sid, school_year, school_code) %>% 
+  summarize(count = n()) %>% ungroup() %>%
+  select(count) %>% unlist %>% table
+```
+
+```{r}
+stuSchEnr %>% group_by(sid, school_year, school_code) %>% 
+  select(sid, school_year, school_code, enrollment_date, withdrawal_date, 
+         days_enrolled) %>%
+  mutate(count = n()) %>% ungroup() %>% 
+  filter(count > 7) %>% select(-count) %>% as.data.frame()
+  
+```
+
+Aom
+
+```{r}
+
+stuSchEnr %>% group_by(sid, school_year, school_code) %>% 
+  select(sid, school_year, school_code, enrollment_date, withdrawal_date, 
+         grade_level) %>%
+  mutate(count = n()) %>% ungroup() %>% 
+  filter(count > 7) %>% select(-count) %>% 
+  as.data.frame()
+
+```
