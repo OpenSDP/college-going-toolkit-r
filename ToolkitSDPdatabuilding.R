@@ -7,7 +7,7 @@ knitr::opts_chunk$set(comment=NA, warning=FALSE,
 # Set R output width to render nicely
 options(width=80)
 
-## ---- loadRequiredPackages-----------------------------------------------
+## ----loadRequiredPackages------------------------------------------------
 ## Step 0: Load the packages and prepare your R environment
 
 library(tidyverse) # main suite of R packages to ease data analysis
@@ -48,7 +48,7 @@ head(stuatt)
 ## ----checkUniqueness-----------------------------------------------------
 # Checks that number of unique values of `sid` equals number of rows
 # A quick way to test this in R
-nvals(stuatt$sid) == nrow(stuatt) #nvals function is in functions.R
+n_distinct(stuatt$sid) == nrow(stuatt) #n_distinct function is in dplyr package
 
 ## ----dropFirst9th--------------------------------------------------------
 # In R one way to drop a variable is by assigning it a NULL value
@@ -154,10 +154,10 @@ table(stuatt$male)
 # Check nvals without creating the variable
 stuatt %>% ungroup %>% 
   group_by(sid) %>% 
-  summarize(nvals = nvals(male)) %>% select(nvals) %>% 
+  summarize(nvals = n_distinct(male)) %>% select(nvals) %>% 
   table
 
-nvals(stuatt$sid)
+n_distinct(stuatt$sid)
 
 
 ## ----raceEthnicityRecode-------------------------------------------------
@@ -221,7 +221,7 @@ qplot(stuatt$race_ethnicity,geom='bar') +
 # for each student
 
 stuatt <- stuatt %>% group_by(sid) %>% 
-  mutate(nvals_race = nvals(race_ethnicity))
+  mutate(nvals_race = n_distinct(race_ethnicity))
 
 table(stuatt$nvals_race)
 
@@ -230,7 +230,7 @@ table(stuatt$nvals_race)
 # assumes for each student and school year. 
 
 stuatt <- stuatt %>% group_by(sid, school_year) %>% 
-  mutate(nvals_race_yr = nvals(race_ethnicity))
+  mutate(nvals_race_yr = n_distinct(race_ethnicity))
 
 #Make a table
 table(stuatt$nvals_race_yr)
@@ -390,7 +390,8 @@ stuatt %<>% group_by(sid) %>%
 
 
 stuatt %>% select(sid, school_year, hs_diploma, hs_diploma_date, 
-                  hs_diploma_type, earliest_diploma_date, earliest_dipl_type_mode) %>% filter(sid == 16)
+                  hs_diploma_type, earliest_diploma_date, 
+                  earliest_dipl_type_mode) %>% filter(sid == 16)
 
 ## ----uniqDiplomaTypeCount------------------------------------------------
 # Number of unique diploma types for the first diploma date
@@ -409,7 +410,6 @@ stuatt %>% select(sid, school_year, hs_diploma_type, earliest_diploma_date,
 
 stuatt %<>% group_by(sid) %>% 
   mutate(earliest_dipl_type_syear = hs_diploma_type[school_year == min(school_year)])
-
 
 stuatt %>% select(sid, school_year, hs_diploma_type, earliest_diploma_date, 
                   earliest_dipl_type_mode, nvals_dipl_type, 
@@ -546,7 +546,7 @@ varIdx <- c("sid", "school_year", "grade_level", "nvals_grade",
             "max_grade_level")
 
 stuclass %<>% group_by(sid, school_year) %>% 
-  mutate(nvals_grade = nvals(grade_level), 
+  mutate(nvals_grade = n_distinct(grade_level), 
          max_grade_level = max(grade_level))
 
 
@@ -590,7 +590,7 @@ stuclass %>% select(sid, school_year, grade_level, frpl) %>%
 #  in a year
 
 stuclass %<>% group_by(sid, school_year) %>% 
-  mutate(nvals_frpl = nvals(frpl))
+  mutate(nvals_frpl = n_distinct(frpl))
 
 table(stuclass$nvals_frpl)
 
@@ -634,7 +634,8 @@ stuclass %<>% group_by(sid, school_year) %>%
 ## ----gtConsistStuYear----------------------------------------------------
 # Follow the same procedure as Step 1 for grade_level.
 
-# // Report the highest value of gifted by year for each student, selecting is enrolled in gifted program over not enrolled.
+## Report the highest value of gifted by year for each student, selecting 
+## is enrolled in gifted program over not enrolled.
 
 stuclass %<>% group_by(sid, school_year) %>% 
   mutate(highest_gifted = max(gifted)) %>% 
@@ -650,7 +651,7 @@ stuclass <- stuclass[!duplicated(stuclass),]
 
 # Make sure your file is now unique by student and school year
 
-nrow(stuclass) == nvals(paste0(stuclass$sid, stuclass$school_year))
+nrow(stuclass) == n_distinct(paste0(stuclass$sid, stuclass$school_year))
 
 # Save the current file as Student_School_Year.dta which you will need for Task 3.
 
@@ -676,10 +677,9 @@ stusy <- read_stata(con) # read data in the data subdirectory
 glimpse(stusy)
 
 ## ----flagFirstYearbyGrade------------------------------------------------
-# Create four binary indicators to flag the first school year a student enrolls in grades 9, 10, 11, or 12.
-
+# Create four binary indicators to flag the first school year a student 
+# enrolls in grades 9, 10, 11, or 12.
 stusy %>% filter(sid == 1) %>% select(sid, school_year, grade_level)
-
 stusy %<>% group_by(sid, grade_level) %>% 
   mutate(tmpG = ifelse(school_year == min(school_year), 1, NA),
          observed_g = 1)
@@ -702,7 +702,7 @@ stusy <- spread(stusy, key = observed, value = observed_g, sep = "_") %>%
   select(-one_of("observed_3", "observed_5", "observed_6", 
                  "observed_7", "observed_8", "observed_13", 
                  "observed_17")) %>% 
-  group_by(sid) %>% 
+  group_by(sid, school_year) %>% 
   mutate(observed_9 = max(observed_9, na.rm=TRUE), 
          observed_10 = max(observed_10, na.rm=TRUE), 
          observed_11 = max(observed_11, na.rm=TRUE), 
@@ -743,14 +743,13 @@ stusy$first_9th_schyear_obs[!is.finite(stusy$first_9th_schyear_obs)] <- NA
 
 # Check data
 stusy %>% filter(sid == 1) %>% 
-  select(sid, school_year, grade_level, first_flag9, observed_9, first_9th_schyear_obs)
+  select(sid, school_year, grade_level, first_flag9, observed_9, 
+         first_9th_schyear_obs)
 
 stusy %>% ungroup %>% distinct(sid, first_9th_schyear_obs) %>% 
   select(first_9th_schyear_obs) %>% unlist %>% table
 
-
 # Say something about missing values in the list...
-
 
 ## ----imputeSchYearforTransfer--------------------------------------------
 # Impute first_9th_school_year_observed as school_year - 1, school_year - 2, or
@@ -778,17 +777,13 @@ stusy %>% filter(sid == 2) %>%
 stusy %<>% group_by(sid) %>% 
   mutate(tempfirst9year = min(tempfirst9year, na.rm=TRUE))
 
-stusy$first_9th_schyear_obs[is.na(stusy$first_9th_schyear_obs) & !is.na(stusy$tempfirst9year)] <- stusy$tempfirst9year[is.na(stusy$first_9th_schyear_obs) & !is.na(stusy$tempfirst9year)]
+stusy$first_9th_schyear_obs[is.na(stusy$first_9th_schyear_obs) &
+                              !is.na(stusy$tempfirst9year)] <-
+  stusy$tempfirst9year[is.na(stusy$first_9th_schyear_obs) & 
+                         !is.na(stusy$tempfirst9year)]
 
 stusy$tempfirst9year <- NULL
 
-# 
-# stusy <- bind_rows(stusy %>% filter(observed_9 == 0), 
-#                    stusy %<>% filter(observed_9 == 1) %>%
-#   group_by(sid) %>%
-#   mutate(first_9th_schyear_obs = max(first_9th_schyear_obs))
-# )
-# stusy %<>% arrange(sid, school_year)
 
 ## ----checkfirst9thwTable-------------------------------------------------
 # Review the distribution of first_9th_school_year_observed for students who 
@@ -837,7 +832,9 @@ stusy %>% select(sid, school_year, grade_level,
 # Flag the first school year in which students appear in high school grades
 
 stusy %<>% group_by(sid) %>% 
-  mutate(first_9th_flag = ifelse(school_year == min(school_year[grade_level %in% c(9:12)]), 1, 0))
+  mutate(first_9th_flag = ifelse(school_year == 
+                                   min(school_year[grade_level %in% c(9:12)]), 
+                                 1, 0))
 
 
 stusy %>% select(sid, school_year, grade_level, 
@@ -847,26 +844,27 @@ stusy %>% select(sid, school_year, grade_level,
 
 ## ----replaceImputed9thgrade----------------------------------------------
 # Replace the first_9th_school_year_observed with the correctly imputed values.
-
-# Need to drop NAs
 ## TODO write this into a loop!
 stusy$temp4_first9year <- NA
 
 stusy$temp4_first9year[stusy$grade_flag_max == 1 & 
                          stusy$first_9th_flag == 1 & 
-                         stusy$grade_level == 10] <- stusy$school_year[stusy$grade_flag_max == 1 & 
+                         stusy$grade_level == 10] <-
+  stusy$school_year[stusy$grade_flag_max == 1 & 
                          stusy$first_9th_flag == 1 & 
                          stusy$grade_level == 10] - 1
 
 stusy$temp4_first9year[stusy$grade_flag_max == 1 & 
                          stusy$first_9th_flag == 1 & 
-                         stusy$grade_level == 11] <- stusy$school_year[stusy$grade_flag_max == 1 & 
+                         stusy$grade_level == 11] <-
+  stusy$school_year[stusy$grade_flag_max == 1 & 
                          stusy$first_9th_flag == 1 & 
                          stusy$grade_level == 11] - 2
 
 stusy$temp4_first9year[stusy$grade_flag_max == 1 & 
                          stusy$first_9th_flag == 1 & 
-                         stusy$grade_level == 12] <- stusy$school_year[stusy$grade_flag_max == 1 & 
+                         stusy$grade_level == 12] <-
+  stusy$school_year[stusy$grade_flag_max == 1 & 
                          stusy$first_9th_flag == 1 & 
                          stusy$grade_level == 12] - 3
 
@@ -881,7 +879,8 @@ stusy %>% select(sid, school_year, grade_level,
 
 
 stusy$first_9th_schyear_obs[stusy$grade_flag_max == 1 & 
-                              !is.na(stusy$temp5_first9year)] <- stusy$temp5_first9year[stusy$grade_flag_max == 1 & 
+                              !is.na(stusy$temp5_first9year)] <-
+  stusy$temp5_first9year[stusy$grade_flag_max == 1 & 
                               !is.na(stusy$temp5_first9year)]
 
 
@@ -993,7 +992,9 @@ stuenr %<>% group_by(sid, school_code) %>%
 ## date
 
 stuenr$enrollment_date[stuenr$enrollment_date <= stuenr$lag_withdrawal_date & 
-                         !is.na(stuenr$lag_withdrawal_date)] <- stuenr$min_enroll_date[stuenr$enrollment_date <= stuenr$lag_withdrawal_date & 
+                         !is.na(stuenr$lag_withdrawal_date)] <-
+  stuenr$min_enroll_date[stuenr$enrollment_date <= 
+                           stuenr$lag_withdrawal_date & 
                          !is.na(stuenr$lag_withdrawal_date)]
 
 stuenr %>% filter(sid == 2) %>% 
@@ -1057,7 +1058,7 @@ stuenr <- ungroup(stuenr) %>% distinct(sid, school_year, school_code,
 ## Confirm that file is unique by student, school_year, school_code, 
 ## and enrollment_date
 
-nvals(paste0(stuenr$sid, stuenr$school_year, stuenr$school_code, 
+n_distinct(paste0(stuenr$sid, stuenr$school_year, stuenr$school_code, 
              stuenr$enrollment_date)) == nrow(stuenr)
 
 ## Save the current file as Student_School_Enrollment_Clean
@@ -1165,7 +1166,7 @@ statetest %<>% group_by(sid) %>%
 
 ## ----verifyAndDrop-------------------------------------------------------
 ## Verify that each student has only one state test, and drop unneeded variables
-nrow(statetest) == nvals(statetest$sid)
+nrow(statetest) == n_distinct(statetest$sid)
 statetest %<>% select(-test_date, -test_type)
 
 
@@ -1222,7 +1223,7 @@ sattest %<>% group_by(sid) %>%
   filter(keep_flag) %>% select(-keep_flag)
 
 ## Verify that the file is now unique by student.
-nrow(sattest) == nvals(sattest$sid)
+nrow(sattest) == n_distinct(sattest$sid)
 
 ## Verify that test scores from the component subjects are not missing and 
 ## generate total scores.
@@ -1261,7 +1262,7 @@ acttest %>% select(sid, test_date, scaled_score)
 names(acttest) <- c("sid", "act_test_date", "act_composite_score")
 
 ## Verify that the file is now unique by student.
-nrow(acttest) == nvals(acttest$sid)
+nrow(acttest) == n_distinct(acttest$sid)
 
 ## Save the current file as ACT.dta.
 ## Make directory and save
@@ -1341,7 +1342,7 @@ classRaw %<>% distinct()
 
 ## Verify that the data is unique by cid, and also unique by school year, 
 ## school code, section code and course code.
-nrow(classRaw) == nvals(classRaw$cid)
+nrow(classRaw) == n_distinct(classRaw$cid)
 
 classRaw %>% distinct(school_year, school_code, 
                       section_code, course_code) %>% 
@@ -1441,7 +1442,7 @@ stuclass %>% ungroup %>% filter(sid == 2251 & cid == 78150780) %>%
 stuclass %<>% ungroup %>% distinct()
 
 ## Verify that the file is unique by sid and cid
-nrow(stuclass) == nvals(paste0(stuclass$sid, stuclass$cid, sep ="_"))
+nrow(stuclass) == n_distinct(paste0(stuclass$sid, stuclass$cid, sep ="_"))
 
 ##  Order the variables
 

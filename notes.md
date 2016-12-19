@@ -1,8 +1,10 @@
 ## To Do / Notes
 
+
 Need to describe:
 - Put functions.R functions into the SDP R Glossary and describe
 - knitr as the way to combine HTML and R code together
+- Describe how eval(parse(text))) works...
 
 X Describe working directory
 X Describe ifelse

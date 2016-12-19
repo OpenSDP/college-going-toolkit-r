@@ -35,7 +35,7 @@ success in your agency.
 **Clean** consist of five tasks that share a similar structure.  The tasks are 
 geared toward analysts with at least moderately strong data background and 
 comfort with statistics.  Each task provides hands-on experience building 
-specific components of the research file used for the SDP CollegeGoing 
+specific components of the research file used for the SDP College Going 
 Diagnostic Analyses.
 
 The tasks are listed as follows:
@@ -97,7 +97,7 @@ In each task, you will also find:
   These instructions include: 
     
     - R code to help you execute the instructions through code
-    - Data snapshots to help you visaulize changes to the data at each step
+    - Data snapshots to help you visualize changes to the data at each step
 
 #### Summary
 
@@ -114,7 +114,7 @@ SDP is available to help: **sdp@gse.harvard.edu**.
 #### Task Map
 
 This map summarizes the inputs and outputs for each task and how the outputs 
-are used in Connect to produce the collegegoing analysis and college-going 
+are used in Connect to produce the college-going analysis and college-going 
 analysis on-track file. 
 
 [PLACEHOLDER FOR IMAGE HERE]
@@ -187,7 +187,7 @@ Once the file is unique by `sid` as shown in **Identify**, it is ready for **Con
 
 #### Step 0: Load and Inspect the Data
 
-```{r, loadRequiredPackages}
+```{r loadRequiredPackages}
 ## Step 0: Load the packages and prepare your R environment
 
 library(tidyverse) # main suite of R packages to ease data analysis
@@ -235,7 +235,7 @@ head(stuatt)
 ```{r checkUniqueness}
 # Checks that number of unique values of `sid` equals number of rows
 # A quick way to test this in R
-nvals(stuatt$sid) == nrow(stuatt) #nvals function is in functions.R
+n_distinct(stuatt$sid) == nrow(stuatt) #n_distinct function is in dplyr package
 ```
 
 Now drop the `first_9th_school_year_reported` variable. You will create a 
@@ -363,15 +363,15 @@ table(stuatt$male)
 # Check nvals without creating the variable
 stuatt %>% ungroup %>% 
   group_by(sid) %>% 
-  summarize(nvals = nvals(male)) %>% select(nvals) %>% 
+  summarize(nvals = n_distinct(male)) %>% select(nvals) %>% 
   table
 
-nvals(stuatt$sid)
+n_distinct(stuatt$sid)
 
 ```
 
 
-##### Step 2: Create one consistent value for race_ethnicicty for each student across years
+##### Step 2: Create one consistent value for race_ethnicicty
 
 Recode the raw `race_ethnicity` variable as a numeric variable and label it. 
 Replace the string race_ethnicity variable with the numeric one.
@@ -456,7 +456,7 @@ assumes for each student called `nvals_race`.
 # for each student
 
 stuatt <- stuatt %>% group_by(sid) %>% 
-  mutate(nvals_race = nvals(race_ethnicity))
+  mutate(nvals_race = n_distinct(race_ethnicity))
 
 table(stuatt$nvals_race)
 ```
@@ -470,7 +470,7 @@ Tabulate the variable and browse the relevant data.
 # assumes for each student and school year. 
 
 stuatt <- stuatt %>% group_by(sid, school_year) %>% 
-  mutate(nvals_race_yr = nvals(race_ethnicity))
+  mutate(nvals_race_yr = n_distinct(race_ethnicity))
 
 #Make a table
 table(stuatt$nvals_race_yr)
@@ -596,7 +596,7 @@ Check your work.
 table(stuatt$race_ethnicity)
 ```
 
-#### Step 3: Create consistent values for high school diploma variables
+#### Step 3: Create consistent values for high school diploma
 
 Recode the `hs_diploma_type variable` as a numeric variable and label it.
 Replace the string `hs_diploma_type` variable with the numeric one. Use lower
@@ -663,7 +663,8 @@ stuatt %<>% group_by(sid) %>%
 
 
 stuatt %>% select(sid, school_year, hs_diploma, hs_diploma_date, 
-                  hs_diploma_type, earliest_diploma_date, earliest_dipl_type_mode) %>% filter(sid == 16)
+                  hs_diploma_type, earliest_diploma_date, 
+                  earliest_dipl_type_mode) %>% filter(sid == 16)
 ```
 
 Create a variable that shows the number of unique diploma types recorded 
@@ -691,7 +692,6 @@ the diploma type in the earliest school year for the first diploma date
 
 stuatt %<>% group_by(sid) %>% 
   mutate(earliest_dipl_type_syear = hs_diploma_type[school_year == min(school_year)])
-
 
 stuatt %>% select(sid, school_year, hs_diploma_type, earliest_diploma_date, 
                   earliest_dipl_type_mode, nvals_dipl_type, 
@@ -788,7 +788,7 @@ stuatt %>%
 
 ```
 
-#### Step 4: Drop any unneeded variables, drop duplicates, check the data, and save the file
+#### Step 4: Clean up and save data file
 
 ```{r cleanStuattnSave}
 # Drop school year as you no longer need it
@@ -862,7 +862,7 @@ If this is your first time attempting **Task 2**, start with the provided raw
 input file. This file teaches you SDP’s cleaning methodology and allows you to 
 check answers from a common dataset.
 
-#### Step 0: Load the Student_Classifications_Raw data file
+#### Step 0: Load the data file
 
 ```{r loadStuClassFile}
 # Read in Stata
@@ -877,7 +877,7 @@ stuclass <- read_stata(con) # read data in the data subdirectory
 glimpse(stuclass)
 ```
 
-#### Step 1: Create one consistent grade level for each student within the same year
+#### Step 1: Create one consistent grade level
 
 Keep the highest `grade_level` when a student has multiple grade levels within 
 the same year
@@ -896,7 +896,7 @@ varIdx <- c("sid", "school_year", "grade_level", "nvals_grade",
             "max_grade_level")
 
 stuclass %<>% group_by(sid, school_year) %>% 
-  mutate(nvals_grade = nvals(grade_level), 
+  mutate(nvals_grade = n_distinct(grade_level), 
          max_grade_level = max(grade_level))
 
 
@@ -913,7 +913,7 @@ stuclass %<>% select(-nvals_grade, -max_grade_level)
 
 ```
 
-#### Step 2: Create one consistent FRPL value for each student in the same student-year
+#### Step 2: Create one consistent FRPL value
 
 Recode raw `frpl` variable with string type to numeric type
 
@@ -950,7 +950,7 @@ as Step 1 for `grade_level`.
 #  in a year
 
 stuclass %<>% group_by(sid, school_year) %>% 
-  mutate(nvals_frpl = nvals(frpl))
+  mutate(nvals_frpl = n_distinct(frpl))
 
 table(stuclass$nvals_frpl)
 
@@ -971,7 +971,7 @@ stuclass %<>% select(-nvals_frpl, -highest_frpl)
 ```
 
 
-#### Step 3: Create one consistent IEP value for each student within the same year
+#### Step 3: Create one consistent IEP value
 
 ```{r iepConsistStuYear}
 # Follow the same procedure as Step 1 for grade_level.
@@ -985,7 +985,7 @@ stuclass %<>% group_by(sid, school_year) %>%
   select(-highest_iep)
 ```
 
-#### Step 4: Create one consistent ELL value for each student within the same year
+#### Step 4: Create one consistent ELL value
 
 ```{r ellConsistStuYear}
 # Follow the same procedure as Step 1 for grade_level.
@@ -999,12 +999,13 @@ stuclass %<>% group_by(sid, school_year) %>%
   select(-highest_ell)
 ```
 
-#### Step 5: Create one consistent gifted value for each student within the same year
+#### Step 5: Create one consistent gifted value
 
 ```{r gtConsistStuYear}
 # Follow the same procedure as Step 1 for grade_level.
 
-# // Report the highest value of gifted by year for each student, selecting is enrolled in gifted program over not enrolled.
+## Report the highest value of gifted by year for each student, selecting 
+## is enrolled in gifted program over not enrolled.
 
 stuclass %<>% group_by(sid, school_year) %>% 
   mutate(highest_gifted = max(gifted)) %>% 
@@ -1014,7 +1015,7 @@ stuclass %<>% group_by(sid, school_year) %>%
 
 ```
 
-#### Step 6: Drop any unneeded variables, drop duplicates, and save the file
+#### Step 6: Drop any unneeded variables and save the file
 
 ```{r stuclassCleannSave}
 # Drop duplicate observations
@@ -1023,7 +1024,7 @@ stuclass <- stuclass[!duplicated(stuclass),]
 
 # Make sure your file is now unique by student and school year
 
-nrow(stuclass) == nvals(paste0(stuclass$sid, stuclass$school_year))
+nrow(stuclass) == n_distinct(paste0(stuclass$sid, stuclass$school_year))
 
 # Save the current file as Student_School_Year.dta which you will need for Task 3.
 
@@ -1053,7 +1054,7 @@ The core of this task:
 2. Identify the school year in which the student was first observed in 9th
 grade.
 3. Impute the school year in which transfer students would have been in grade 9.
-4. Replace the first_9th_school_year_observed with the correctly imputed values.
+4. Replace the `first_9th_school_year_observed` with the correctly imputed values.
 
 After completing this task, you will have a clean `Student_School_Year` file that
 identifies first-time ninth graders. This file is used both to assemble the
@@ -1097,13 +1098,12 @@ stusy <- read_stata(con) # read data in the data subdirectory
 glimpse(stusy)
 ```
 
-#### Step 1: Flag the first school year a student enrolls in grades 9, 10, 11, or 12
+#### Step 1: Flag the first school year a student enrolls each grade
 
 ```{r flagFirstYearbyGrade}
-# Create four binary indicators to flag the first school year a student enrolls in grades 9, 10, 11, or 12.
-
+# Create four binary indicators to flag the first school year a student 
+# enrolls in grades 9, 10, 11, or 12.
 stusy %>% filter(sid == 1) %>% select(sid, school_year, grade_level)
-
 stusy %<>% group_by(sid, grade_level) %>% 
   mutate(tmpG = ifelse(school_year == min(school_year), 1, NA),
          observed_g = 1)
@@ -1126,7 +1126,7 @@ stusy <- spread(stusy, key = observed, value = observed_g, sep = "_") %>%
   select(-one_of("observed_3", "observed_5", "observed_6", 
                  "observed_7", "observed_8", "observed_13", 
                  "observed_17")) %>% 
-  group_by(sid) %>% 
+  group_by(sid, school_year) %>% 
   mutate(observed_9 = max(observed_9, na.rm=TRUE), 
          observed_10 = max(observed_10, na.rm=TRUE), 
          observed_11 = max(observed_11, na.rm=TRUE), 
@@ -1152,7 +1152,7 @@ table(tmp$observed_12)
 rm(tmp) # remove our temporary data, note the original data will stay
 ```
 
-#### Step 2: Identify the school year in which the student was first observed in 9th grade
+#### Step 2: Identify when a student was first observed in 9th grade
 
 ```{r identifyFirstSYg9}
 # Create a variable that lists the first school year a student is observed as 
@@ -1170,17 +1170,16 @@ stusy$first_9th_schyear_obs[!is.finite(stusy$first_9th_schyear_obs)] <- NA
 
 # Check data
 stusy %>% filter(sid == 1) %>% 
-  select(sid, school_year, grade_level, first_flag9, observed_9, first_9th_schyear_obs)
+  select(sid, school_year, grade_level, first_flag9, observed_9, 
+         first_9th_schyear_obs)
 
 stusy %>% ungroup %>% distinct(sid, first_9th_schyear_obs) %>% 
   select(first_9th_schyear_obs) %>% unlist %>% table
 
-
 # Say something about missing values in the list...
-
 ```
 
-#### Step 3: Impute the school year in which transfer students would have been in grade 9
+#### Step 3: Impute the grade 9 school year for transfer students
 
 ```{r imputeSchYearforTransfer}
 # Impute first_9th_school_year_observed as school_year - 1, school_year - 2, or
@@ -1208,17 +1207,13 @@ stusy %>% filter(sid == 2) %>%
 stusy %<>% group_by(sid) %>% 
   mutate(tempfirst9year = min(tempfirst9year, na.rm=TRUE))
 
-stusy$first_9th_schyear_obs[is.na(stusy$first_9th_schyear_obs) & !is.na(stusy$tempfirst9year)] <- stusy$tempfirst9year[is.na(stusy$first_9th_schyear_obs) & !is.na(stusy$tempfirst9year)]
+stusy$first_9th_schyear_obs[is.na(stusy$first_9th_schyear_obs) &
+                              !is.na(stusy$tempfirst9year)] <-
+  stusy$tempfirst9year[is.na(stusy$first_9th_schyear_obs) & 
+                         !is.na(stusy$tempfirst9year)]
 
 stusy$tempfirst9year <- NULL
 
-# 
-# stusy <- bind_rows(stusy %>% filter(observed_9 == 0), 
-#                    stusy %<>% filter(observed_9 == 1) %>%
-#   group_by(sid) %>%
-#   mutate(first_9th_schyear_obs = max(first_9th_schyear_obs))
-# )
-# stusy %<>% arrange(sid, school_year)
 ```
 
 
@@ -1253,7 +1248,7 @@ stusy %>% ungroup %>%
 
 ```
 
-#### Step 4: Adjust the imputation of first_9th_school_year_observed for students who appear in a lower grade in a later school year
+#### Step 4: Adjust the imputation for some students
 
 Flag students who are observed to be in a lower grade in a subsequent 
 school year.
@@ -1282,7 +1277,9 @@ Flag the first school year in which students appear in high school grades
 # Flag the first school year in which students appear in high school grades
 
 stusy %<>% group_by(sid) %>% 
-  mutate(first_9th_flag = ifelse(school_year == min(school_year[grade_level %in% c(9:12)]), 1, 0))
+  mutate(first_9th_flag = ifelse(school_year == 
+                                   min(school_year[grade_level %in% c(9:12)]), 
+                                 1, 0))
 
 
 stusy %>% select(sid, school_year, grade_level, 
@@ -1296,26 +1293,27 @@ Replace the `first_9th_school_year_observed` with the correctly imputed values.
 
 ```{r replaceImputed9thgrade}
 # Replace the first_9th_school_year_observed with the correctly imputed values.
-
-# Need to drop NAs
 ## TODO write this into a loop!
 stusy$temp4_first9year <- NA
 
 stusy$temp4_first9year[stusy$grade_flag_max == 1 & 
                          stusy$first_9th_flag == 1 & 
-                         stusy$grade_level == 10] <- stusy$school_year[stusy$grade_flag_max == 1 & 
+                         stusy$grade_level == 10] <-
+  stusy$school_year[stusy$grade_flag_max == 1 & 
                          stusy$first_9th_flag == 1 & 
                          stusy$grade_level == 10] - 1
 
 stusy$temp4_first9year[stusy$grade_flag_max == 1 & 
                          stusy$first_9th_flag == 1 & 
-                         stusy$grade_level == 11] <- stusy$school_year[stusy$grade_flag_max == 1 & 
+                         stusy$grade_level == 11] <-
+  stusy$school_year[stusy$grade_flag_max == 1 & 
                          stusy$first_9th_flag == 1 & 
                          stusy$grade_level == 11] - 2
 
 stusy$temp4_first9year[stusy$grade_flag_max == 1 & 
                          stusy$first_9th_flag == 1 & 
-                         stusy$grade_level == 12] <- stusy$school_year[stusy$grade_flag_max == 1 & 
+                         stusy$grade_level == 12] <-
+  stusy$school_year[stusy$grade_flag_max == 1 & 
                          stusy$first_9th_flag == 1 & 
                          stusy$grade_level == 12] - 3
 
@@ -1330,7 +1328,8 @@ stusy %>% select(sid, school_year, grade_level,
 
 
 stusy$first_9th_schyear_obs[stusy$grade_flag_max == 1 & 
-                              !is.na(stusy$temp5_first9year)] <- stusy$temp5_first9year[stusy$grade_flag_max == 1 & 
+                              !is.na(stusy$temp5_first9year)] <-
+  stusy$temp5_first9year[stusy$grade_flag_max == 1 & 
                               !is.na(stusy$temp5_first9year)]
 
 
@@ -1340,7 +1339,7 @@ stusy %>% ungroup %>% distinct(sid, first_9th_schyear_obs) %>%
 
 ```
 
-#### Step 5: Keep only variables relevant to future analyses, and save the file
+#### Step 5: Drop unneeded variables and save the file
 
 
 ```{r cleanandSave}
@@ -1370,7 +1369,7 @@ In Task 4: Student School Enrollment, you will take the `Student_School_Enrollme
 file and generate the `Student_School_Enrollment` file that matches the
 specification in **Identify**. After matching **Identify**, you will take your 
 dataset a few steps further by consolidating overlapping enrollment spells and
-determining thelast withdrawal code for each student to yield the file
+determining the last withdrawal code for each student to yield the file
 `Student_School_Enrollment_Clean`.
 
 The core of this task:
@@ -1496,7 +1495,9 @@ stuenr %<>% group_by(sid, school_code) %>%
 ## date
 
 stuenr$enrollment_date[stuenr$enrollment_date <= stuenr$lag_withdrawal_date & 
-                         !is.na(stuenr$lag_withdrawal_date)] <- stuenr$min_enroll_date[stuenr$enrollment_date <= stuenr$lag_withdrawal_date & 
+                         !is.na(stuenr$lag_withdrawal_date)] <-
+  stuenr$min_enroll_date[stuenr$enrollment_date <= 
+                           stuenr$lag_withdrawal_date & 
                          !is.na(stuenr$lag_withdrawal_date)]
 
 stuenr %>% filter(sid == 2) %>% 
@@ -1525,7 +1526,7 @@ stuenr %<>% group_by(sid, school_code, enrollment_date) %>%
 
 ```
 
-#### Step 4: Update days_enrolled based on the consolidated enrollments using the new enrollment and withdrawal dates
+#### Step 4: Update days_enrolled based on consolidated enrollments
 
 ```{r updateDaysEnrolled}
 
@@ -1537,7 +1538,10 @@ stuenr %>% filter(sid == 2) %>%
          withdrawal_code_desc, days_enrolled)
 ```
 
-#### Step 5: Determine the last withdrawal code for each student. You will use this data in later analyses to determine a student's end of high school outcomes
+#### Step 5: Determine the last withdrawal code for each student 
+
+You will use this data in later analyses to determine a student's end of high 
+school outcomes.
 
 ```{r determineLastWithdrawalCode}
 
@@ -1557,7 +1561,7 @@ stuenr %>% filter(sid == 16) %>%
          withdrawal_code_desc, last_withdrawal_reason)
 ```
 
-### Step 6: Drop any unneeded variables, drop duplicates, and save the file
+### Step 6: Drop unneeded variables and save
 
 ```{r cleanStuEnrandSave}
 ## Drop duplicate records
@@ -1569,7 +1573,7 @@ stuenr <- ungroup(stuenr) %>% distinct(sid, school_year, school_code,
 ## Confirm that file is unique by student, school_year, school_code, 
 ## and enrollment_date
 
-nvals(paste0(stuenr$sid, stuenr$school_year, stuenr$school_code, 
+n_distinct(paste0(stuenr$sid, stuenr$school_year, stuenr$school_code, 
              stuenr$enrollment_date)) == nrow(stuenr)
 
 ## Save the current file as Student_School_Enrollment_Clean
@@ -1699,7 +1703,7 @@ stutest$test_subject <- tolower(as.character(stutest$test_subject))
 glimpse(stutest)
 ```
 
-#### Step 1: Keep only the variables you need and limit the sample to state test scores in 8th grade
+#### Step 1: Keep only state test scores in 8th grade
 
 ```{r dropVarsTest}
 ## Keep only the variables you need and limit the sample to state test scores 
@@ -1730,7 +1734,8 @@ statetest %<>% filter(!is.na(raw_score) | !is.na(scaled_score))
 ```
 
 
-#### Step 3: Identify same-year repeat test takers and take the highest test score
+#### Step 3: Identify same-year repeat test takers
+
 ```{r identifyRepeatTests}
 ## Identify same-year repeat test takers and take the highest test score
 ## For ties in scores, take the last date tested
@@ -1760,7 +1765,9 @@ statetest %>% distinct(sid, test_subject, grade_level, school_year) %>%
   nrow == nrow(statetest)
 ```
 
-#### Step 4: Reshape the data so math and ELA tests appear on the same row
+#### Step 4: Reshape the data
+
+Reshape the data so math and ELA tests appear on the same row.
 
 ```{r reshapeELAMathWide}
 ## Reshape the data so math and ELA tests appear on the same row.
@@ -1773,7 +1780,10 @@ statetest <- reshape(as.data.frame(statetest),
                sep = "_")
 ```
 
-#### Step 5: Compute standardized test scores with mean 0 and standard deviation 1
+#### Step 5: Compute standardized test scores 
+
+Compute standardized test scores. Standardized means the test score will have a 
+mean 0 and standard deviation 1.
 
 ```{r scaleAndCenterScores}
 ## Compute standardized test scores with mean 0 and standard deviation 1.
@@ -1784,7 +1794,9 @@ statetest %>% select(scaled_math_std, scaled_ela_std) %>%
   na.omit %>% summary
 ```
 
-#### Step 6: Identify different-year repeat test takers and take the earliest test score
+#### Step 6: Identify different-year repeat test takers 
+
+Find repeat test takers and take the earliest test score.
 
 ```{r giveRepeatersEarlyScore}
 ## Identify different-year repeat test takers and take the earliest test score.
@@ -1796,17 +1808,22 @@ statetest %<>% group_by(sid) %>%
 ```
 
 
-#### Step 7: Verify that each student has only one state test, and drop unneeded variables.
+#### Step 7: Verify the data and drop unneeded variables
+
+Verify that each student has only one state test, and drop unneeded variables.
 
 ```{r verifyAndDrop}
 ## Verify that each student has only one state test, and drop unneeded variables
-nrow(statetest) == nvals(statetest$sid)
+nrow(statetest) == n_distinct(statetest$sid)
 statetest %<>% select(-test_date, -test_type)
 
 ```
 
 
-#### Step 8: Generate composite scaled and standardized scores that average ELA and math scores
+#### Step 8: Generate composite scaled and standardized scores 
+
+Generate composite scaled and standardized scores that average ELA and math 
+scores.
 
 ```{r genCompositeStateTest}
 ## Generate composite scaled and standardized scores that average ELA and 
@@ -1871,7 +1888,7 @@ sattest %<>% group_by(sid) %>%
   filter(keep_flag) %>% select(-keep_flag)
 
 ## Verify that the file is now unique by student.
-nrow(sattest) == nvals(sattest$sid)
+nrow(sattest) == n_distinct(sattest$sid)
 
 ## Verify that test scores from the component subjects are not missing and 
 ## generate total scores.
@@ -1916,7 +1933,7 @@ acttest %>% select(sid, test_date, scaled_score)
 names(acttest) <- c("sid", "act_test_date", "act_composite_score")
 
 ## Verify that the file is now unique by student.
-nrow(acttest) == nvals(acttest$sid)
+nrow(acttest) == n_distinct(acttest$sid)
 
 ## Save the current file as ACT.dta.
 ## Make directory and save
@@ -1983,10 +2000,11 @@ task then is to eliminate any duplicate course code descriptions and match the
 
 #### Uniqueness
 
-The input file, Student_Class_Enrollment_Raw, follows the structure of Student_Class_Enrollment in Identify so it is unique by sid, cid, and class_enrollment_
-date. The aim of this task then is to take things one step further by consolidating any overlapping enrollment spells for the same student and cid.
-
-
+The input file, Student_Class_Enrollment_Raw, follows the structure of
+`Student_Class_Enrollment` in Identify so it is unique by `sid`, `cid`, and
+`class_enrollment_date`. The aim of this task then is to take things one step 
+further by consolidating any overlapping enrollment spells for the same 
+student and `cid`.
 
 #### Part I: Clean the Class File
 
@@ -2080,7 +2098,7 @@ classRaw %<>% distinct()
 
 ## Verify that the data is unique by cid, and also unique by school year, 
 ## school code, section code and course code.
-nrow(classRaw) == nvals(classRaw$cid)
+nrow(classRaw) == n_distinct(classRaw$cid)
 
 classRaw %>% distinct(school_year, school_code, 
                       section_code, course_code) %>% 
@@ -2094,7 +2112,10 @@ classRaw %>% distinct(school_year, school_code,
 
 This was done above simultaneously with the class file.
 
-#### Step 1: Merge on the temporary Class file you saved earlier to the Student_Class_Enrollment file
+#### Step 1: Merge on the temporary Class file 
+
+Merge on the temporary Class file you saved earlier to 
+the `Student_Class_Enrollment file`
 
 In R you can merge two datasets using the familiar language of SQL and joins. 
 `inner_join` tells R to retain only observations matched between both datasets.
@@ -2200,7 +2221,7 @@ stuclass %>% ungroup %>% filter(sid == 2251 & cid == 78150780) %>%
 
 ```
 
-#### Step 5: Drop any unneeded variables, drop duplicates, and save the file
+#### Step 5: Drop any unneeded variables and save the file
 
 ```{r dropCleanSaveCourseEnroll}
 ## Drop any unneeded variables, drop duplicates, and save the file
@@ -2208,7 +2229,7 @@ stuclass %>% ungroup %>% filter(sid == 2251 & cid == 78150780) %>%
 stuclass %<>% ungroup %>% distinct()
 
 ## Verify that the file is unique by sid and cid
-nrow(stuclass) == nvals(paste0(stuclass$sid, stuclass$cid, sep ="_"))
+nrow(stuclass) == n_distinct(paste0(stuclass$sid, stuclass$cid, sep ="_"))
 
 ##  Order the variables
 
@@ -2241,7 +2262,7 @@ In **Task 7:** `Student NSC Enrollment`, you will take the
 produce a `Student_NSC_Enrollment_Indicators` file that includes some of the 
 first college enrollment indicators you will need for further analysis.
 
-College enrollment data is obtained from the National Student Clearninghouse 
+College enrollment data is obtained from the National Student Clearinghouse 
 (NSC). NSC matches students from a file your agency sends, including 
 student id, student name, high school from where the student graduated, 
 graduation date, and some other variables. For more information on the 
@@ -2385,7 +2406,10 @@ For enrollment status, the following labels apply:
 - "A" = leave of absence
 - "D" = deceased
 
-#### Step 2: Identify first college attended by type (any, 4-year and 2-year) that didn’t result in a withdrawal.
+#### Step 2: Identify first college attended by type 
+
+Identify first college attended by type (any, 4-year and 2-year) that didn’t 
+result in a withdrawal.
 
 ```{r identifyFirstCollege}
 ## Identify first college attended by type (any, 4-year and 2-year) 

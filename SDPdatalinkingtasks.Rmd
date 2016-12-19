@@ -12,7 +12,7 @@ output:
     toc_depth: 4
 ---
 
-```{r, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, comment=NA}
+```{r setup, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, comment=NA}
 # Set options for knitr
 library(knitr)
 knitr::opts_chunk$set(comment=NA, warning=FALSE, echo=TRUE,
@@ -64,7 +64,7 @@ sub-steps. Code appears in boxes, like below:
 stutest %<>% filter(!is.na(test_math_8))
 
 # check to see if the file is unique by student id
-nrow(stutest) == nvals(stutest$sid)
+nrow(stutest) == n_distinct(stutest$sid)
 
 ```
 
@@ -134,7 +134,7 @@ will primarily use scaled or standardized scores in future analyses. However,
 keep raw scores in your file to compare results between scaled, standardized, 
 or raw scores later on.
 
-#### 1.2 Rename variables to indicate that they are 8th grade scores
+#### 1.2 Rename variables to indicate that they are 8th grade
 
 ```{r renameg8Vars}
 stuach %<>% rename( 
@@ -176,7 +176,7 @@ enrollment outcomes.
 
 **Files needed:** School research file from Identify
 
-**After this step** you will have created a temporary file `highschoolinfo' that
+**After this step** you will have created a temporary file `highschoolinfo` that
 contains a crosswalk between school codes and school names.
 
 ### Steps
@@ -266,7 +266,7 @@ memory and generate program participation status variables.
 **After this step** You will have merged Student School Year data with Student 
 Attributes data into memory and generated variables that indicate if a student 
 has ever been classified as FRPL (Free and Reduced Price Lunch), 
-IEP (Individualized Education Plan), ELL (Engish Language Learner) or Gifted
+IEP (Individualized Education Plan), ELL (English Language Learner) or Gifted
 in the system or during high school.
 
 ### Steps
@@ -304,9 +304,9 @@ table(stusy$grade_level)
 
 # Optional: Get data dimensions for both frames for checking
 nrow_stusy <- nrow(stusy)
-nstu_stusy <- nvals(stusy$sid)
+nstu_stusy <- n_distinct(stusy$sid)
 nrow_stuatt <- nrow(stuatt)
-nstu_stuatt <- nvals(stuatt$sid)
+nstu_stuatt <- n_distinct(stuatt$sid)
 
 # Merge
 stusy <- inner_join(stusy, stuatt, by = "sid")
@@ -327,13 +327,13 @@ By design, `inner_join` only keeps the matching variables.
 
 # Check for perfect merge
 nrow(stusy) == nrow_stusy
-nstu_stusy == nvals(stusy$sid)
-nstu_stuatt == nvals(stusy$sid)
+nstu_stusy == n_distinct(stusy$sid)
+nstu_stuatt == n_distinct(stusy$sid)
 
 # Check merge percentage
 nrow(stusy) / nrow_stusy
-nstu_stusy / nvals(stusy$sid)
-nstu_stuatt / nvals(stusy$sid)
+nstu_stusy / n_distinct(stusy$sid)
+nstu_stuatt / n_distinct(stusy$sid)
 
 stusy <- arrange(stusy, sid)
 length(unique(stusy$sid)) == length(unique(stuatt$sid))
@@ -419,8 +419,8 @@ stuschl <- read_stata(con)
 close(con)
 
 # Optional - get dimensions for comparing merge
-nstu_stusy <- nvals(stusy$sid)
-nstu_stuschl <- nvals(stuschl$sid)
+nstu_stusy <- n_distinct(stusy$sid)
+nstu_stuschl <- n_distinct(stuschl$sid)
 nrow_stusy <- nrow(stusy)
 
 stusy <- inner_join(stusy, stuschl, by = c("sid", "school_year"))
@@ -433,8 +433,8 @@ be unique by `sid`, `school_year`, `school_code`, and `enrollment_date`.
 
 ```{r checkStuSchlMerge}
 # Check percentage of students and rows merged
-nvals(stusy$sid) / nstu_stusy 
-nvals(stusy$sid) / nstu_stuschl
+n_distinct(stusy$sid) / nstu_stusy 
+n_distinct(stusy$sid) / nstu_stuschl
 nrow(stusy) / nrow_stusy  
 
 # Above 0.95 so we can proceed
@@ -446,7 +446,7 @@ nrow(stusy) / nrow_stusy
 
 **Purpose:** Generate high school indicators and outcomes in two categories.
 
-**Files needed:** The file in memory from Steps 3-5 and `highschoolinfo' from 
+**Files needed:** The file in memory from Steps 3-5 and `highschoolinfo` from 
 Step 2. 
 
 **After this step** you will have created a number of high school indicators 
@@ -536,7 +536,8 @@ stusy %>% select(sid, school_code, enrollment_date, total_days_enrolled_in_schoo
   head
 
 stusy %<>% group_by(sid) %>% 
-  mutate(longest_hs_code = unique(school_code[total_days_enrolled_in_school_max == total_days_enrolled_in_school])[1])
+  mutate(longest_hs_code = unique(school_code[total_days_enrolled_in_school_max ==
+                                                total_days_enrolled_in_school])[1])
 
 
 stusy %>% select(sid, school_code, enrollment_date, total_days_enrolled_in_school, 
@@ -552,7 +553,7 @@ stusy$total_days_enrolled_in_school_max <- NULL
 
 #### Merge on highschoolinfo
 
-Merge the `highschoolinfo’ tempfile created in Step 2 onto the
+Merge the `highschoolinfo` tempfile created in Step 2 onto the
 current file. This allows you to obtain school names(`first_hs_name` and 
 `last_hs_name`) associated with the high school codes just captured.
 
@@ -659,7 +660,7 @@ another outcome.
 
 #### 6.3a Group last withdrawal codes together into four end of high school outcomes:
 
-1 = Graduated (define graduated using withdrawal data and hs_diploma in the 
+1 = Graduated (define graduated using withdrawal data and `hs_diploma` in the 
 Student Attributes file, or any other source of graduation information used)
 2 = Transfer Out
 3 = Drop Out
@@ -802,7 +803,7 @@ analysis file.
 
 You have a data set unique by `sid` that contains key student attributes, 
 high school indicators and outcomes. All you need now are 8th grade test scores.
-To add prior achievement scores to the file, merge the `stuach' object from 
+To add prior achievement scores to the file, merge the `stuach` object from 
 Step 1 onto the current analysis file. This is a 1:1 merge on `sid`. 
 
 Use `left_join` to keep all the `sid` in the enrollment file. You may expect to 
@@ -855,7 +856,7 @@ stuCG <- stusy; rm(stusy)
 
 
 All that is left to do is process college enrollment records from the National 
-Student Cleainghouse (NSC), and merge these data onto the `Student_CollegeGoing`
+Student Clearinghouse (NSC), and merge these data onto the `Student_CollegeGoing`
 file. This creates a single analysis file to generate analyses on student 
 transitions through high school and college.
 
@@ -870,11 +871,12 @@ names(stuCG)
 
 
 Use the following questions for the numbered variables above to guide your thoughts:
+
 1. (1-6): Which research file are these variables from?
 2. (7-14): Which research file are these variables from?
 3. (15-17): How are first, last, and longest high school codes identified?
 4. (18-20): From what research file are first, last, and longest high school names obtained?
-5. (21): What does the last_wd_group variable describe?
+5. (21): What does the `last_wd_group` variable describe?
 6. (22-23): How are 9th grade and graduation cohorts defined?
 7. (24-29): How are graduation and high school enrollment outcomes defined?
 8. (30-40): Which research file are these variables from?
@@ -1034,7 +1036,6 @@ testDF <- stunsc %>%
 
 stunsc %<>% filter(!is.na(stunsc$chrt_grad))
 
-# Big typo in the toolkit here on p. 15, should be 05-01-YYYY for the end date, no 10-01-YYYY
 # [stunsc$chrt_grad ==", i, "] 
 for(i in as.numeric(na.omit(unique(stunsc$chrt_grad)))){
   for(j in 1:4){
@@ -1042,7 +1043,8 @@ for(i in as.numeric(na.omit(unique(stunsc$chrt_grad)))){
                        (stunsc$enrl_1oct_grad_yr", j," == 0) &
                            (stunsc$n_enroll_begin_date <=
                        ymd(paste0(", i, "+", j-1, ",'-10-01')) & 
-                      ymd(paste0(", i, "+", j-1, ",'-05-01')) <= stunsc$n_enroll_end_date) &
+                      ymd(paste0(", i, "+", j-1, ",'-05-01')) <= 
+                      stunsc$n_enroll_end_date) &
                       (year(stunsc$hs_diploma_date) == ", i, " &
                       month(stunsc$hs_diploma_date) <=9) | 
                     (year(stunsc$hs_diploma_date) == ", i-1, "& 
@@ -1058,9 +1060,11 @@ table(stunsc$enrl_1oct_grad_yr3)
 table(stunsc$enrl_1oct_grad_yr4)
 
 stunsc %>% filter(sid %in% c(16011, 16016)) %>% 
-  select(sid, chrt_grad, hs_diploma_date, first_enrl_date_any, n_enroll_begin_date, 
-         n_enroll_end_date,
-         enrl_1oct_grad_yr1, enrl_1oct_grad_yr2, enrl_1oct_grad_yr3, enrl_1oct_grad_yr4) %>% as.data.frame
+  select(sid, chrt_grad, hs_diploma_date, first_enrl_date_any,
+         n_enroll_begin_date, n_enroll_end_date,
+         enrl_1oct_grad_yr1, enrl_1oct_grad_yr2, 
+         enrl_1oct_grad_yr3, enrl_1oct_grad_yr4) %>% 
+  as.data.frame
 
 
 for(i in as.numeric(unique(stunsc$ontime_yr))){
@@ -1086,8 +1090,8 @@ table(stunsc$enrl_1oct_ninth_yr4)
 
 At this point, you have all the values that were depended on individual college
 enrollment episodes. Now we will make the data unique by student, ensuring that 
-we have indicators for 2-year, 4-year and any college. Create an indicator th
-at specifies the type of college. Make this the highest level of enrollment.
+we have indicators for 2-year, 4-year and any college. Create an indicator that
+specifies the type of college. Make this the highest level of enrollment.
 
 ```{r makeNSCuniqueSID}
 stunsc$type <- NA
@@ -1204,16 +1208,6 @@ for(i in stubs){
   stunsc[, newVar] <- rowSums(zeroNA(stunsc[, tmp]))
 }
 
-
-# // create an any college version of the year-by-year college enrollment outcome
-# foreach chrt in grad ninth {
-# foreach i of numlist 1/4 {
-# egen enrl_1oct_`chrt'_yr`i'_any = rowmax(enrl_1oct_`chrt'_yr`i'_2yr
-# enrl_1oct_`chrt'_yr`i'_4yr)
-# }
-# }
-# // create an any college version of the within 2 years enrollment outcome foreach chrt in grad
-
 stunsc$enrl_ever_w2_grad_any <- rowSums(zeroNA(stunsc[, c("enrl_ever_w2_grad_2yr",
                                                           "enrl_ever_w2_grad_4yr")]))
 stunsc$enrl_ever_w2_ninth_any <- rowSums(zeroNA(stunsc[, c("enrl_ever_w2_ninth_2yr",
@@ -1262,13 +1256,17 @@ for(chrt in c("ninth", "grad")){
 
 ## Step 10: Merge the Collegoing and NSC File
 
-You’re Almost There!
-You are almost finished creating the college-going analysis file. All that is l
-eft is to merge the Student_CollegeGoing file with the NSC college going 
-indicators you created in Step 9 and drop any students classified as transferout from the analysis. This allows your analysis file to contain student characteristics, high
-school outcomes, and college enrollment and persistence outcomes. This is a 1:1 merge on student id and
-results in observations that match, as well as observations that come only from the Student_CollegeGoing
-file.
+**You're Almost There!**
+
+You are almost finished creating the college-going analysis file. All that is 
+left is to merge the `Student_CollegeGoing` file with the NSC college going 
+indicators you created in Step 9 and drop any students classified as transferout 
+from the analysis. This allows your analysis file to contain student 
+characteristics, high school outcomes, and college enrollment and persistence 
+outcomes. 
+
+This is a 1:1 merge on `sid` and results in observations that match, as well 
+as observations that come only from the `Student_CollegeGoing` file.
 
 ```{r mergeTogether}
 out <- left_join(stuCG, stunsc, by = "sid")
@@ -1297,7 +1295,9 @@ rm(list = ls()[ls() != "cg_analysis"])
 **Purpose:** Generate variables that indicate students’ on track status at the 
 end of each high school year.
 
-**Files needed:** `Student_School_Year_Ninth`, `Student_School_Enrollment_Clean` 
+**Files needed:** 
+
+`Student_School_Year_Ninth`, `Student_School_Enrollment_Clean`,
 and `Student_Class_Enrollment_Merged` from Clean, and `Student_CollegeGoing` 
 from Step 8 in Connect.
 
@@ -1404,7 +1404,7 @@ stuOT %<>% select(-ever_transferout)
 
 ```
 
-Keep the relevant variables, and ensure that your file is unique by student id and school year. Label the object student schoolyear (`stusy`) and leave it in the 
+Keep the relevant variables, and ensure that your file is unique by student id and school year. Label the object student school year (`stusy`) and leave it in the 
 workspace for later.
 
 ```{r filterSaveSortStuOT}
@@ -1413,7 +1413,7 @@ workspace for later.
 stusy <- stuOT %>% select(sid, school_year, grade_level) %>% 
   distinct(school_year, grade_level)
 # Confirm uniqueness of rows
-nvals(paste0(stusy$sid, stusy$school_year)) == nrow(stusy)
+n_distinct(paste0(stusy$sid, stusy$school_year)) == nrow(stusy)
 # Clean up
 rm(stuOT)
 ```
@@ -1905,7 +1905,7 @@ sum(table(stuOT$status_eoy)) == nrow(stuOT)
 
 2.3b Now, define status after 4th year using diploma information.
 
-```{r}
+```{r defineStatus}
 tmp <- stuOT %>% filter(year_in_hs == 4)  %>% 
   group_by(sid) %>% 
   mutate(status_eoy_yr4 = ifelse(ontime_grad == 1 & !is.na(chrt_grad), 1, 0)) %>%
@@ -1923,8 +1923,7 @@ stuOT$status_eoy_yr4 <- NULL
 
 ```
 
-
-Reshape wide by sid
+Reshape wide by `sid`
 
 ```{r reshapeOTwide}
 stuOT$status_after <- stuOT$status_eoy; stuOT$status_eoy <- NULL
@@ -1972,11 +1971,11 @@ close(con)
 
 #### 3.1 Process final grades and credits
 
-First, ensure final_grade_mark and final_grade_mark_num comport. In the 
+First, ensure `final_grade_mark` and `final_grade_mark_num` comport. In the 
 tabulation you should see a pattern that makes sense. In the sample data we 
 provided you will notice that in addition to the regular grades (A through F), 
-we have “P”, representing Pass/Fail courses, and “NGPA”, representing other 
-non-credit bearingcourses.
+we have "P", representing Pass/Fail courses, and "NGPA", representing other 
+non-credit bearing courses.
 
 ```{r inspectGradeTable}
 table(stuOT$final_grade_mark, stuOT$final_grade_mark_num)
@@ -2027,7 +2026,7 @@ these variables, and ensure your file is unique by student id and school year.
 stuOT %<>% select(sid, school_year, starts_with("tot_gpa"), gpa_year)
 stuOT %<>% distinct(sid, school_year, .keep_all=TRUE)
 stuOT %<>% filter(!is.na(gpa_year))
-nrow(stuOT) == nvals(paste0(stuOT$sid, stuOT$school_year))
+nrow(stuOT) == n_distinct(paste0(stuOT$sid, stuOT$school_year))
 
 ```
 
@@ -2081,7 +2080,7 @@ rm(stuOT)
 ```
 
 
-Now, merge these GPA variables and the Student_OnTrack_Variables file you 
+Now, merge these GPA variables and the `Student_OnTrack_Variables` file you 
 created in Step 2. Order the variables and save the resulting file in a 
 temporary file.
 

@@ -290,7 +290,8 @@ schoolData <- plotdf %>% group_by(first_hs_name) %>%
             seameless_transitioners_any = mean(seamless_transitioners_any, na.rm=TRUE), 
             second_year_persisters = mean(second_year_persisters, na.rm=TRUE), 
             N = n())
-# // 1. Create a variable school_name that takes on the value of students’ first high school attended
+# // 1. Create a variable school_name that takes on the value of students’ first 
+## high school attended
 names(schoolData)[1] <- "school_name"
 
 # // 3. Identify the agency maximum values for each of the three outcome variables
@@ -321,8 +322,10 @@ library(scales)
 
 schoolData$outcome[schoolData$outcome == "cohort"] <- "Ninth Graders"
 schoolData$outcome[schoolData$outcome == "grad"] <- "On-time Graduates"
-schoolData$outcome[schoolData$outcome == "seameless_transitioners_any"] <- "Seamless College Transitioner"
-schoolData$outcome[schoolData$outcome == "second_year_persisters"] <- "Second Year Persisters"
+schoolData$outcome[schoolData$outcome == "seameless_transitioners_any"] <- 
+  "Seamless College Transitioner"
+schoolData$outcome[schoolData$outcome == "second_year_persisters"] <- 
+  "Second Year Persisters"
 ```
 
 
@@ -345,8 +348,9 @@ ggplot(schoolData[schoolData$subset,],
   labs(y = "Percent of Ninth Graders", 
        title = "Student Progression from 9th Grade Through College", 
        subtitle = "Agency Average", x = "",
-       caption = "Sample: 2004-2005 Agency first-time ninth graders. Postsecondary enrollment outcomes from NSC matched records.
-All other data from Agency administrative records.")
+       caption = paste0("Sample: 2004-2005 Agency first-time ninth graders.", 
+                  "Postsecondary enrollment outcomes from NSC matched records.",
+                        "All other data from Agency administrative records."))
 
 
 ```
@@ -389,7 +393,8 @@ that progress to each step along the education pipeline.
 
 plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & chrt_ninth <= chrt_ninth_end_persist_yr2)
 
-# // Step 2: Create variables for the outcomes "regular diploma recipients", "seamless transitioners" and "second year persisters"
+# // Step 2: Create variables for the outcomes "regular diploma recipients", 
+## "seamless transitioners" and "second year persisters"
 plotdf$grad <- ifelse(!is.na(plotdf$chrt_grad) & plotdf$ontime_grad ==1, 1, 0)
 plotdf$seamless_transitioners_any <- as.numeric(plotdf$enrl_1oct_ninth_yr1_any == 1 &
                                                  plotdf$ontime_grad == 1)
@@ -413,8 +418,10 @@ progressRace <- progressRace %>% gather(key = outcome,
 # // Step 5: Recode variables for plot-friendly labels
 progressRace$outcome[progressRace$outcome == "cohort"] <- "Ninth Graders"
 progressRace$outcome[progressRace$outcome == "grad"] <- "On-time Graduates"
-progressRace$outcome[progressRace$outcome == "seameless_transitioners_any"] <- "Seamless College Transitioner"
-progressRace$outcome[progressRace$outcome == "second_year_persisters"] <- "Second Year Persisters"
+progressRace$outcome[progressRace$outcome == "seameless_transitioners_any"] <- 
+  "Seamless College Transitioner"
+progressRace$outcome[progressRace$outcome == "second_year_persisters"] <- 
+  "Second Year Persisters"
 
 progressRace$subset <- ifelse(progressRace$race_ethnicity %in% c(1, 3, 2, 5), 
                               TRUE, FALSE)
@@ -445,8 +452,9 @@ ggplot(progressRace[progressRace$subset,],
   labs(y = "Percent of Ninth Graders", 
        title = "Student Progression from 9th Grade Through College", 
        subtitle = "By Student Race/Ethnicity", x = "",
-       caption = "Sample: 2004-2005 Agency first-time ninth graders. Postsecondary enrollment outcomes from NSC matched records.
-All other data from Agency administrative records.")
+       caption = paste0("Sample: 2004-2005 Agency first-time ninth graders.", 
+                       "Postsecondary enrollment outcomes from NSC matched records.",
+                       "All other data from Agency administrative records."))
 
 ```
 
@@ -662,8 +670,10 @@ progressTrack <- progressTrack %>% gather(key = outcome,
 # TODO: Function to recode outcome
 progressTrack$outcome[progressTrack$outcome == "cohort"] <- "Ninth Graders"
 progressTrack$outcome[progressTrack$outcome == "grad"] <- "On-time Graduates"
-progressTrack$outcome[progressTrack$outcome == "seameless_transitioners_any"] <- "Seamless College Transitioner"
-progressTrack$outcome[progressTrack$outcome == "second_year_persisters"] <- "Second Year Persisters"
+progressTrack$outcome[progressTrack$outcome == "seameless_transitioners_any"] <-
+  "Seamless College Transitioner"
+progressTrack$outcome[progressTrack$outcome == "second_year_persisters"] <- 
+  "Second Year Persisters"
 
 ```
 
@@ -691,8 +701,9 @@ ggplot(progressTrack,
   labs(y = "Percent of Ninth Graders", 
        title = "Student Progression from 9th Grade Through College", 
        subtitle = "By Course Credits and GPA after First High School Year", x = "",
-       caption = "Sample: 2004-2005 Agency first-time ninth graders. Postsecondary enrollment outcomes from NSC matched records.
-All other data from Agency administrative records.")
+       caption = paste0("Sample: 2004-2005 Agency first-time ninth graders.",
+                        "Postsecondary enrollment outcomes from NSC matched records.",
+                        "All other data from Agency administrative records."))
 ```
 
 # B: Ninth to Tenth Grade Transition by On-Track Status
@@ -702,7 +713,7 @@ the likelihood of a student dropping out of high school. In this section, you
 examine patterns of student retention and on-time transitions from ninth to 
 tenth grade. This information can provide an early warning to an agency with 
 students at-risk of dropping out, and might benefit from targeted support early 
-in theirhigh school careers.
+in their high school careers.
 
 To explore transitions from ninth to tenth grade, use the following model analyses:
 
@@ -813,8 +824,9 @@ ggplot(progressBars, aes(x = reorder(first_hs_name, n/count),
         legend.position = c(0.15, 0.875)) +
   labs(title = "Proportion of Students On-Track to Graduate by School", 
        subtitle = "End of Ninth Grade On-Track Status \n By High School", x = "",
-       caption = "Sample: 2004-2005 Agency first-time ninth graders. Postsecondary enrollment outcomes from NSC matched records.
-All other data from Agency administrative records.")
+       caption = paste0("Sample: 2004-2005 Agency first-time ninth graders.", 
+                        "Postsecondary enrollment outcomes from NSC matched records.",
+                        "All other data from Agency administrative records."))
 
 ```
 
@@ -948,10 +960,10 @@ To begin exploring high school graduation further, use the analyses below:
 [Insert images here]
 
 1. High School Completion Rates By School
-2. High SChool Completion Rates by Average 8th Grade Achievement
+2. High School Completion Rates by Average 8th Grade Achievement
 3. High School Completion Rates by 8th Grade Achievement Quartiles
 4. Racial gaps in completion overall and By 8th Grade Achievement Quartiles
-5. Enrollment Outcome in Year 4 by On-Track Status at the ENd of Ninth Grade
+5. Enrollment Outcome in Year 4 by On-Track Status at the End of Ninth Grade
 
 
 ## Task 1: High School Completion Rates By School
@@ -1042,7 +1054,7 @@ ggplot(schoolLevel, aes(x = reorder(first_hs_name, measure), y = measure,
                         "Data from Agency administrative records."))
 ```
 
-## Task 2: High SChool Completion Rates by Average 8th Grade Achievement
+## Task 2: High School Completion Rates by Average 8th Grade Achievement
 
 **Purpose:**  This analysis examines the relationship between academic 
 achievement at high school entry and high school completion rates. This 
@@ -1122,9 +1134,11 @@ schoolLevel$first_hs_name <- gsub(" High School", "", schoolLevel$first_hs_name)
 # // Step 4: Plot
 ggplot(schoolLevel[schoolLevel$first_hs_name != "Agency AVERAGE", ], 
        aes(x = std_score, y = ontime_grad)) + 
-  geom_vline(xintercept = as.numeric(schoolLevel[schoolLevel$first_hs_name == "Agency AVERAGE", "std_score"]), 
+  geom_vline(xintercept = as.numeric(schoolLevel[schoolLevel$first_hs_name == 
+                                                   "Agency AVERAGE", "std_score"]), 
                linetype = 4, color = I("goldenrod"), size = 1.1) +
-  geom_hline(yintercept = as.numeric(schoolLevel[schoolLevel$first_hs_name == "Agency AVERAGE", "ontime_grad"]), 
+  geom_hline(yintercept = as.numeric(schoolLevel[schoolLevel$first_hs_name == 
+                                                   "Agency AVERAGE", "ontime_grad"]), 
                linetype = 4, color = I("purple"), size = 1.1) +
   geom_point(size = I(2)) + 
   theme_bw() + theme(panel.grid = element_blank()) +
@@ -1160,7 +1174,7 @@ ggplot(schoolLevel[schoolLevel$first_hs_name != "Agency AVERAGE", ],
 ```
 
 
-## Task 3: High SChool Completion Rates by 8TH Grade Achievement Quartiles
+## Task 3: High SChool Completion Rates by 8th Grade Achievement Quartiles
 
 
 **Purpose:** This analysis examines variation in completion rates for high 
@@ -1238,7 +1252,9 @@ library(gridExtra)
 p2 <-  ggplot(schoolLevel[schoolLevel$qrt_8_math == 2 & 
                        schoolLevel$first_hs_name != "Agency AVERAGE", ], 
        aes(x = reorder(first_hs_name, ontime_grad), y = ontime_grad)) +
-      geom_hline(yintercept = as.numeric(schoolLevel$ontime_grad[schoolLevel$first_hs_name == "Agency AVERAGE"]),
+      geom_hline(yintercept =
+                   as.numeric(schoolLevel$ontime_grad[schoolLevel$first_hs_name ==
+                                                        "Agency AVERAGE"]),
                linetype = 2, size = I(1.1)) +
   geom_bar(stat = "identity", fill = "lightsteelblue4", color = I("black")) + 
     scale_y_continuous(limits = c(0,1), breaks = seq(0, 1, 0.2), 
@@ -1260,8 +1276,10 @@ grobList <- list(
   ggplot(schoolLevel[schoolLevel$qrt_8_math == 1 & 
                        schoolLevel$first_hs_name != "Agency AVERAGE", ], 
        aes(x = reorder(first_hs_name, ontime_grad), y = ontime_grad)) + 
-        geom_hline(yintercept = as.numeric(schoolLevel$ontime_grad[schoolLevel$first_hs_name == "Agency AVERAGE"]),
-               linetype = 2, size = I(1.1)) +
+        geom_hline(yintercept =
+                     as.numeric(schoolLevel$ontime_grad[schoolLevel$first_hs_name ==
+                                                          "Agency AVERAGE"]),
+                   linetype = 2, size = I(1.1)) +
   geom_bar(stat = "identity", fill = "lightsteelblue4", color = I("black")) + 
     scale_y_continuous(limits = c(0,1), breaks = seq(0, 1, 0.2), 
                        expand = c(0, 0), label = percent) + 
@@ -1491,8 +1509,10 @@ ggplot(plotOne, aes(x = ontrackStatus, y = count/sum, fill = statusVar,
   labs(x = "Ninth Grade On-Track Status", fill = "Status After Year Four", 
        title = "Enrollment Status After Four Years in High School", 
        subtitle = "By Course Credits and GPA after First Year of High School", 
-       caption = paste0("Sample: 2004-2005 through 2005-2006 Agency first-time ninth graders.", 
-                        "Students who transferred into or out of the agency are excluded from the sample.",
+       caption = paste0("Sample: 2004-2005 through 2005-2006 Agency", 
+                        " first-time ninth graders.", 
+                        "Students who transferred into or out of the agency are", 
+                        " excluded from the sample.",
                         "\n All data from Agency administrative records.")) + 
   theme_classic() + theme(legend.position = c(0.2, 0.8),
                           axis.text = element_text(color = "black")) 
@@ -1513,7 +1533,7 @@ To explore these questions, consider the following model analyses:
 [Insert image thumbnails and descriptions here]
 
 1. College Enrollment Rates by High School
-2. Seamless and Delyaed College ENrollment Rate by High School
+2. Seamless and Delayed College Enrollment Rate by High School
 3. College Enrollment Rates by Average 8th Grade Achievement
 4. College Enrollment Rates by 8th Grade Achievement Quantiles
 5. Rates of Non-Enrollment Among Graduates Highly Qualified to Attend Four-Year
@@ -1628,9 +1648,9 @@ ggplot(chartData, aes(x = reorder(last_hs_name, enroll_any),
   labs(x = "", y = "Percent of High School Graduates", 
        title = "College Enrollment by High School", 
        subtitle = "Seamless Enrollers", 
-       caption = paste0("Sample: 2007-2008 through 2008-2009 Agency graduates. Postsecondary", 
-                        " enrollment outcomes from NSC matched records. \n ", 
-                        "All other data from administrative records.")) + 
+       caption = paste0("Sample: 2007-2008 through 2008-2009 Agency graduates.",
+                        "Postsecondary enrollment outcomes from NSC matched records.", 
+                        "\n All other data from administrative records.")) + 
   theme(axis.text.x = element_text(angle = 30, vjust = 0.8, color = "black"), 
         legend.position = c(0.1, 0.8), axis.ticks.x = element_blank())
 
@@ -1758,9 +1778,9 @@ ggplot(chartData, aes(x = reorder(last_hs_name, enroll_any),
   labs(x = "", y = "Percent of High School Graduates", 
        title = "College Enrollment by High School", 
        subtitle = "Seamless and Delayed Enrollers", 
-       caption = paste0("Sample: 2007-2008 through 2008-2009 Agency graduates. Postsecondary", 
-                        " enrollment outcomes from NSC matched records. \n ", 
-                        "All other data from administrative records.")) + 
+       caption = paste0("Sample: 2007-2008 through 2008-2009 Agency graduates.",
+                        "Postsecondary enrollment outcomes from NSC matched records.", 
+                        "\n All other data from administrative records.")) + 
   theme(axis.text.x = element_text(angle = 30, vjust = 0.8, color = "black"), 
         legend.position = c(0.1, 0.8), axis.ticks.x = element_blank())
 
@@ -1803,7 +1823,7 @@ and explore college enrollment within two years of high school completion.
 Additionally, replicate this analysis to explore the relationship between 
 college enrollment and students’ ELA achievement at high school entry. Consider 
 why schools with similar incoming student profiles may report dramatically 
-different college-going rates. Conversely, consider why schools with disimilar 
+different college-going rates. Conversely, consider why schools with dissimilar 
 student bodies report similar matriculation rates to college.
 
 **Analytic Technique:** Bivariate scatterplot of school-level average student 
@@ -2259,7 +2279,7 @@ similar background characteristics?
 - Do you observe differences in the degree to which the White-Black gap and 
 the White-Latino gap decline after accounting for prior achievement and 
 socioeconomic status? If the adjusted gap between White and Latino students, 
-for example, is still sizeable, what additional barriers may be impeding access 
+for example, is still sizable, what additional barriers may be impeding access 
 to college for Latino students? 
 
 **Analytic Technique:** Calculate the difference between the proportion of Black 
@@ -2358,9 +2378,12 @@ ggplot(chartData[chartData$term == "race_ethnicityHispanic", ],
                      label = percent, name = "Percentage Points") + 
   theme_classic() + theme(legend.position = "bottom", axis.text.x = element_blank(), 
                           axis.ticks.x = element_blank()) + 
-  labs(title = "Differences in Rates of College Enrollment \nBetween Latino and White High School Graduates", 
+  labs(title = paste0("Differences in Rates of College Enrollment", 
+                      " \nBetween Latino and White High School Graduates"), 
        x = "",
-       caption = "Sample: 2007-2008 through 2008-2009 high school graduates. Postsecondary enrollment outcomes from NSC matched records. \n All other data from Agency administrative records.")
+       caption = paste0("Sample: 2007-2008 through 2008-2009 high school graduates.",
+                        "Postsecondary enrollment outcomes from NSC matched records.",
+                        " \n All other data from Agency administrative records."))
 
 ```
 
@@ -2611,7 +2634,7 @@ To explore college persistence, use the models below:
 
 [Insert figures here]
 
-1. Presistence Rates to the SEcond Year of College By High School
+1. Persistence Rates to the Second Year of College By High School
 2. Persistence Across Two-Year and Four-Year Colleges
 3. Top Enrolling Colleges and Universities of Agency Graduates
 
