@@ -7,6 +7,9 @@ output:
     toc: no
     toc_depth: 2
     latex_engine: xelatex
+    includes:
+      in_header: harvardheader.tex
+      before_body: harvard_prefix.tex
 urlcolor: blue
 ---
 

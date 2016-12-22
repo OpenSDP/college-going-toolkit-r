@@ -1,5 +1,5 @@
 ---
-title: "Analyze: College-Going Success Analysis Guide"
+title: "ANALYZE: ANALYSIS GUIDE"
 author: "Strategic Data Project"
 date: "November 16, 2016"
 output:
@@ -7,6 +7,9 @@ output:
     toc: yes
     toc_depth: 4
     latex_engine: xelatex
+    includes:
+      in_header: harvardheader.tex
+      before_body: harvard_prefix.tex
   html_document:
     toc: yes
     toc_depth: 4
