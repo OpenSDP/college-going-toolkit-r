@@ -5,7 +5,7 @@ date: "Center for Education Policy Research at Harvard University"
 output:
   pdf_document:
     latex_engine: xelatex
-    toc: yes
+    toc: no
     toc_depth: 4
     includes:
       in_header: harvardheader.tex
@@ -153,7 +153,8 @@ Strategic Performance Indicator | SPI
 
 ### Folder Naming and Structure
 
-To organize files properly on any server, we recommend you adhere to the following guidelines:
+To organize files properly on any server, we recommend you adhere to the
+following guidelines:
 
 - The root folder should be named according to the project that data and
 analyses contained within belong to (e.g. School_Reports). - Sub-folders within
@@ -200,18 +201,17 @@ the above R .R file may be named
 
 ### Variable Naming
 
-The number of characters used to name variables is limited. For example, Stata
-variable names may contain up to 32 characters. Database columns may be limited
-to 30 characters depending on platform. Additionally, many Stata commands only
-print 12 characters by default. Keep this in mind when you name variables. Try
-to be both specific and concise in your variable names.
+The number of characters used to name variables is limited. Database columns may
+be limited to 30 characters depending on platform. Additionally, many R commands
+only print a few characters by default. Keep this in mind when you name
+variables. Try to be both specific and concise in your variable names.
 
-All variables in a Stata dataset should be labeled (as should database columns).
-For commonly used variables with existing definitions, consider reading in
-labels from a common external file rather than entering labels manually or by
-copy/paste. Alternatively, call upon a separate .do file in your main code that
-contains standard labels rather than including labeling code in your primary .do
-file.
+All variables in an R dataframe should be labeled (as should database columns). 
+For commonly used variables with existing definitions, consider reading in 
+labels from a common external file rather than entering labels manually or by 
+copy/paste. Alternatively, call upon a separate .R file in your main code that 
+contains a function to apply standard labels rather than including labeling code
+in your primary .R script.
 
 ```{r variableNaming}
 
@@ -222,164 +222,146 @@ file.
 
 ### Comments
 
-Comments are important in any program (Stata, SQL, or otherwise) and should be
-used generously but also deliberately. Comments should be used as often as
-necessary to explain the logic and use of each portion of code without being
-burdensome to write. The goal of commenting is to give insight into your program
-– not only for others (e.g. your peers) but also for you! When you've spent
-hours, days, weeks, months, or years between writing and reading your own code,
-you'll thank yourself for the comments! 
+Comments are important in any program (R, SQL, or otherwise) and should be used
+generously but also deliberately. Comments should be used as often as necessary
+to explain the logic and use of each portion of code without being burdensome to
+write or cluttering the script file. The goal of commenting is to give insight
+into your program – not only for others (e.g. your peers) but also for you! When
+you've spent hours, days, weeks, months, or years between writing and reading
+your own code, you'll thank yourself for the comments!
 
 Generally speaking, a comment every few lines of code is good practice. Try to
 write comments that address one or both of these questions:
-
 
 - What does this block do?
 - Why did I implement this block this particular way?
 
 ### General Commenting Guidelines
 
-Comments can be entered in Stata, SQL, and other programming languages using a
+Comments can be entered in R, SQL, and other programming languages using a
 number of different syntaxes. Some of the syntaxes are common to most (or all)
-languages, some not. To ensure consistency between types of programs (Stata,
+languages, some not. To ensure consistency between types of programs (R,
 SQL, etc), please use the following guidelines. These guidelines ensure that
 your programs are readable when printed or viewed in a normal text editor that
 does not do syntax highlighting.
 
-- Use the double-forward-slash syntax (//) for a single-line comment or an
+- Use the # for commenting in R either at the beginning of a line or as an 
 end-of-line comment (a comment at the end of a line of code)
 
-```{r commentExample}
+```{r commentExample2, eval=FALSE}
+# Comment explaining something
+table(myvariable) # end-of-line comment
 
 ```
 
-- Use the slash-star syntax (/* and */) for a block comment (multiple line comment).
-- Precede each line with an additional asterisk. It is a good idea to align the
-asterisks.
+- Use commented lines of -- to set off blocks of comments and to break up 
+script files
+- Precede each line of the comment block with a single comment character.
 
 ```{r commentExample}
-
+# Block one ---------
+# This is some
+# Additional things to explain
+# ---------------
 ```
 
-- Avoid in-line comments between pieces of code
+- In R you cannot comment within a line of code
 
-```{r}
+```{r inlineBlocks, eval=FALSE}
 
-`local /* This is not a good comment */ row = 1`
+data$variable <- # comment # value
 
 ```
 
 - Keep comments as succinct as possible (e.g., one line) while not losing meaning.
-- Leave one space between the // or /* and your comment's first character.
+- Leave one space between the # and your comment's first character.
 
-```{r}
-
-// compute average test score
-egen average = mean(score), by(studentid)
+```{r goodComment, eval=FALSE}
+# compute average test score
+test_avg = mean(score)
 ```
 
 Not:
 
-```{r}
-//The following line is meant to compute the average of a student's test score.
-egen average = mean(score), by(studentid)
+```{r badComment, eval=FALSE}
+# The following line is meant to compute the average of a student's test score.
+test_avg = mean(score)
 ```
-
 
 - If a single-line comment needs to be long enough to extend beyond the
 screen/page width, turn it into a block comment.
 
 - Similarly, if a single line of code (command) is long enough to extend beyond
-the screen/page, break the code into multiple lines and use the triple-slash
-syntax (///) at the end of each line. Always indent the continuing lines of
-code.
+the screen/page, break the code into multiple lines. Always indent the 
+continuing lines of code. Many code editors will do this for you.
 
-```{r}
+```{r groupedValues, eval=FALSE}
+library(dplyr) # load needed package
 
-collapse (mean) s_male s_race s_lep s_lunch s_sped s_math_std s_read_std ///
-s_black s_asian s_hispanic s_nativeamer s_white ///
-s_retained s_schoolcode, by(s_year schoolname)
+grouped_data <- data %>% group_by(s_year, schoolname) %>% 
+  summarize_all(.funs = "mean")
+
 ```
 
-
-- Alternatively, if you expect to have a series of commands that extend beyond
-the screen/page, change the end-of-line delimiter from a carriage return to a
-semicolon. When you have finished the series, return the end-of-line delimiter
-to the default carriage return.
-
-```{r}
-#delimit ;
-collapse (mean) s_male s_race s_lep s_lunch s_sped s_math_std s_read_std
-s_black s_asian s_hispanic s_nativeamer s_white
-s_retained s_schoolcode, by(s_year schoolname);
-#delimit cr
-```
-
-- Use a string of asterisks in a comment to distinguish between a high-level
+- Use a string of dashes in a comment to distinguish between a high-level
 description of a block of code from more granular comments. End the block with a
 similar string.
 
-```{r}
-// ***************** Data Set Macros *****************
-local location “C:\test” // Location of files
-local file_name “filename1” // Name of source data file
-local source_id “studentid” // Variable containing the unique id in data file
-local xwalk_file “id_xwalk” // Name of crosswalk file
-local masked_id “sdpsid” // Variable containing masked id in crosswalk
-// ******************************************************
+```{r globals, eval=FALSE}
+# ------------ Data Set Globals -----------------
+location = "C:\test"
+file_name = "file1"
+source_id = "studentid"
+xwalk_file = "id_xwalk"
+masked_id = "sdpsid" # Variable containing masked id in crosswalk
+# ------------ Data Set Globals -----------------
 ```
 
 - Mark the end of a large block of nested conditional logic – such as a loop or
 if statement.
 
-```{r}
-foreach subj in math read {
-use “$data/student_teacher_`subj'_vam.dta”, clear
-// LOTS OF STUFF
-...
-...
-forval yr = 2(1)`numyrs' {
-gen late_exp_`yr' = ever_late_hire*t_exp`yr'
-// LOTS OF STUFF
-...
-...
-...
-} // End of loop over years
-// MORE STUFF
-...
-...
-} // End of loop over subjects
+```{r loopFormat, eval=FALSE}
+for(subj in c("math", "read")){
+  for(yr in c(2001:2005)){
+    tmp_yr <- yr + 4
+#   / LOTS OF STUFF
+#    ...
+#    ...
+#    ...
+    } # End of loop over years
+ #// MORE STUFF
+# ...
+# ...
+  } # End of loop over subjects
+
 ```
 
 - End-of-line comments are discouraged (except for annotating a group of aligned
 variables or marking the end of a block of nested code). Instead, comments
 should precede a line of code.
 
-```{r}
-// merge teacher VA math
-merge 1:m studentid year using “$data/student_teacher_math_tre.dta”, nogen
-
+```{r mergeComment, eval=FALSE}
+# Merge teacher VA math
+full_data <- inner_join(student_data, school_data, 
+                        by = c("studentid", "year"))
 ```
 
 Not:
 
-```{r}
-merge 1:m studentid year using “$data/student_teacher_math_tre.dta”, nogen
-// merge VA math
+```{r mergeCommentBad, eval=FALSE}
+full_data <- inner_join(student_data, school_data, 
+                        by = c("studentid", "year")) # Merge teacher VA math
 ```
-
 
 - Commenting can help you keep track of future analyses you'll want to come back
 to. For example, make explicit call-outs to pieces of code that need to be
-implemented, reviewed, updated, or configured with “TO DO”.
+implemented, reviewed, updated, or configured with "TO DO".
 
 ```{r}
 # TODO: generate new hire and late hire variable using hire date
 # TODO: update variables based on school year
 # TODO: test the following block for correctness on a larger data set
-
 ```
-
 
 ### File Headers
 
@@ -389,7 +371,7 @@ name), lists the date created, provides a description, and lists inputs,outputs,
 and updates. The description should walk through high level logical steps. These
 steps should be identified in the actual code. Consider what is done here:
 
-```{r}
+```{r fileBlock, eval=FALSE}
 #/****************************************************************************
 #* File name: crosswalk_masked_ids.do
 #* Author(s): JSilver
@@ -428,7 +410,7 @@ global log “//cepr-files/projects/DCPS/Log Files”
 ### White Space and Readability
 
 White space refers to indentation and extra lines that make code readable. Lack
-of white space is referred to as “spaghetti code” since it is difficult to
+of white space is referred to as "spaghetti code"" since it is difficult to
 ascertain where one command ends and the next begins.
 
 Code should be indented to make clear which blocks of code are nested inside of
@@ -438,7 +420,7 @@ other applications or computers.
 
 The following is an example of well indented code:
 
-```{r}
+```{r indentExample, eval=FALSE}
 if $teacher == 1 {
 local numyrs = 4
 // define empty matrix of Yr x Subj
@@ -454,10 +436,9 @@ gen late_exp_`yr' = ever_late_hire*t_exp`yr'
 } // end of teacher processing
 ```
 
-
 The following is an example of poorly indented code:
 
-```{r}
+```{r badIndent, eval=FALSE}
 if $teacher == 1 {
 local numyrs = 4
 // define empty matrix of Yr x Subj
@@ -471,93 +452,98 @@ forval yr = 2(1)`numyrs' {gen late_exp_`yr' = ever_late_hire*t_exp`yr'}
 }
 ```
 
-Do not indent braces following a condition.
+An opening curly brace should never go on its own line and should always be
+followed by a new line. A closing curly brace should always go on its own line,
+unless it’s followed by else.
 
-```{r}
-if x > 0
-{
-dis “x is positive”
+Always indent the code inside curly braces.
+
+```{r goodBrace, eval=FALSE}
+if (y == 0) {
+  log(x)
+} else {
+  y ^ x
 }
-else
-{
-dis “x is negative”
-}
-```
 
-Also, do not double or triple indent when a single indent is sufficient.
-
-```{r}
-if x > 0 {
-dis “x is positive”
-}
-else {
-dis “x is negative”
-}
-```
-
-
-As mentioned earlier, if a single command or line of code extends beyond the
-text window, break the command into several lines, indent the lines following
-the start of the command, and use the triple-slash:
-
-```{r}
-collapse (mean) s_male s_race s_lep s_lunch s_sped s_math_std s_read_std ///
-s_black s_asian s_hispanic s_nativeamer s_white ///
-s_retained s_schoolcode, by(s_year schoolname)
-```
-
-Or change the delimiter to a semicolon, make sure to put a semicolon at the end
-of your statement, and return the delimiter to a carriage return. This can often
-be a better solution than using the triple-slash:
-
-```{r}
-#delimit ;
-collapse (mean) s_male s_race s_lep s_lunch s_sped s_math_std s_read_std
-s_black s_asian s_hispanic s_nativeamer s_white
-s_retained s_schoolcode, by(s_year schoolname);
-#delimit cr
 ```
 
 Not:
 
-```{r}
-collapse (mean) s_asian s_black s_hispanic s_lep s_lunch s_male s_math¬_std s_nativeamer
-s_race s_read_std s_retained s_schoolcode s_white, by(studentid)
+```{r badBrace, eval=FALSE}
+if (y == 0) 
+{
+  log(x)
+} 
+else 
+{
+  y ^ x
+}
+```
+
+As mentioned earlier, if a single command or line of code extends beyond the
+80 characters, break the command into several lines, indent the lines following
+the start of the command.
+
+```{r breakGroupBy, eval=FALSE}
+
+progressBars <- bind_rows(
+  # Data set one
+  plotdf %>% group_by(ot) %>% tally() %>% ungroup %>% 
+    mutate(count = sum(n), first_hs_name = "Agency Average"),
+  # Data set two
+  plotdf %>% group_by(first_hs_name, ot) %>% tally() %>% ungroup %>% 
+    group_by(first_hs_name) %>%
+    mutate(count = sum(n))
+)
+
+```
+
+
+Not:
+
+```{r breakBadGroup, eval=FALSE}
+progressBars <- bind_rows(plotdf %>% group_by(ot) %>% tally() %>% ungroup %>%     mutate(count = sum(n), first_hs_name = "Agency Average"), plotdf %>% group_by(first_hs_name, ot) %>% tally() %>% ungroup %>% 
+group_by(first_hs_name) %>% mutate(count = sum(n)))
+
 ```
 
 Follow the same guidelines for R graphing code:
 
-```{r}
-#delimit ;
-graph bar alt_cert alt_cert_with_exp, over(subject) blabel(bar, format(%6.3f))
-legend(label(1 “No Teacher Controls”) label(2 “Controls for Experience”))
-title(“VA of Teachers with Prov Cert” “Relative to Teachers with Regular Cert”)
-ytitle(“Difference in Value-Added”)
-yline(0, lpattern(dash) lcolor(black))
-yscale(range(-0.15, 0.15)) ytick(-0.15(0.05)0.15) ylabel(-0.15(0.05)0.15)
-$graphcolorpref;
-#delimit cr
+```{r graphCode, eval=FALSE}
+
+ggplot(progressTrack, aes(x = outcome, y = measure, group = ot,
+           color = ot, linetype = ot)) + 
+  geom_line(size = 1.1) + 
+  geom_point(aes(group = 1), color = I("black")) + 
+  geom_text(aes(label = round(measure * 100, 1)), vjust = -0.8, 
+            hjust = -0.25, color = I("black")) +
+  geom_text(data = ann_txt, aes(label = textlabel)) + 
+  scale_y_continuous(limits = c(0, 1), label = percent) + 
+  theme_bw() + theme(legend.position = c(0.825, 0.825)) + 
+  scale_color_brewer(type = "qual", palette = 2) +
+  guides(color = "none", linetype = "none")
+
 ```
 
-When multiple commands with the same function are grouped together, they should
+When multiple commands with the same function are grouped together, they can
 be properly indented and the components of the command should be aligned.
 
-```{r}
-local loc “C:\test” // Location of files
-local file_name “filename1” // Name of source data file
-local source_id “studentid” // Variable containing the unique id in data file
-local xwalk_file_name “id_xwalk” // Name of crosswalk file
-local masked_id “sdpsid” // Variable containing masked id in crossw
+```{r cleanBlock, eval=FALSE}
+loc             =  "C:\test"  # Location of files
+file_name       = "filename1" # Name of source data file
+source_id       = "studentid" # Variable containing the unique id in data file
+xwalk_file_name = "id_xwalk"  # Name of crosswalk file
+masked_id       = "sdpsid"    # Variable containing masked id in crosswalk
 ```
 
 Not:
 
-```{r}
-local loc “C:\test” // Location of files
-local file_name “filename1” // Name of source data file
-local source_id “studentid” // Variable containing the unique id in data file
-local xwalk_file_name “id_xwalk” // Name of crosswalk file
-local masked_id “sdpsid” // Variable containing masked id in crossw
+```{r badBlock, eval=FALSE}
+loc = "C:\test"  # Location of files
+file_name = "filename1" # Name of source data file
+source_id = "studentid" # Variable containing the unique id in data file
+xwalk_file_name = "id_xwalk"  # Name of crosswalk file
+masked_id = "sdpsid"  # Variable containing masked id in crosswalk
 ```
 
 Finally, more white space is better than less. Make it easy for peers to read
@@ -567,79 +553,91 @@ your code!
 
 ### Initializing Your Environment (R)
 
-The first guideline when writing a Stata program, either within a .do file or
-using ad-hoc commands, is to initialize your environment. This is done by: 
+The first guideline when writing an R program, either within a .R script or
+interactively, is to initialize your environment. This is done by: 
 
-1. Clearing existing data from memory 
-2. Setting the “more” option to “off” – this
-allows your program to output without waiting for user input (e.g. hitting the
-spacebar) to scroll pages 
-3. Ensuring open logs are closed. The “capture” prefix
-prevents an error from occurring if there is no open log 
-4. Setting the usable
-memory in the environment These should be the first commands following your file
-header.
-
+1. Loading any external packages you will need
+2. Setting any environment options
+3. Declaring global variables
 
 These should be the first commands following your file header.
 
-```{r}
-// Initialize environment
-clear
-set more off
-capture log close
-set mem 8000m
-```
+```{r envExample, eval=FALSE}
+# Initialize packages
+library(dplyr)
+library(ggplot2)
 
+# Set options
+set.options(width = 80)
+
+# Delcare global variables
+
+MODE <- "PRODUCTION"
+```
 
 ### Logging Output (R)
 
-It is important to log the output of Stata programs and ad-hoc commands so the results can be reviewed later. Stata does not automatically capture output displayed to a log file. If a log file is not explicitly opened before commands are made, the results can only be saved if they are copied out of Stata's output window.
-Log your work as a text file so it can be viewed outside of Stata:
+It is important to log the output of R programs and ad-hoc commands so the
+results can be reviewed later. R offers two options for logging your output. 
+The first is a traditional log of input and output familiar in other programming 
+languages, the second is the concept of an interactive notebook which combines 
+R code, markup, and output in one interactive document. 
 
-```{r}
-log using filename, text replace
+#### Logs
+
+R does not automatically capture output displayed to a log file. If a log file
+is not explicitly opened before commands are made, the results can only be saved
+if they are copied out of R's output window. Log your work as a text file so it
+can be viewed outside of R:
+
+```{r sinkExample2, eval=FALSE}
+sink(file = "log1.txt")
 ```
 
 The log must be closed at the end of your program/work. Otherwise it will not be saved!
 
-```{r}
-log close
+```{r sinkClose, eval=FALSE}
+# Close sink
+sink()
 ```
 
-Capture segments of your .do file to separate logs rather than having one log
+Capture segments of your .R file to separate logs rather than having one log
 for the entire program. For instance, rather than having one log file for the
 entire School Report analysis, you may want to log each component of the
 analysis. Survey analyses would be logged separately from student demographics
 analyses.
 
-```{r}
-capture log close
-clear matrix
-if $new_hires_by_pov==1 {
-log using “$log/dcps_recruitment_new_hires_by_pov”, text replace
-use “$data/dcps_teacher_tre.dta”, clear
-// OTHER STUFF
-log close
+```{r sinkExample, eval=FALSE}
+sink()
+rm(matrix); gc()
+
+if (new_hires_by_pov == 1) {
+  sink(file = "log/dcps_recruitment_new_hires_by_pov.txt")
+  # OTHER STUFF
+  sink()
 }
-clear matrix
-if $late_hire_over_time==1 {
-use “$data/dcps_teacher_tre.dta”, clear
-log using “$log/dcps_recruitment_late_hire_over_time”, text replace
-// OTHER STUFF
-log close
+rm(matrix); gc()
+if (late_hire_over_time == 1) {
+  sink(file = "log/dcps_recruitment_late_hire_over_time.txt")
+  # OTHER STUFF
+  sink()
 }
+
 ```
 
+#### Notebooks
+
+Using RStudio or other R IDEs it is possible to create R Markdown Notebooks. 
+To learn more about these, [read about them from RStudio.](http://rmarkdown.rstudio.com/r_notebooks.html)
 
 ### Global Variables as Switches
 
-You may want to run only parts of the program at a time. To do this, use global
-variables that act as “switches” to section off distinct and independent parts
-of the program. A switch is essentially a variable that takes a binary value – 0
-or 1 – to turn parts of your program on and off (like a light switch).
+You may want to run only parts of the program at a time. To do this, use global 
+variables that act as "switches" to section off distinct and independent parts 
+of the program. A switch is essentially a variable turns parts of your program
+on and off.
 
-```{r}
+```{r globalVarExample, eval=FALSE}
 // SWITCHES
 global teacher “0”
 global student “0”
@@ -656,18 +654,20 @@ if $test==1 {
 }
 ```
 
-You may also put brackets around code without a condition or global. In the Stata do-file interface, this will collapse any code in the brackets and minimize the amount of scrolling up and down you will need to do.
+You may also put brackets around code without a condition or global. In most R 
+text editors, this will allow you to collapse any code in the brackets and 
+minimize the amount of scrolling up and down you will need to do. 
 
-```{r}
+```{r bracesCollapse, eval=FALSE}
 {
-// STUFF
+# Code to collapse
 }
 ```
 
 ### Conditions
 
 Conditions, or conditional code, refer to pieces of code that execute if a
-certain Boolean logic statement is “true”. Conditions take the form of if/else
+certain Boolean logic statement is "true". Conditions take the form of if/else
 statements or loops. Conditional logic was used in the previous example to
 demonstrate switches.
 
@@ -676,53 +676,56 @@ braces ({ }). The open-brace or left-brace ( { ) should always be on the same
 line as the condition and the close-brace or right-brace ( } ) should always be
 on its own line:
 
-```{r}
-if x > 0 {
-dis “x is positive”
+```{r eval=FALSE}
+if(x > 0) {
+  print("x is positive")
 }
-else if x < 0 {
-dis “x is negative”
+else if (x < 0) {
+  print("x is negative")
 }
 ```
 
 Not:
 
-```{r}
-// First bad example
+```{r eval=FALSE}
+# First bad example
 if x > 0
 {
-dis “x is positive”
+print("x is positive")
 }
-// Second bad example
+# Second bad example
 else if x < 0
-{dis “x is negative”}
+{print("x is positive")}
 ```
 
-If a branch involves a single statement, then braces are not necessary. However, it is still advised to use them in case more statements are added within the condition later. Regardless, always put the conditional code on the line following the condition and never on the same line as the condition:
+If a branch involves a single statement, then braces are not necessary. However,
+it is still advised to use them in case more statements are added within the
+condition later. Regardless, always put the conditional code on the line
+following the condition and never on the same line as the condition:
 
-```{r}
+```{r eval=FALSE}
 if x > 0
-dis “x is positive”
+  print("x is positive")
 else if x < 0
-dis “x is negative”
+  print("x is negative")
 ```
 
 Not:
 
-```{r}
-if x > 0 dis “x is positive”
-else if x < 0 dis “x is negative”
+```{r badConditional, eval=FALSE}
+if x > 0 print("x is positive")
+else if x < 0 print("x is negative")
 ```
 
 ### Hard Coding vs Macros
 
 Hard coding is the practice of using literal values in code instead of
 variables. Hard coding should be avoided whenever possible. Take the following
-code (which generates a "late hire"" flag for teachers hired within a certain
+code (which generates a "late hire" flag for teachers hired within a certain
 date range for a certain school year) as an example:
 
-```{r}
-gen t_late_hire = 0
+```{r eval=FALSE}
+t_late_hire = 0
 replace t_late_hire = 0 if t_hiredate <= td(1sep2006) & t_hiredate !=. & t_year==2007
 replace t_late_hire = 1 if t_hiredate > td(1sep2006) & t_hiredate <= td(1apr2007) ///
 & t_hiredate!=. & t_year==2007
@@ -741,9 +744,9 @@ replace t_late_hire = 1 if t_hiredate > td(1sep2009) & t_hiredate <= td(1apr2010
 replace t_late_hire = 0 if t_hiredate > td(1apr2010) & t_hiredate!=. & t_year==2010
 ```
 
-Instead of hard-coding dates and years, variaables and looping can be used:
+Instead of hard-coding dates and years, variables and looping can be used:
 
-```{r}
+```{r eval=FALSE}
 local num_yrs “4”
 local first_yr “2007”
 local cutoff1 “1sep”
@@ -772,22 +775,25 @@ isn't), make a large and distinct call out to this with a comment.
 
 ### Macros as File Paths
 
-When defining file paths using macros to define “input” information is preferable to hard-coding. Often, a program references input data or output locations and files. By using a global macro at the beginning of the program, you can easily change the location of input and output files. This is especially important when transporting your program outside of your work environment to work on-site.
+When defining file paths using macros to define "input" information is
+preferable to hard-coding. Often, a program references input data or output
+locations and files. By using a global macro at the beginning of the program,
+you can easily change the location of input and output files. This is especially
+important when transporting your program outside of your work environment to
+work on-site.
 
-```{r}
-/ Location of input data files
-local location “C:\test\data\input”
-// List of data file names
-local filenames “filename1” “filename2” “filename3”
-// *****************************************************************
-// Change directories to location of files
-cd “`location'”
-// Merge masked ids onto files
-foreach filename in “`filenames'” {
-use “`filename'”
-merge m:1 sourceid using xwalkfile, nogen assert(2 3) keep(3)
-save “`filename'_masked”, replace
-
+```{r eval=FALSE}
+# Location of input data files
+location <- "C:\test\data\input"
+# List of data file names
+filenames <- c("filename1", "filename2", "filename3")
+# ----------------------------------
+# Change directories to location of files
+setwd(location)
+## Merge masked ids onto files
+for(filename in filenames){
+  load(filename)
+}
 ```
 
 
