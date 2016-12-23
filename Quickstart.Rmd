@@ -1,7 +1,7 @@
 ---
-title: "SDP Toolkit R Quickstart Guide"
+title: "R Quickstart Guide"
 author: "Strategic Data Project"
-date: "December 1, 2016"
+date: "Center for Education Policy Research at Harvard University"
 output: 
   pdf_document:
     toc: no
@@ -114,3 +114,9 @@ To begin, open the PDF file that corresponds to the first Toolkit module you wil
 work on. Then open the corresponding `.R` and `.Rmd` files and work along. 
 
 Good luck!
+
+
+\vfill
+Last updated December 2016.
+
+© 2016 President and Fellows of Harvard College. 

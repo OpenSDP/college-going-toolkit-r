@@ -1,12 +1,15 @@
 ---
 title: "SDP R Glossary"
 author: "Strategic Data Project"
-date: "November 28, 2016"
+date: "Center for Education Policy Research at Harvard University"
 output:
   pdf_document:
     latex_engine: xelatex
     toc: yes
     toc_depth: 2
+    includes:
+      in_header: harvardheader.tex
+      before_body: harvard_prefix.tex
   html_document: default
 ---
 
@@ -1213,3 +1216,8 @@ and the external packages you used it came under.
 ```{r}
 print(sessionInfo(),locale = FALSE)
 ```
+
+\vfill
+Last updated December 2016.
+
+© 2016 President and Fellows of Harvard College.

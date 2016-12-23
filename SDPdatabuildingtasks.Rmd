@@ -1,7 +1,7 @@
 ---
 title: "CLEAN: DATA BUILDING GUIDE"
 author: "Strategic Data Project"
-date: "October 31, 2016"
+date: "Center for Education Policy Research at Harvard University"
 output:
   pdf_document:
     toc: yes
@@ -16,7 +16,7 @@ output:
 ---
 
 
-# SDP Data Building Tasks
+# CLEAN: DATA BUILDING GUIDE
 
 
 ## Introduction
@@ -54,10 +54,11 @@ The tasks are listed as follows:
 Each task uses a raw input file and produces a cleaned
 output file that matches Identify. 
 
-Download these raw input files along with everything else
-you need for the toolkit as a zip file at www.gse.harvard.edu/sdp/toolkit. When unzipped, this file will reveal an
-infrastructure including all the steps of the toolkit, the data
-files you need, and template files with R code.
+Download these raw input files along with everything else you need for the 
+toolkit as a zip file at 
+[sdp.cepr.harvard.edu/toolkit](http://www.sdp.cepr.harvard.edu/toolkit). When 
+unzipped, this file will reveal an infrastructure including all the steps of the
+toolkit, the data files you need, and template files with R code.
 
 In particular, in Clean, you will be working with the files in the **raw** 
 folder. If you are using R, you can fill in the corresponding `.R` scripts
@@ -112,7 +113,7 @@ and outputs of each task and how the outputs are used in
 **Connect** to produce an analysis file. The Task Map also
 serves as a Table of Contents.
 If you need additional guidance, the friendly research team at
-SDP is available to help: **sdp@gse.harvard.edu**.
+SDP is available to help: **sdp@gse.harvard.edu** .
 
 #### Task Map
 
@@ -120,11 +121,18 @@ This map summarizes the inputs and outputs for each task and how the outputs
 are used in Connect to produce the college-going analysis and college-going 
 analysis on-track file. 
 
-[PLACEHOLDER FOR IMAGE HERE]
+![Taskmap](includes/img/DBTaskTaskMap.jpg)
+
 
 ## Decision Rules Glossary
 
-Should this be added?
+![Decision Rule Page 1](includes/img/DBTaskDR1.jpg)
+![Decision Rule Page 2](includes/img/DBTaskDR2.jpg)
+![Decision Rule Page 3](includes/img/DBTaskDR3.jpg)
+![Decision Rule Page 4](includes/img/DBTaskDR4.jpg)
+![Decision Rule Page 5](includes/img/DBTaskDR5.jpg)
+![Decision Rule Page 6](includes/img/DBTaskDR6.jpg)
+![Decision Rule Page 7](includes/img/DBTaskDR7.jpg)
 
 ## Task 1: STUDENT ATTRIBUTES
 
@@ -181,12 +189,13 @@ task will be to match `Student_Attributes` to be unique by `sid` only.
 
 #### Uniqueness 
 
-Some agencies may record **race_ethnicity** and/or **gender** 
-each school year. Alternatively, students may have multiple records for having 
-attended ninth grade or multiple diploma dates and/or types. To fix this issue, 
-you will create a `Student_Attributes` research file unique by `sid` alone starting 
-from a `Student_Demographics_Raw` file that is unique by `sid` and `school_year`. 
-Once the file is unique by `sid` as shown in **Identify**, it is ready for **Connect**.
+Some agencies may record **race_ethnicity** and/or **gender** each school year.
+Alternatively, students may have multiple records for having attended ninth
+grade or multiple diploma dates and/or types. To fix this issue, you will create
+a `Student_Attributes` research file unique by `sid` alone starting from a
+`Student_Demographics_Raw` file that is unique by `sid` and `school_year`. Once
+the file is unique by `sid` as shown in **Identify**, it is ready for
+**Connect**.
 
 #### Step 0: Load and Inspect the Data
 
@@ -443,7 +452,7 @@ pander(table(stuatt$race_ethnicity), style = "rmarkdown")
 
 Let's also draw a figure to show this distribution.
 
-```{r prettyGraph, fig.align='center'}
+```{r prettyGraph, fig.align='center', fig.width=7, fig.height=5}
 library(ggplot2) # the best R library for plotting
 
 qplot(stuatt$race_ethnicity,geom='bar') + 
@@ -662,7 +671,8 @@ Create a variable that shows the earliest diploma type
 # This statement is extra long and includes the mode because it needs to avoid 
 # ties in the earliest diploma date
 stuatt %<>% group_by(sid) %>%
- mutate(earliest_dipl_type_mode = statamode(hs_diploma_type[hs_diploma_date==earliest_diploma_date]))
+ mutate(earliest_dipl_type_mode =
+          statamode(hs_diploma_type[hs_diploma_date==earliest_diploma_date]))
 
 
 stuatt %>% select(sid, school_year, hs_diploma, hs_diploma_date, 
@@ -906,7 +916,8 @@ stuclass %<>% group_by(sid, school_year) %>%
 stuclass %>% select(one_of(varIdx)) %>% 
   filter(sid == 3)
 
-stuclass$grade_level[stuclass$nvals_grade > 1] <- stuclass$max_grade_level[stuclass$nvals_grade > 1]
+stuclass$grade_level[stuclass$nvals_grade > 1] <-
+  stuclass$max_grade_level[stuclass$nvals_grade > 1]
 
 stuclass %>% select(one_of(varIdx)) %>% 
   filter(sid == 3)
@@ -993,7 +1004,8 @@ stuclass %<>% group_by(sid, school_year) %>%
 ```{r ellConsistStuYear}
 # Follow the same procedure as Step 1 for grade_level.
 
-# // Report the highest value of ell by year for each student, selecting is ell over not ell.
+## Report the highest value of ell by year for each student, selecting is 
+## ell over not ell.
 
 stuclass %<>% group_by(sid, school_year) %>% 
   mutate(highest_ell = max(ell)) %>% 
@@ -1263,7 +1275,8 @@ school year.
 stusy %<>% arrange(sid, school_year) %>% 
   group_by(sid) %>% 
   mutate(grade_lag = lag(grade_level, order_by = school_year)) %>% 
-  mutate(grade_flag = ifelse(grade_lag > grade_level & !is.na(grade_lag > grade_level), 1, 0)) %>% 
+  mutate(grade_flag = ifelse(grade_lag > grade_level & 
+                               !is.na(grade_lag > grade_level), 1, 0)) %>% 
   mutate(grade_flag_max = max(grade_flag, na.rm=TRUE)) %>% 
   select(-grade_lag)
 
@@ -1296,29 +1309,16 @@ Replace the `first_9th_school_year_observed` with the correctly imputed values.
 
 ```{r replaceImputed9thgrade}
 # Replace the first_9th_school_year_observed with the correctly imputed values.
-## TODO write this into a loop!
 stusy$temp4_first9year <- NA
 
-stusy$temp4_first9year[stusy$grade_flag_max == 1 & 
+for(g in c(10, 11, 12)){
+  stusy$temp4_first9year[stusy$grade_flag_max == 1 & 
                          stusy$first_9th_flag == 1 & 
-                         stusy$grade_level == 10] <-
+                         stusy$grade_level == g] <-
   stusy$school_year[stusy$grade_flag_max == 1 & 
                          stusy$first_9th_flag == 1 & 
-                         stusy$grade_level == 10] - 1
-
-stusy$temp4_first9year[stusy$grade_flag_max == 1 & 
-                         stusy$first_9th_flag == 1 & 
-                         stusy$grade_level == 11] <-
-  stusy$school_year[stusy$grade_flag_max == 1 & 
-                         stusy$first_9th_flag == 1 & 
-                         stusy$grade_level == 11] - 2
-
-stusy$temp4_first9year[stusy$grade_flag_max == 1 & 
-                         stusy$first_9th_flag == 1 & 
-                         stusy$grade_level == 12] <-
-  stusy$school_year[stusy$grade_flag_max == 1 & 
-                         stusy$first_9th_flag == 1 & 
-                         stusy$grade_level == 12] - 3
+                         stusy$grade_level == g] - (g - 9)
+}
 
 stusy %<>% group_by(sid) %>% 
   mutate(temp5_first9year = min(temp4_first9year, na.rm=TRUE))
@@ -2127,6 +2127,7 @@ In R you can merge two datasets using the familiar language of SQL and joins.
 ## Merge classRaw and stuclass together
 ## keep only files merged from both files
 stuclass <- inner_join(stuclass, classRaw, by = "cid")
+
 ```
 
 
@@ -2134,7 +2135,7 @@ stuclass <- inner_join(stuclass, classRaw, by = "cid")
 
 ```{r courseGrades}
 ## Evaluate course marks
-table(stuclass$final_grade_mark, stuclass$credits_possible)
+table(stuclass$final_grade_mark, round(stuclass$credits_possible, digits = 1))
 table(stuclass$final_grade_mark, stuclass$final_grade_mark_num)
 
 ```
@@ -2189,12 +2190,6 @@ stuclass %<>% ungroup %>%
   group_by(sid, cid, school_year, marking_period) %>% 
   arrange(class_enrollment_date) %>%
   mutate(first_enroll = min(class_enrollment_date, na.rm=TRUE)) 
-
-## TODO: Is this bug real? I do not think so.
-# There is a bug here in the enrollment date
-# If you use group_by_ and mutate without the underscore
-# in a pipe, and then calculate max or min of a date, you 
-# get the wrong time
 
 stuclass$class_enrollment_date <- stuclass$first_enroll
 stuclass %<>% select(-first_enroll)
@@ -2477,7 +2472,7 @@ stunsc %<>% group_by(sid) %>%
                                   n_enrollment_begin & n_college_2yr > 0][1]) %>% 
   ungroup
 
-# // Get the college name and id for the first enrollment date
+# Get the college name and id for the first enrollment date
 
 stunsc %>% filter(sid == 13047) %>%
   select(sid, n_college_opeid,
@@ -2508,3 +2503,7 @@ stunsc %<>% ungroup() %>%
 # write_dta(stunsc, file = "clean/Student_NSC_Enrollment_Indicators.dta")
 ```
 
+\vfill
+Last updated December 2016.
+
+© 2016 President and Fellows of Harvard College.

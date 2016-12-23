@@ -1,3 +1,22 @@
+Data linking 
+
+Still can't reconcile with numbers David provided. I am not sure, but there just 
+are not enough 9th graders in the data files. I am off by about 
+
+Before collapsing to 9th graders I am off too, which may be part of it
+Stat code finds 703,341, I find 682,233.
+
+(289,530 in Stata code, 280,914 in my code).
+
+There are other discrepancies later on between the text and the Stata output 
+that lead me to believe there is some confusion on files. As long as the R 
+code is consistent internally we should be OK!
+
+
+
+
+
+
 Questions for David and Ashley
 
 %/ ----------

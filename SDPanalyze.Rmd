@@ -1,7 +1,7 @@
 ---
 title: "ANALYZE: ANALYSIS GUIDE"
 author: "Strategic Data Project"
-date: "November 16, 2016"
+date: "Center for Education Policy Research at Harvard University"
 output:
   pdf_document:
     toc: yes
@@ -27,7 +27,7 @@ options(width=80)
 
 # Analyze
 
-**Analyze:** College-Going Success Analysis Guide is a set of step-by-step 
+**Analyze:** College Going Success Analysis Guide is a set of step-by-step 
 instructions to help you generate data visualizations about student pathways 
 through high school and college. Through **Analyze**, your previous work 
 identifying, cleaning, and connecting data will generate actual analyses to 
@@ -66,9 +66,9 @@ One of the most important decisions in running each analysis is defining the
 sample. Each analysis corresponds to a different part of the education pipeline 
 and as a result require different cohorts of students.
 
-If you are using the synthetic data we have provided (available for download 
-at www.gse.harvard.edu/sdp/tools), the sample restrictions have been predefined 
-and are included on the next page. 
+If you are using the synthetic data we have provided (available for download at
+[sdp.cepr.harvard.edu/toolkit](www.sdp.cepr.harvard.edu/toolkit)), the sample
+restrictions have been predefined and are included on the next page.
 
 If you are using your own agency data, change these sample restrictions based 
 on your data. 
@@ -131,7 +131,7 @@ the Strategic Performance Indicators (SPIs) SDP has released to provide deeper
 insight into the college-going performance of educational systems. These SPIs 
 were produced using data from a number of SDP's partner agencies. You will be 
 able to conduct these analyses yourself through **Analyze**. You can read more 
-about the SPIs at http://www.gse.harvard.edu/sdp/spi.
+about the SPIs at [sdp.cepr.harvard.edu/spi](http://sdp.cepr.harvard.edu/spi).
 
 ### Summary
 
@@ -461,7 +461,7 @@ ggplot(progressRace[progressRace$subset,],
 
 ```
 
-## Task 3: Progression by Student Race/Ethnicity, Among FRPL-Eligible Students
+## Task 3: Progression by Student Race/Ethnicity, Among FRPL Students
 
 **Purpose:**  This analysis tracks the percent of ninth graders of different
 races/ethnicities who ever qualified for free or reduce price lunch who complete 
@@ -724,7 +724,7 @@ To explore transitions from ninth to tenth grade, use the following model analys
 
 2. Ninth to tenth grade transition by on-track status
 
-## Task 1 Proportion of Students On-Track at the End of Ninth Grade by High School
+## Task 1 Proportion of Students On-Track by High School
 
 **Purpose:** This analysis illustrates what percent of students are on-track 
 after ninth grade graduate from each high school and the agency as a whole. 
@@ -1547,7 +1547,7 @@ Performance Indicators (SPIs) SDP has released to provide deeper insight into
 the college-going performance of educational systems. These SPIs were conducted 
 using data from a number of SDP's partner agencies. This section of Analyze 
 will help you conduct these analyses yourself. You can read more about the SPIs 
-at http://www.gse.harvard.edu/sdp/strategic-performance-indicators.
+at [sdp.cepr.harvard.edu/spi](http://sdp.cepr.harvard.edu/spi).
 
 6. Gaps in Rates of College Enrollment Between Latino High School Graduates and 
 White High School Graduates
@@ -1557,7 +1557,7 @@ White High School Graduates
 ## Task 1: College Enrollment Rates by High School
 
 **Purpose:** This analysis provides an agency snapshot of college enrollment 
-to understand how patterns of college-going for high school graduates vary 
+to understand how patterns of college going for high school graduates vary 
 across high schools. By illuminating the extent to which enrollment varies by 
 entry time for seamless enrollers and college level (2- vs. 4-year), the 
 analysis helps diagnose compositional differences for the college-bound 
@@ -1663,7 +1663,7 @@ ggplot(chartData, aes(x = reorder(last_hs_name, enroll_any),
 ## Task 2: Seamless and Delayed College Enrollment Rates by High School
 
 **Purpose:** This analysis provides an agency snapshot of college enrollment 
-to understand how patterns of college-going for high school graduates vary 
+to understand how patterns of college going for high school graduates vary 
 across high schools. By illuminating the extent to which enrollment varies by 
 entry time (seamless vs. delayed) and college level (2- vs. 4-year), the 
 analysis helps diagnose compositional differences for the college-bound 
@@ -1793,7 +1793,7 @@ ggplot(chartData, aes(x = reorder(last_hs_name, enroll_any),
 
 **Purpose:** This analysis displays variations in college enrollment rates across 
 high schools by examining the extent to which academic achievement at high 
-school entry explains variation in college-going across high schools. This 
+school entry explains variation in college going across high schools. This 
 analysis is useful to identify high schools with similar incoming student 
 achievement profiles but divergent college enrollment rates; or on the other 
 hand, high schools with similar college-going rates but different academic 
@@ -2240,7 +2240,7 @@ ggplot(chartData, aes(x = reorder(label, total_count), y = measure,
 
 ```
 
-## Task 6: Gaps in Rates of College Enrollment Between Latino High School Graduates and White High SChool Graduates
+## Task 6: Gaps in Rates of College Enrollment Between Latino and White Graduates
 
 
 **Purpose:** This Strategic Performance Indicator explores gaps in college 
@@ -3049,3 +3049,8 @@ chart2year %>% arrange(-enrolled) %>%
 
 ```
 
+\vfill
+
+Last updated December 2016.
+
+© 2016 President and Fellows of Harvard College. 
