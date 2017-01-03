@@ -1082,7 +1082,6 @@ stunsc %>% filter(sid %in% c(16011, 16016)) %>%
          enrl_1oct_grad_yr3, enrl_1oct_grad_yr4) %>% 
   as.data.frame
 
-
 for(i in as.numeric(unique(stunsc$ontime_yr))){
   for(j in 1:4){
     eval(parse(text=paste0("stunsc$enrl_1oct_ninth_yr", j," <- ifelse((

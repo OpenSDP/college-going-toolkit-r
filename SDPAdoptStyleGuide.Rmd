@@ -372,37 +372,36 @@ and updates. The description should walk through high level logical steps. These
 steps should be identified in the actual code. Consider what is done here:
 
 ```{r fileBlock, eval=FALSE}
-#/****************************************************************************
-#* File name: crosswalk_masked_ids.do
-#* Author(s): JSilver
-# * Date: 5/27/11
-# * Description: This program creates the crosswalk of student ids to random
-# * research ids by:
-# * 1. Inputting the universe of student ids
-# * 2. Filtering the distinct set of student ids
-# * 3. Generating random ids and associating to student ids
-# *
-# * Inputs: ../raw/students/studentyearsch.dta
-# * ../raw/students/englang.dta
-# *
-# * Outputs: ../data/bps_student_school_year.dta
-# *
-# * Update 1: TKawakita, 6/1/11 - Added check to ensure random ids are unique
-# ***************************************************************************/
-clear
-set more off
-capture log close
-set mem 8000m
-global raw “//cepr-files/projects/DCPS/Raw”
-global data “//cepr-files/projects/DCPS/Data”
-global log “//cepr-files/projects/DCPS/Log Files”
-# //******* Step 1: Input universe of student ids *******
+###################################################################
+# File name: crosswalk_masked_ids.do
+# Author(s): JSilver
+# Date: 5/27/11
+# Description: This program creates the crosswalk of student ids to random
+#               research ids by:
+#  1. Inputting the universe of student ids
+#  2. Filtering the distinct set of student ids
+#  3. Generating random ids and associating to student ids
+# 
+# Inputs: ../raw/students/studentyearsch.dta
+#          ../raw/students/englang.dta
+# 
+# Outputs: ../data/bps_student_school_year.dta
+# 
+# Update 1: TKawakita, 6/1/11 - Added check to ensure random ids are unique
+#############################################################################
+options(set.width = 80) # set console output width
+# Declare any global varaibles
+RAWDIR <- "cepr-files/projects/DCPS/Raw"
+DATADIR <- "cepr-files/projects/DCPS/Data"
+LOGIDR <- "cepr-files/projects/DCPS/Log Files"
+
+## Step 1: Input universe of student ids ##
 ...
-# //******* Step 2: Filter distinct set of student ids *******
+## Step 2: Filter distinct set of student ids ##
 ...
-# //******* Step 3: Generate random ids and associate to student ids *******
+## Step 3: Generate random ids and associate to student ids ##
 ...
-# //******* Update 1: Add check to ensure ids unique *******
+## Update 1: Add check to ensure ids unique ##
 ...
 
 ```
@@ -421,34 +420,34 @@ other applications or computers.
 The following is an example of well indented code:
 
 ```{r indentExample, eval=FALSE}
-if $teacher == 1 {
-local numyrs = 4
-// define empty matrix of Yr x Subj
-mat out = J(`numyrs',2,.)
-local row = 1
-local col = 1
-foreach subj in math read {
-use “$data/student_teacher_`subj'_vam.dta”, clear
-forval yr = 2(1)`numyrs' {
-gen late_exp_`yr' = ever_late_hire*t_exp`yr'
+for(i in as.numeric(unique(stunsc$ontime_yr))){
+  for(j in 1:4){
+    eval(parse(text=paste0("stunsc$enrl_1oct_ninth_yr", j," <- ifelse((
+                       (stunsc$enrl_1oct_ninth_yr", j," == 0) &
+                           (stunsc$n_enroll_begin_date <=
+                       ymd(paste0(", i, "+", j-1, ",'-10-01')) & 
+                      ymd(paste0(", i, "+", j-1, ",'-05-01')) <=
+                  stunsc$n_enroll_end_date) & (stunsc$chrt_ninth == ", i - 3, ")),
+                        1, stunsc$enrl_1oct_ninth_yr", j,")")))
+    
+  }
 }
-} // end of loop on subject
-} // end of teacher processing
 ```
 
 The following is an example of poorly indented code:
 
 ```{r badIndent, eval=FALSE}
-if $teacher == 1 {
-local numyrs = 4
-// define empty matrix of Yr x Subj
-mat out = J(`numyrs',2,.)
-local row = 1
-local col = 1
-foreach subj in math read {
-use “$data/student_teacher_`subj'_vam.dta”, clear
-forval yr = 2(1)`numyrs' {gen late_exp_`yr' = ever_late_hire*t_exp`yr'}
-}
+for(i in as.numeric(unique(stunsc$ontime_yr))){
+  for(j in 1:4){
+    eval(parse(text=paste0("stunsc$enrl_1oct_ninth_yr", j," <- ifelse((
+                       (stunsc$enrl_1oct_ninth_yr", j," == 0) &
+                           (stunsc$n_enroll_begin_date <=
+                       ymd(paste0(", i, "+", j-1, ",'-10-01')) & 
+                      ymd(paste0(", i, "+", j-1, ",'-05-01')) <=
+                  stunsc$n_enroll_end_date) & (stunsc$chrt_ninth == ", i - 3, ")),
+                        1, stunsc$enrl_1oct_ninth_yr", j,")")))
+    
+  }
 }
 ```
 
@@ -510,7 +509,6 @@ group_by(first_hs_name) %>% mutate(count = sum(n)))
 Follow the same guidelines for R graphing code:
 
 ```{r graphCode, eval=FALSE}
-
 ggplot(progressTrack, aes(x = outcome, y = measure, group = ot,
            color = ot, linetype = ot)) + 
   geom_line(size = 1.1) + 
@@ -725,7 +723,10 @@ code (which generates a "late hire" flag for teachers hired within a certain
 date range for a certain school year) as an example:
 
 ```{r eval=FALSE}
+
+
 t_late_hire = 0
+
 replace t_late_hire = 0 if t_hiredate <= td(1sep2006) & t_hiredate !=. & t_year==2007
 replace t_late_hire = 1 if t_hiredate > td(1sep2006) & t_hiredate <= td(1apr2007) ///
 & t_hiredate!=. & t_year==2007

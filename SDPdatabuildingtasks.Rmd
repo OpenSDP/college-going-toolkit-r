@@ -1831,8 +1831,10 @@ scores.
 ```{r genCompositeStateTest}
 ## Generate composite scaled and standardized scores that average ELA and 
 ## math scores.
-statetest$scaled_score_composite <- (statetest$scaled_score_ela + statetest$scaled_score_math) /2
-statetest$scaled_score_composite_std <- (statetest$scaled_math_std + statetest$scaled_ela_std) /2
+statetest$scaled_score_composite <- (statetest$scaled_score_ela +
+                                       statetest$scaled_score_math) /2
+statetest$scaled_score_composite_std <- (statetest$scaled_math_std +
+                                           statetest$scaled_ela_std) /2
 
 ```
 
