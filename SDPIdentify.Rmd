@@ -1,0 +1,94 @@
+---
+title: "IDENTIFY: DATA SPECIFICATION GUIDE"
+author: "Strategic Data Project"
+date: "Center for Education Policy Research at Harvard University"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    toc: no
+    toc_depth: 4
+    includes:
+      in_header: harvardheader.tex
+      before_body: harvard_prefix.tex
+  html_document: default
+---
+
+
+# IDENTIFY: DATA SPECIFICATION GUIDE
+
+## Introduction
+
+Identify: Data Specification Guide is a resource to identify data elements
+required to analyze student achievement, postsecondary attainment, and teacher
+effectiveness data. To address these different areas, we organize data elements
+into research files that contain important information at the student-, school-,
+and teacher- levels. These research files comprise the elements needed to Clean,
+Connect, and then Analyze your data.
+
+
+Data File     | Description     | College Going      | page
+------------- | ------------ | -------------  | ------------
+Row           | Observation  | Row or record  | Object
+Column        | Variable     | Column         | Field or attribute
+Variable      | Macro        | Variable       | Variable
+
+
+## How to Read a Research File
+
+## The Distinction Between Raw and Clean Data
+
+## Advice on Collecting Your Data
+
+## The Role of Database Architects
+
+## Data Files
+
+### Student_Attributes
+
+
+
+
+\begin{longtable}{| p{.125\textwidth} | p{.2\textwidth} | p{.45\textwidth} |
+p{.125\textwidth} | p{.125\textwidth} |}
+\hline
+\textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
+\textbf{Importance} & \textbf{Notes} \\ \hline
+sid  & numeric & Student identifier unique to each student. This identification 
+number is typically assigned to students upon enrollment in your agency. State 
+agencies may have different identification numbers than district agencies for 
+the same student. & 5 Cannot be Missing & No Notes. \\ \hline
+male & 
+\begin{itemize} \setlength\itemsep{-2pt}
+\item[] 0 = female
+\item[] 1 = male
+\end{itemize} & Student gender & 4 Absolutely Necessary. & \\ \hline
+
+\textbf{race\_ethnicity} & 
+\begin{itemize} \setlength\itemsep{-2pt}
+\item[] 1 = African American
+\item[] 2 = Asian American
+\item[] 3 = Hispanic
+\item[] 4 = American Indian
+\item[] 5 = White, not Hispanic
+\item[] 6 = Other
+\item[] 7 = Multiple
+\end{itemize} & 
+Student race and ethnicity. For systems where race and ethnicity are treated as a combined variable.
+& 4 Absolutely Necessary & 
+
+Use either the race\_ethnicity combined variable, or separate ethnicity and 
+race variables 
+
+If the system allows the indication of multiple categories simultaneously 
+(e.g., African American and white) report ``multiple'' \\ \hline
+
+
+\end{longtable}
+
+
+
+
+\vfill
+Last updated January 2017.
+
+© 2016 President and Fellows of Harvard College. 

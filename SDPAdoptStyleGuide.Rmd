@@ -792,3 +792,9 @@ efficiently, and reliably. These coding practices, will improve your ability to
 share knowledge across your organization and build capacity to construct
 sophisticated analyses with statistical software.
 
+
+
+\vfill
+Last updated January 2017.
+
+© 2017 President and Fellows of Harvard College. 
