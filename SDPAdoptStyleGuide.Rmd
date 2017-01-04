@@ -420,34 +420,23 @@ other applications or computers.
 The following is an example of well indented code:
 
 ```{r indentExample, eval=FALSE}
-for(i in as.numeric(unique(stunsc$ontime_yr))){
-  for(j in 1:4){
-    eval(parse(text=paste0("stunsc$enrl_1oct_ninth_yr", j," <- ifelse((
-                       (stunsc$enrl_1oct_ninth_yr", j," == 0) &
-                           (stunsc$n_enroll_begin_date <=
-                       ymd(paste0(", i, "+", j-1, ",'-10-01')) & 
-                      ymd(paste0(", i, "+", j-1, ",'-05-01')) <=
-                  stunsc$n_enroll_end_date) & (stunsc$chrt_ninth == ", i - 3, ")),
-                        1, stunsc$enrl_1oct_ninth_yr", j,")")))
-    
-  }
+for(g in c(10, 11, 12)){
+  stusy$temp4_first9year[stusy$grade_flag_max == 1 & 
+                         stusy$first_9th_flag == 1 & 
+                         stusy$grade_level == g] <-
+  stusy$school_year[stusy$grade_flag_max == 1 & 
+                         stusy$first_9th_flag == 1 & 
+                         stusy$grade_level == g] - (g - 9)
 }
 ```
 
-The following is an example of poorly indented code:
+The following is an example of the same code poorly indented:
 
 ```{r badIndent, eval=FALSE}
-for(i in as.numeric(unique(stunsc$ontime_yr))){
-  for(j in 1:4){
-    eval(parse(text=paste0("stunsc$enrl_1oct_ninth_yr", j," <- ifelse((
-                       (stunsc$enrl_1oct_ninth_yr", j," == 0) &
-                           (stunsc$n_enroll_begin_date <=
-                       ymd(paste0(", i, "+", j-1, ",'-10-01')) & 
-                      ymd(paste0(", i, "+", j-1, ",'-05-01')) <=
-                  stunsc$n_enroll_end_date) & (stunsc$chrt_ninth == ", i - 3, ")),
-                        1, stunsc$enrl_1oct_ninth_yr", j,")")))
-    
-  }
+for(g in c(10, 11, 12)){
+stusy$temp4_first9year[stusy$grade_flag_max == 1 & stusy$first_9th_flag == 1 & 
+stusy$grade_level == g] <- stusy$school_year[stusy$grade_flag_max == 1 & 
+stusy$first_9th_flag == 1 & stusy$grade_level == g] - (g - 9)
 }
 ```
 
@@ -633,22 +622,22 @@ To learn more about these, [read about them from RStudio.](http://rmarkdown.rstu
 You may want to run only parts of the program at a time. To do this, use global 
 variables that act as "switches" to section off distinct and independent parts 
 of the program. A switch is essentially a variable turns parts of your program
-on and off.
+on and off. In R it is traditional to code these as logical.
 
 ```{r globalVarExample, eval=FALSE}
-// SWITCHES
-global teacher “0”
-global student “0”
-global test “0”
+# SWITCHES
+teacher <- FALSE
+student <- FALSE
+test <- FALSE
 . . .
-if $teacher==1 {
-// STUFF
+if(teacher){
+  # Some code run if teacher = TRUE
+} 
+if(student) {
+  # Some code run if student = TRUE
 }
-if $student==1 {
-// STUFF
-}
-if $test==1 {
-// STUFF
+if(test) {
+  # Some code run if test = TRUE
 }
 ```
 
@@ -719,60 +708,57 @@ else if x < 0 print("x is negative")
 
 Hard coding is the practice of using literal values in code instead of
 variables. Hard coding should be avoided whenever possible. Take the following
-code (which generates a "late hire" flag for teachers hired within a certain
-date range for a certain school year) as an example:
+code (which generates an expected school year for a student in grade 9 as 
+an example:
 
 ```{r eval=FALSE}
-
-
-t_late_hire = 0
-
-replace t_late_hire = 0 if t_hiredate <= td(1sep2006) & t_hiredate !=. & t_year==2007
-replace t_late_hire = 1 if t_hiredate > td(1sep2006) & t_hiredate <= td(1apr2007) ///
-& t_hiredate!=. & t_year==2007
-replace t_late_hire = 0 if t_hiredate > td(1apr2007) & t_hiredate!=. & t_year==2009
-replace t_late_hire = 0 if t_hiredate <= td(1sep2007) & t_hiredate !=. & t_year==2008
-replace t_late_hire = 1 if t_hiredate > td(1sep2007) & t_hiredate <= td(1apr2008) ///
-& t_hiredate!=. & t_year==2008
-replace t_late_hire = 0 if t_hiredate > td(1apr2008) & t_hiredate!=. & t_year==2008
-replace t_late_hire = 0 if t_hiredate <= td(1sep2008) & t_hiredate !=. & t_year==2009
-replace t_late_hire = 1 if t_hiredate > td(1sep2008) & t_hiredate <= td(1apr2009) ///
-& t_hiredate!=. & t_year==2009
-replace t_late_hire = 0 if t_hiredate > td(1apr2009) & t_hiredate!=. & t_year==2009
-replace t_late_hire = 0 if t_hiredate <= td(1sep2009) & t_hiredate !=. & t_year==2010
-replace t_late_hire = 1 if t_hiredate > td(1sep2009) & t_hiredate <= td(1apr2010) ///
-& t_hiredate!=. & t_year==2010
-replace t_late_hire = 0 if t_hiredate > td(1apr2010) & t_hiredate!=. & t_year==2010
+# Grade 10
+stusy$temp4_first9year[stusy$grade_flag_max == 1 & 
+                         stusy$first_9th_flag == 1 & 
+                         stusy$grade_level == 10] <-
+  stusy$school_year[stusy$grade_flag_max == 1 & 
+                         stusy$first_9th_flag == 1 & 
+                         stusy$grade_level == 10] - 1
+# Grade 11
+stusy$temp4_first9year[stusy$grade_flag_max == 1 & 
+                         stusy$first_9th_flag == 1 & 
+                         stusy$grade_level == 11] <-
+  stusy$school_year[stusy$grade_flag_max == 1 & 
+                         stusy$first_9th_flag == 1 & 
+                         stusy$grade_level == 11] - 2
+# Grade 12
+stusy$temp4_first9year[stusy$grade_flag_max == 1 & 
+                         stusy$first_9th_flag == 1 & 
+                         stusy$grade_level == 12] <-
+  stusy$school_year[stusy$grade_flag_max == 1 & 
+                         stusy$first_9th_flag == 1 & 
+                         stusy$grade_level == 12] - 3
 ```
 
-Instead of hard-coding dates and years, variables and looping can be used:
+Instead of hard-coding grades and numbers of years, variables and looping can 
+be used:
 
 ```{r eval=FALSE}
-local num_yrs “4”
-local first_yr “2007”
-local cutoff1 “1sep”
-local cutoff2 “1apr”
-gen t_late_hire = 0
-forval yr =`firstyr'(1)(`first_yr'+`numyrs'-1) {
-replace t_late_hire = 0 if t_hiredate <= td(`cutoff1'`yr') & t_hiredate !=. ///
-& t_year==`yr'
-replace t_late_hire = 1 if t_hiredate > td(`cutoff2'`yr') ///
-& t_hiredate<= td(`cutoff2'`yr') & t_hiredate!=. & t_year==`yr'
-replace t_late_hire = 0 if t_hiredate > td(`cutoff2'`yr') ///
-& t_hiredate!=. & t_year==`yr'
+for(g in c(10, 11, 12)){
+  stusy$temp4_first9year[stusy$grade_flag_max == 1 & 
+                         stusy$first_9th_flag == 1 & 
+                         stusy$grade_level == g] <-
+  stusy$school_year[stusy$grade_flag_max == 1 & 
+                         stusy$first_9th_flag == 1 & 
+                         stusy$grade_level == g] - (g - 9)
 }
 ```
 
 Initially, it may seem that hard coding is more intuitive and easier to read.
 However, hard-coding is much more difficult to maintain. Take the scenario where
-the two sections of code above were to be changed to function on years
-2000-2004, with cut-off dates shifted a month ahead. For the hard-coded program,
-27 literal values would need to be changed. In the more elegant version that
-uses macros defined at the beginning of the program, only 4 changes need to be
-made.
+the two sections of code above were to be changed to function on different grade 
+levels or with different filters. For the hard-coded program,
+many literal values would need to be changed. In the more elegant version that
+uses macros defined at the beginning of the program, only a few changes need 
+to be made.
 
 If hard coding appears necessary (though with some more thought it likely
-isn't), make a large and distinct call out to this with a comment.
+is not), make a large and distinct call out to this with a comment.
 
 ### Macros as File Paths
 
