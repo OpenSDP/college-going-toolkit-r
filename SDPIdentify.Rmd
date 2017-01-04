@@ -14,6 +14,10 @@ output:
 ---
 
 
+---
+geometry: margin=.75in
+---
+
 # IDENTIFY: DATA SPECIFICATION GUIDE
 
 ## Introduction
@@ -46,11 +50,11 @@ Variable      | Macro        | Variable       | Variable
 ### Student_Attributes
 
 
-
-
-\begin{longtable}{| p{.125\textwidth} | p{.2\textwidth} | p{.45\textwidth} |
-p{.125\textwidth} | p{.125\textwidth} |}
-\hline
+\small
+\singlespace
+\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
+p{.07\paperwidth} | p{.175\paperwidth} |}
+\caption{Demographic, student, and graduation data for students} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
 sid  & numeric & Student identifier unique to each student. This identification 
@@ -76,17 +80,188 @@ male &
 Student race and ethnicity. For systems where race and ethnicity are treated as a combined variable.
 & 4 Absolutely Necessary & 
 
-Use either the race\_ethnicity combined variable, or separate ethnicity and 
+\footnotesize{Use either the race\_ethnicity combined variable, or separate ethnicity and 
 race variables 
 
 If the system allows the indication of multiple categories simultaneously 
-(e.g., African American and white) report ``multiple'' \\ \hline
+(e.g., African American and white) report ``multiple''} \\ \hline
+
+ethnicity & \begin{itemize} \setlength\itemsep{-2pt}
+\item[] 0 = not Hispanic
+\item[] 1 = Hispanic
+\end{itemize} & Student ethnicity. For systems wehre race and ethnicity are treated 
+as separate variables and Hispanic or Latino origin is asked as a separate question. 
+& 4 Absolutely Necessary. & \footnotesize{Use either race\_ethnicity combined variable or 
+separate ethnicity and race variables.} \\ \hline
+
+birth\_date & \begin{itemize} \item[] date format \item[] yyyy-mm-dd 
+\end{itemize}& Student birth date. & 2 Good to Have & 
+\\ \hline
+first\_9th\_school\_year\_reported & spring calendar year & 
+The school year the student was a 9th grader for the first time. For this variable 
+report what the system recorded for the 9th grade school year. Not all systems 
+will record this information. & 1 Not Essential & \\ \hline
+hs\_diploma & \begin{itemize} \setlength\itemsep{-2pt}
+\item[] 0 = no high school diploma
+\item[] 1 = has high school diploma
+\end{itemize} & Indicator variable equal to 1 if the student received a high school 
+diploma from the system & 4 Absolutely Necessary &  \\ \hline
+
+hs\_diploma\_date & \begin{itemize} \setlength\itemsep{-2pt}
+\item[] date format
+\item[] (yyy-mm-dd)
+\end{itemize} & The date on which the student received a high school diploma. 
+If only a month and year, or only a school year, is known report the partial 
+information. & 4 Absolutely Necessary & Can also be graduation date. \\ \hline
+zip\_code & xxxxx or xxxxx-yyyy & The zip code of the student's home address. & 
+1 Not Essential & \\ \hline
 
 
 \end{longtable}
 
+\normalsize
+
+### Student School Year
+
+\small
+\singlespace
+\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
+p{.07\paperwidth} | p{.175\paperwidth} |}
+\caption{Yearly classification and attendance data for students.} \\ \hline
+\textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
+\textbf{Importance} & \textbf{Notes} \\ \hline
+
+\end{longtable}
 
 
+### Student School Enrollment 
+
+\small
+\singlespace
+\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
+p{.07\paperwidth} | p{.175\paperwidth} |}
+\caption{School enrollment/withdrawal data for students.} \\ \hline
+\textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
+\textbf{Importance} & \textbf{Notes} \\ \hline
+
+\end{longtable}
+
+
+### Student Class Enrollment
+
+\small
+\singlespace
+\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
+p{.07\paperwidth} | p{.175\paperwidth} |}
+\caption{Class enrollment, grades, and credits earned data for students.} \\ \hline
+\textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
+\textbf{Importance} & \textbf{Notes} \\ \hline
+
+\end{longtable}
+
+### Student Test Scores
+
+\small
+\singlespace
+\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
+p{.07\paperwidth} | p{.175\paperwidth} |}
+\caption{Standardized test data for students (state standardized tests, advanced placement, ACT, SAT, etc). Every attempt at a test by a student should be recorded.} \\ \hline
+\textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
+\textbf{Importance} & \textbf{Notes} \\ \hline
+
+\end{longtable}
+
+### Student NSC Enrollment
+
+
+\small
+\singlespace
+\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
+p{.07\paperwidth} | p{.175\paperwidth} |}
+\caption{National Student Clearinghouse Student Tracker student-level data that provides 
+information on postsecondary outcomes.} \\ \hline
+\textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
+\textbf{Importance} & \textbf{Notes} \\ \hline
+
+\end{longtable}
+
+### School
+
+
+\small
+\singlespace
+\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
+p{.07\paperwidth} | p{.175\paperwidth} |}
+\caption{Yearly location and classification information for schools.} \\ \hline
+\textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
+\textbf{Importance} & \textbf{Notes} \\ \hline
+
+\end{longtable}
+
+### Class
+
+
+\small
+\singlespace
+\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
+p{.07\paperwidth} | p{.175\paperwidth} |}
+\caption{Class level scheduling data.} \\ \hline
+\textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
+\textbf{Importance} & \textbf{Notes} \\ \hline
+
+\end{longtable}
+
+
+### Staff Attributes
+
+
+\small
+\singlespace
+\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
+p{.07\paperwidth} | p{.175\paperwidth} |}
+\caption{Time invariant demographic and recruitment data related to staff.} \\ \hline
+\textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
+\textbf{Importance} & \textbf{Notes} \\ \hline
+
+\end{longtable}
+
+### Staff School Year
+
+\small
+\singlespace
+\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
+p{.07\paperwidth} | p{.175\paperwidth} |}
+\caption{Yearly pay, experience, school placement, and job codes for staff.} \\ \hline
+\textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
+\textbf{Importance} & \textbf{Notes} \\ \hline
+
+\end{longtable}
+
+### Staff Degrees
+
+
+\small
+\singlespace
+\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
+p{.07\paperwidth} | p{.175\paperwidth} |}
+\caption{Educational achievement for staff. Each degree a staff member has received should be recorded.} \\ \hline
+\textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
+\textbf{Importance} & \textbf{Notes} \\ \hline
+
+\end{longtable}
+
+### Staff Certifications
+
+
+\small
+\singlespace
+\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
+p{.07\paperwidth} | p{.175\paperwidth} |}
+\caption{Teaching certifications received by staff.} \\ \hline
+\textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
+\textbf{Importance} & \textbf{Notes} \\ \hline
+
+\end{longtable}
 
 \vfill
 Last updated January 2017.
