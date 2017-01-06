@@ -45,22 +45,25 @@ Variable      | Macro        | Variable       | Variable
 
 ## The Role of Database Architects
 
+
+
 ## Data Files
 
 ### Student_Attributes
 
+\begin{landscape}
 
 \small
 \singlespace
-\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
-p{.07\paperwidth} | p{.175\paperwidth} |}
-\caption{Demographic, student, and graduation data for students} \\ \hline
+\begin{longtable}{| p{.1\paperheight} | p{.14\paperheight} | p{.32\paperheight} |
+p{.07\paperheight} | p{.17\paperheight} | }
+\caption*{Demographic, student, and graduation data for students} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
 sid  & numeric & Student identifier unique to each student. This identification 
 number is typically assigned to students upon enrollment in your agency. State 
 agencies may have different identification numbers than district agencies for 
-the same student. & 5 Cannot be Missing & No Notes. \\ \hline
+the same student. & 5 Cannot be Missing & \\ \hline
 male & 
 \begin{itemize} \setlength\itemsep{-2pt}
 \item[] 0 = female
@@ -118,18 +121,79 @@ zip\_code & xxxxx or xxxxx-yyyy & The zip code of the student's home address. &
 
 
 \end{longtable}
-
+\end{landscape}
 \normalsize
 
 ### Student School Year
 
 \small
 \singlespace
-\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
-p{.07\paperwidth} | p{.175\paperwidth} |}
-\caption{Yearly classification and attendance data for students.} \\ \hline
+\begin{longtable}{| p{.1\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
+p{.07\paperwidth} | p{.172\paperwidth} |}
+\caption*{Yearly classification and attendance data for students.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
+sid  & numeric & Student identifier unique to each student. This identification 
+number is typically assigned to students upon enrollment in your agency. State 
+agencies may have different identification numbers than district agencies for 
+the same student. & 5 Cannot be Missing & \\ \hline
+
+school\_year & spring calendar year & Academic school year from fall to spring 
+denoted here as the spring calendar year. & 5 Cannot be missing & \\ \hline
+
+grade\_level & \begin{itemize} \item[] -9 = ungraded \item[] -1 = any pre-kindergarten
+\item[] 0 = kindergarten \item[] 1-12 = grades 1-12 \item[] 13+ = additional grade 
+levels \end{itemize} & Student grade level & 4 Absolutely Necessary & Additional grade levels 
+may include vocational training, special education past year 12 \\ \hline
+
+frpl & \begin{itemize} \item[] 0 = not participating \item[] 1 = reduced lunch
+\item[] 2 = free lunch \item[] null = no status \end{itemize} & 
+Status in the free and reduced price lunch program. & 4 Absolutely Necessary & \\ 
+\hline
+
+iep & \begin{itemize} \item[] 0 = no IEP \item[] 1 = has IEP \end{itemize} & 
+Indicator for students who have an individualized education plan (IEP). & 
+4 Absolutely Necessary & \\ \hline
+
+iep\_classification & use local values & Local IEP or special education classification.
+Generally these classifications folow the standard special education classification. & 
+2 Good to Have & \\ \hline
+
+ell & \begin{itemize} \item[] 0 = not ell \item[] 1 = ell \end{itemize} & 
+Indicator for students who are classified as English Language Learners (ELL). 
+Some SYstems refer to this category as Limited English Proficienty (LEP) or 
+English as a Second Language (ESL). & 4 Absolutely Necessary & \\ \hline
+
+ell\_classification & use local values & Local classification of level of English 
+language learner status. & 2 Good to Have & \\ \hline
+
+gifted & \begin{itemize} \item[] 0 = not enrolled in a gifted education program 
+\item[] 1 = enrolled in a gifted education program \end{itemize} & Indicator variable for students 
+enrolled in gifted and talented education programs & 2 Good to Have & \\ \hline
+
+gifted\_classification & use local values & Local classification, if any, 
+for gifted eligible students. & 1 Not Essential & \\ \hline
+
+total\_days\_ enrolled & number of days & Total number of days over the school 
+year a student was enrolled. & 2 Good to Have & Can be calculated by school 
+days between enrollment\_date and withdrawal\_date in Student\_School\_Enrollment 
+for all schools or total\_days\_present + total\_days\_absent \\ \hline
+
+total\_days\_ present & number of days & Total number of days over the school year 
+a student was present. Cannot exceed the number of days enrolled. & 2 Good to Have 
+& Can sometimes be unreliable. \\ \hline
+
+total\_days\_absent & number of days & Total number of days over the school year 
+a student was marked absent. Cannot exceed the number of days enrolled. & 2 Good 
+to Have  & Can sometimes be unreliable. \\ \hline
+
+days\_suspended\_ out\_of\_school & number of days & Total number of days over 
+the school year a student experienced out of school suspension & 2 Good to Have & 
+\\ \hline
+
+days\_suspended\_ in\_school & number of days & Total number of days over 
+the school year a student experienced in school suspension & 2 Good to Have & 
+\\ \hline
 
 \end{longtable}
 
@@ -138,11 +202,81 @@ p{.07\paperwidth} | p{.175\paperwidth} |}
 
 \small
 \singlespace
-\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
-p{.07\paperwidth} | p{.175\paperwidth} |}
-\caption{School enrollment/withdrawal data for students.} \\ \hline
+\begin{longtable}{| p{.1\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
+p{.07\paperwidth} | p{.172\paperwidth} |}
+\caption*{School enrollment/withdrawal data for students.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
+
+sid  & numeric & Student identifier unique to each student. This identification 
+number is typically assigned to students upon enrollment in your agency. State 
+agencies may have different identification numbers than district agencies for 
+the same student. & 5 Cannot be Missing & \\ \hline
+
+school\_year & spring calendar year & Academic school year from fall to spring 
+denoted here as the spring calendar year. & 5 Cannot be missing & \\ \hline
+
+school\_code & use local values & The local numeric or alpha-numeric code for the 
+school. & 4 Absolutely Necessary & \\ \hline
+
+enrollment\_date &\begin{itemize} \setlength\itemsep{-2pt}
+\item[] date format
+\item[] (yyy-mm-dd)
+\end{itemize}  & When the student enrolled at the school. 
+In some systems an enrollment date is recorded when a student matriculates from 
+a different school (e.g. moving from an elementary to a middle school within the 
+system or moveing from one middle school to a different middle school). 
+
+In other systems enrollment dates are recorded at the beginning of each school year 
+(e.g. 8th graders are assigned an enrollment date at the beginning of the year even 
+if they were enrolled at the same school the year before). Th elatter case is 
+perferred. It is also what we observe in most agencies. & 4 Absolutely Necessary
+& \\ \hline
+
+withdrawal\_date & \begin{itemize} \setlength\itemsep{-2pt}
+\item[] date format
+\item[] (yyy-mm-dd)
+\end{itemize}  & The date the student withdrew from 
+the school. 
+
+In some systems the withdrawal date is recorded when the student moves to a 
+different school (e.g. moving from elementary to middle school within the system, 
+or moving from one middle school to a different middle school). 
+
+In other systems withdrawal dates are recorded at the end of each school year (e.g. 
+8th graders are assigned a withdrawal date at the end of the school year even if 
+they plan to attend the same school next year). 
+
+The latter case is preferred. & 4 Absolutely Necessary & \\ \hline
+
+enrollment\_code & use local values & The local numeric or alpha-numeric code 
+describing enrolment reason into the school, if available. & 1 Not Essential & 
+\\ \hline
+
+enrollment\_code \_desc & text & Description of the enrollment\_code. & 1 Not 
+Essential & \\ \hline
+
+withdrawal\_code & use local values & The local numeric or alpha-numeric code that 
+describes the withdrawal reason from the school. & 4 Absolutely Necessary & \\ \hline
+
+withdrawal\_code \_desc & text & Description of the withdrawal\_code. & 
+4 Absolutely Necessary & \\ \hline
+
+
+days\_enrolled & number of days & Number of school days during the school year 
+the student was enrolled at a given school. The systems's data sources 
+may report this directly or you may calculate it based on enrollment dates. & 
+2 Good to Have & Can be calculated by days\_present + days\_absent \\ \hline
+
+days\_present & number of days & Number of school days during the school year 
+the student was present at a given school. The systems's data sources 
+may report this directly or you may calculate it based on enrollment dates. & 
+2 Good to Have & \\ \hline
+
+days\_absent & number of days & Number of school days during the school year 
+the student was absent at a given school. The systems's data sources 
+may report this directly or you may calculate it based on enrollment dates. & 
+2 Good to Have & \\ \hline
 
 \end{longtable}
 
@@ -151,11 +285,47 @@ p{.07\paperwidth} | p{.175\paperwidth} |}
 
 \small
 \singlespace
-\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
-p{.07\paperwidth} | p{.175\paperwidth} |}
-\caption{Class enrollment, grades, and credits earned data for students.} \\ \hline
+\begin{longtable}{| p{.1\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
+p{.07\paperwidth} | p{.172\paperwidth} |}
+\caption*{Class enrollment, grades, and credits earned data for students.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
+
+
+sid  & numeric & Student identifier unique to each student. This identification 
+number is typically assigned to students upon enrollment in your agency. State 
+agencies may have different identification numbers than district agencies for 
+the same student. & 5 Cannot be Missing & \\ \hline
+
+cid & value from Class table, page (TODO) & Variable that links students to teachers 
+by grouping students in the same room at the same time. One unique value should 
+be assigned to each combination of variables: school\_year + school\_code + 
+course\_code + section\_code + period\_bell + room\_number + tid & 
+5 Cannot Be Missing & \\ \hline
+
+class\_enrollment \_date & \begin{itemize} \setlength\itemsep{-2pt} 
+\item[] date format
+\item[] (yyy-mm-dd) \end{itemize} & The date the student enrolled in the class. 
+In some cases an enrollment date may not be explicitly recorded in the system's 
+data. Even if it is not recorded the enrollment date can often be derived. & 
+2 Good to Have & Can be substituted with days enrolled in a course. \\ \hline
+
+class\_withdrawal \_date & \begin{itemize} \setlength\itemsep{-2pt} 
+\item[] date format
+\item[] (yyy-mm-dd) \end{itemize} & The date the student withdrem from class. 
+In some cases a withdrawal date may not be recorded in the system's 
+data. Even if it is not explicitly recorded the enrollment date can often be 
+derived. & 
+2 Good to Have & Can be substituted with days enrolled in a course. \\ \hline
+
+credits\_earned & use local values & The number of credits the student earned for 
+the course. & 3 Necessary for Multiple Analyses & Can be calculated by using 
+credits possible and credit attainment rules. \\ \hline
+
+final\_grade\_mark & use local values & The final grade or mark the student 
+recieved in the class. (``final'' means last, cumulative grade assigned). 
+Grades can range from ``Alpha Plus'' (A+ through F), or a numeric scale (0.0 
+- 4.0 or 0-100). & 4 Necessary for Multiple Analyses & \\ \hline
 
 \end{longtable}
 
@@ -163,11 +333,71 @@ p{.07\paperwidth} | p{.175\paperwidth} |}
 
 \small
 \singlespace
-\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
-p{.07\paperwidth} | p{.175\paperwidth} |}
-\caption{Standardized test data for students (state standardized tests, advanced placement, ACT, SAT, etc). Every attempt at a test by a student should be recorded.} \\ \hline
+\begin{longtable}{| p{.1\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
+p{.07\paperwidth} | p{.172\paperwidth} |}
+\caption*{Standardized test data for students (state standardized tests, advanced placement, ACT, SAT, etc). Every attempt at a test by a student should be recorded.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
+
+sid  & numeric & Student identifier unique to each student. This identification 
+number is typically assigned to students upon enrollment in your agency. State 
+agencies may have different identification numbers than district agencies for 
+the same student. & 5 Cannot be Missing & \\ \hline
+
+
+test\_code & use local values & These values identify individual tests (usually 
+expressed as a sequence of letters and numbers). For example, a state test such 
+as ``MCAS 6th Grade Math in Massachusetts'' or college entrance exam such as 
+``SAT Math''. & 4 Absolutely Necessary & Can be concatenation of component variables 
+below (e.g. test\_type and test\_subject) \\ \hline
+
+test\_date & \begin{itemize} \setlength\itemsep{-2pt} 
+\item[] date format
+\item[] (yyy-mm-dd) \end{itemize} & The exact date (or at a minimum school year) 
+the test was completed. Note that students who retake tests or are retained may 
+have multiple observations for a single test\_code. These should be differentiated 
+by test\_date. & 4 Absolutely Necessary &  \\ \hline
+
+test\_code \_desc & text & Description of test\_code. & 4 Absolutely Necessary 
+& \\ \hline
+
+test\_type & use local values & The category of test, e.g. MCAS (state test), 
+SAT, ACT, or AP. & 4 Absolutely Necessary & \\ \hline
+
+grade\_level & \begin{itemize} \item[] -9 = ungraded \item[] -1 = any pre-kindergarten
+\item[] 0 = kindergarten \item[] 1-12 = grades 1-12 \item[] 13+ = additional grade 
+levels \end{itemize} & Numeric grade level of the test. May be unavailable for the 
+SAT, ACT, or AP tests. & 2 Good to Have & Can be pulled from Student\_School \_Year
+if not available here. \\ \hline 
+
+test\_subject & \begin{itemize} \item[] 1 = math \item[] 2 = English language
+\item[] 3 = science \item[] 4 = social studies \item[] 5 = other \item[] 6 = 
+writing \end{itemize} & Subject of test. & 4 Absolutely Necessary & Subjects 
+other than those listed can be numbered from 7 onwards. \\ \hline
+
+test\_version & & Test version for different standardized exams in the same agency 
+(e.g. SAT9 vs. STAR) & 2 Good to Have &  \\ \hline
+
+language\_version & \begin{itemize} \item[] E = English 
+\item[] S = Spanish \end{itemize} & Language of test. & 2 Good to Have &  \\ \hline
+
+raw\_score & numeric & Student's raw score if available. May be unavailable for 
+SAT, ACT, or AP tests. & 4 Absolutely Necessary & Any test score should be 
+acquired including available percentile ranks. \\ \hline
+
+scaled\_score & numeric & Student's scaled score. & 4 Absolutely Necessary & 
+Any test score should be acquired including available percentile ranks. \\ \hline
+
+performance\_level & code & Student's performance level (e.g. not proficient, 
+proficient, advanced). May be unavailable for SAT, ACT, or AP tests. & 
+2 Good to Have & \\ \hline
+
+standardized\_score & numeric & If the system or state provides a standardized score 
+(i.e. mean zero, s.d. one) for state tests include it, and note any information 
+on what distributions was used for standardization. If the system or state 
+does not provide a standardized score for state tests, leave this blank. & 
+1 Not Essential & Can be calculated using scaled\_score with test\_code, test\_date, 
+and grade\_level \\ \hline
 
 \end{longtable}
 
@@ -176,14 +406,91 @@ p{.07\paperwidth} | p{.175\paperwidth} |}
 
 \small
 \singlespace
-\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
-p{.07\paperwidth} | p{.175\paperwidth} |}
-\caption{National Student Clearinghouse Student Tracker student-level data that provides 
-information on postsecondary outcomes.} \\ \hline
+\begin{longtable}{| p{.1\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
+p{.07\paperwidth} | p{.172\paperwidth} |}
+\caption*{Standardized test data for students (state standardized tests, advanced placement, ACT, SAT, etc). Every attempt at a test by a student should be recorded.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
 
+sid  & numeric & Student identifier unique to each student. This identification 
+number is typically assigned to students upon enrollment in your agency. State 
+agencies may have different identification numbers than district agencies for 
+the same student. & 5 Cannot be Missing & \\ \hline
+
+college\_code \_branch & use local values & OPE/FICE code of the college that the 
+student attended. This is usually a six-digit college code followed by a hyphen 
+and a two-digit branch code. & 2 Good to Have & \\ \hline
+
+enrollment\_begin &  \begin{itemize} \setlength\itemsep{-2pt} 
+\item[] date format
+\item[] (yyy-mm-dd) \end{itemize} & Start of enrollment. & 4 Absolutely Necessary & 
+\\ \hline
+
+enrollment\_end &  \begin{itemize} \setlength\itemsep{-2pt} 
+\item[] date format
+\item[] (yyy-mm-dd) \end{itemize} & End of enrollment. & 4 Absolutely Necessary & 
+\\ \hline
+
+record\_found\_yn & 
+\begin{itemize} \setlength\itemsep{-2pt} 
+\item[] Y = yes
+\item[] N = no \end{itemize} & Whether or not the NSC has college enrollment 
+data for the student. & 4 Absolutely Necessar. & \\ \hline
+
+high\_school\_code & use local values & Local code for the student's high school. & 
+1 Not Essential &  \\ \hline
+
+high\_school \_grad\_dt & 
+\begin{itemize} \setlength\itemsep{-2pt} 
+\item[] date format
+\item[] (yyy-mm-dd) \end{itemize} & Student's high school graduation date; if 
+graduated. & 1 Not Essential & \\ \hline
+
+college\_name & text & The name of the college. & 2 Good to Have & \\ \hline
+
+college\_state & two letter state abbreviation & The state where the college is 
+located. & 2 Good to Have & \\ \hline
+
+year4year & 
+\begin{itemize} \setlength\itemsep{-2pt} 
+\item[] 4 = 4-year
+\item[] 2 = 2-year
+\item[] L = Less than 2-year \end{itemize}  & Length of degree program. & 
+4 Absolutely Necessary & ''L'' and ''2'' are typically grouped together. \\ \hline
+
+public\_private & public / private & Type of college public or private. & 
+2 Good to Have & \\ \hline
+
+enrollment\_status & 
+\begin{itemize} \setlength\itemsep{-2pt} 
+\item[] A = leave of absence
+\item[] D = deceased
+\item[] F = full-time
+\item[] H = half-time
+\item[] L = less than half-time
+\item[] W = withdrawn
+\end{itemize} & Student's college enrollment status. & 3 Necessary for Multiple 
+Analyses & \\ \hline
+
+graduated & \begin{itemize} \setlength\itemsep{-2pt} 
+\item[] Y = yes
+\item[] N = no
+\end{itemize} & Whether or not the student has graduated college. & 
+2 Good to Have & \\ \hline
+
+graduation\_date & \begin{itemize} \setlength\itemsep{-2pt} 
+\item[] date format
+\item[] (yyy-mm-dd) \end{itemize} & Student's college graduation date. & 
+2 Good to Have & \\ \hline
+
+college\_sequence & 1, 2, 3, ... & Sequence that student progresses through college. & 
+1 Not Essential & \\ \hline
+
+degree\_title & use local values & Degree title. & 1 Not Essential & \\ \hline
+major & use local values & Student's major. & 1 Not Essential & \\ \hline
+
 \end{longtable}
+
 
 ### School
 
@@ -192,22 +499,160 @@ information on postsecondary outcomes.} \\ \hline
 \singlespace
 \begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
 p{.07\paperwidth} | p{.175\paperwidth} |}
-\caption{Yearly location and classification information for schools.} \\ \hline
+\caption*{Yearly location and classification information for schools.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
+
+school\_code & use local codes & The local numeric or alpha-numeric code for 
+the school. & 4 Absolutely Necessary & \\ \hline
+
+school\_year & spring calendar year & Academic school year from fall to spring 
+denoted here as the spring calendar year. & 4 Absolutely Necessary & \\ \hline
+
+school\_name & text & Name of school. & 4 Absolutely Necessary & \\ \hline 
+
+pid & use local values & Principal identifier unique to each school. This 
+identification number is typically assigned to a Principal upon entrance to agency. 
+State agencies may have different identification numbers than district agencies 
+for the same Principal. & 1 Not Essential & \\ \hline
+
+campus\_code & use local values & Identifies the campus where the school is 
+located, if co-located with other school. For example, when smaller 
+schools-within-schools are established at a large traditional high school. & 
+1 Not Essential & \\ \hline
+
+local[district or cluster or etc] & use local values & One or more variables. 
+The administrative sub-unit[s] to which the school is assigned. & 1 Not Essential & 
+\\ \hline
+
+grade\_span & \begin{itemize} \setlength\itemsep{-2pt} 
+\item[] K-5
+\item[] K-8
+\item[] 6-8
+\item[] 9-12
+\item[] [or as appropriate]
+\end{itemize} & The span of grade levels served by the school. Note this variable 
+should reflect the intended grade span, not the actual grades observed. & 
+1 Not Essential & A school with mostly K-5 students and a handful of 6th graders 
+should not be recorded as K-6. \\ \hline
+
+elementary & \begin{itemize} \setlength\itemsep{-2pt} 
+\item[] 0 = not elementary school
+\item[] 1 = elementary school 
+\end{itemize} & Indicator variable identifying schools that serve grades K-5. & 
+2 Good to Have & \\ \hline
+
+middle & \begin{itemize} \setlength\itemsep{-2pt} 
+\item[] 0 = not middle school
+\item[] 1 = middle school 
+\end{itemize} & Indicator variable identifying schools that serve grades 6-8. & 
+2 Good to Have & \\ \hline
+
+high & \begin{itemize} \setlength\itemsep{-2pt} 
+\item[] 0 = not high school
+\item[] 1 = high school 
+\end{itemize} & Indicator variable identifying schools that serve grades 9-12. & 
+2 Good to Have & \\ \hline
+
+charter & \begin{itemize} \setlength\itemsep{-2pt} 
+\item[] 0 = not charter school
+\item[] 1 = charter school 
+\end{itemize} & Indicator variable identifying schools which are charter schools. & 
+4 Absolutely Necessary & \\ \hline
+
+alternative & \begin{itemize} \setlength\itemsep{-2pt} 
+\item[] 0 = not alternative school
+\item[] 1 = alternative school 
+\end{itemize} & Indicator variable identifying schools which are alternative 
+schools. & 4 Absolutely Necessary & \\ \hline
+
+sped & \begin{itemize} \setlength\itemsep{-2pt} 
+\item[] 0 = not sped
+\item[] 1 = sped
+\end{itemize} & Indicator variable identifying schools which are special education  
+schools (i.e. schools for the blind). & 4 Absolutely Necessary & \\ \hline
+
+frpl & use local codes & Percent of students in a school with a status of free or 
+reduced price lunch, calculated by the agency. & 2 Good to Have & 
+May be used to group schools by poverty status. \\ \hline
 
 \end{longtable}
 
 ### Class
 
-
 \small
 \singlespace
 \begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
 p{.07\paperwidth} | p{.175\paperwidth} |}
-\caption{Class level scheduling data.} \\ \hline
+\caption*{Class level scheduling data.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
+
+cid & numeric or string & Variable that links students to teachers 
+by grouping students in the same room at the same time. One unique value should 
+be assigned to each combination of variables: school\_year + school\_code + 
+course\_code + section\_code + period\_bell + room\_number + tid & 
+5 Cannot Be Missing & Constructed by the analyst to link students to teachers. 
+\\ \hline
+
+school\_year & spring calendar year & Academic school year from fall to spring, 
+denoted here as the spring calendar year. & 5 Cannot Be Missing & \\ \hline
+
+school\_code & use local values & The local numeric or alpha-numeric code for 
+the school. & 4 Absolutely Necessary & \\ \hline
+
+course\_code & use local values & The local numeric or alpha-numeric code for 
+the course. A definition of how to interpret the variable or variables is 
+important to capture in the codebook when the description of the code's 
+sub-elements is not sufficient. & 4 Absolutely Necessary & \\ \hline
+
+course\_code \_desc & text & Description of the course\_code. For example, 
+"Pre-Algebra" or "English 7". & 4 Absolutely Necessary & \\ \hline
+
+section\_code & use local values & The local numeric or alpha-numeric code that 
+identifies individual sections. & 4 Absolutely Necessary & \\ \hline
+
+period\_bell & use local values & The local numeric or alpha-numeric code for 
+the period when the class meets. & 2 Good to Have & \\ \hline
+
+room\_number & use local values & The local numeric or alpha-numeric code for the 
+classroom where class meets. & 2 Good to Have & \\ \hline
+
+tid & numeric & Unique teacher or student identifier. State agencies may have 
+different identification numbers than district agencies for the same staff/teacher. & 
+4 Absolutely Necessary & Staff includes teachers and other agency employees. \\ 
+\hline
+
+semester\_term \_year & \begin{itemize} \setlength\itemsep{-2pt} 
+\item[] 100 = year long course
+\item[] 010 = first semester course
+\item[] 020 = second semster course
+\item[] 001 = first term course
+\item[] 002 = second term course
+\item[] 004 = fourth term course
+\end{itemize} & The duration of the class and when the class occurred during the 
+school year. (i.e. year, semester, or term). & 2 Good To Have & \\ \hline
+
+graduation \_requirement & \begin{itemize} \setlength\itemsep{-2pt} 
+\item[] 0 = not required for high school graduation
+\item[] 1 = required for high school graduation
+\end{itemize} & Indicator variable for all high school level courses required 
+for graduation. & 3 Necessary for Multiple Analyses & \\ \hline
+
+credits\_possible & use local values & Credits possible from the course. & 
+1 Not Essential & \\ \hline
+
+instructional\_level & \begin{itemize} \setlength\itemsep{-2pt} 
+\item[] 1 = remedial
+\item[] 2 = standard
+\item[] 3 = honors/advanced
+\end{itemize} & Instructional level of the course. & 2 Good to Have & Sometimes 
+embedded in course code or course title. \\ \hline
+
+subject & \begin{itemize} \item[] 1 = math \item[] 2 = English language
+\item[] 3 = science \item[] 4 = social studies \item[] 5 = other 
+\end{itemize} & General subject matter of the course. & 3 Necessary for Multiple 
+Analyses & Sometimes embedded in course code or course title. \\ \hline
 
 \end{longtable}
 
@@ -219,7 +664,7 @@ p{.07\paperwidth} | p{.175\paperwidth} |}
 \singlespace
 \begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
 p{.07\paperwidth} | p{.175\paperwidth} |}
-\caption{Time invariant demographic and recruitment data related to staff.} \\ \hline
+\caption*{Time invariant demographic and recruitment data related to staff.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
 
@@ -231,7 +676,7 @@ p{.07\paperwidth} | p{.175\paperwidth} |}
 \singlespace
 \begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
 p{.07\paperwidth} | p{.175\paperwidth} |}
-\caption{Yearly pay, experience, school placement, and job codes for staff.} \\ \hline
+\caption*{Yearly pay, experience, school placement, and job codes for staff.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
 
@@ -244,7 +689,7 @@ p{.07\paperwidth} | p{.175\paperwidth} |}
 \singlespace
 \begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
 p{.07\paperwidth} | p{.175\paperwidth} |}
-\caption{Educational achievement for staff. Each degree a staff member has received should be recorded.} \\ \hline
+\caption*{Educational achievement for staff. Each degree a staff member has received should be recorded.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
 
@@ -257,7 +702,7 @@ p{.07\paperwidth} | p{.175\paperwidth} |}
 \singlespace
 \begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
 p{.07\paperwidth} | p{.175\paperwidth} |}
-\caption{Teaching certifications received by staff.} \\ \hline
+\caption*{Teaching certifications received by staff.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
 
