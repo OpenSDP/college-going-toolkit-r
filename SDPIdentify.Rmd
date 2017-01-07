@@ -70,7 +70,7 @@ male &
 \item[] 1 = male
 \end{itemize} & Student gender & 4 Absolutely Necessary. & \\ \hline
 
-\textbf{race\_ethnicity} & 
+race\_ethnicity & 
 \begin{itemize} \setlength\itemsep{-2pt}
 \item[] 1 = African American
 \item[] 2 = Asian American
@@ -668,6 +668,99 @@ p{.07\paperwidth} | p{.175\paperwidth} |}
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
 
+tid & numeric & Unique teacher or student identifier. State agencies may have 
+different identification numbers than district agencies for the same staff/teacher. & 
+4 Absolutely Necessary & Staff includes teachers and other agency employees. \\ 
+\hline
+
+male & \begin{itemize} \setlength\itemsep{-2pt} 
+\item[] 0 = female
+\item[] 1 = male
+\end{itemize} & Staff gender. & 2 Good to Have & \\ \hline
+
+
+race\_ethnicity & 
+\begin{itemize} \setlength\itemsep{-2pt}
+\item[] 1 = African American
+\item[] 2 = Asian American
+\item[] 3 = Hispanic
+\item[] 4 = American Indian
+\item[] 5 = White, not Hispanic
+\item[] 6 = Other
+\item[] 7 = Multiple
+\end{itemize} & 
+Student race and ethnicity. For systems where race and ethnicity are treated 
+as a combined variable. & 4 Absolutely Necessary & 
+
+Use either the race\_ethnicity combined variable, or separate ethnicity and 
+race variables 
+
+If the system allows the indication of multiple categories simultaneously 
+(e.g., African American and white) report ``multiple'' \\ \hline
+
+race & \begin{itemize} \setlength\itemsep{-2pt}
+\item[] 1 = African American
+\item[] 2 = Asian American
+\item[] 4 = American Indian
+\item[] 5 = White
+\item[] 6 = Other
+\item[] 7 = Multiple
+\end{itemize} & For systems where race and ethnicity are treated as a separate variable. If 
+the system allows for multiple categories (e.g. African-American and white) 
+report "multiple".
+& 4 Absolutely Necessary & 
+
+Use either the race\_ethnicity combined variable, or separate ethnicity and 
+race variables 
+
+If the system allows the indication of multiple categories simultaneously 
+(e.g., African American and white) report ``multiple'' \\ \hline
+
+ethnicity & \begin{itemize} \setlength\itemsep{-2pt}
+\item[] 0 = not Hispanic
+\item[] 1 = Hispanic
+\end{itemize} & Student ethnicity. For systems wehre race and ethnicity are treated 
+as separate variables and Hispanic or Latino origin is asked as a separate question. 
+& 4 Absolutely Necessary. & Use either race\_ethnicity combined variable or 
+separate ethnicity and race variables \\ \hline
+
+birth\_date & \begin{itemize} \item[] date format \item[] yyyy-mm-dd 
+\end{itemize}& Staff birth date. & 1 Not Essential & 
+\\ \hline
+
+zip\_code & xxxxx or xxxxx-yyyy & The zip code of the staff member's home address. 
+& 1 Not Essential & \\ \hline
+
+offer\_date\_first & \begin{itemize} \item[] date format \item[] yyyy-mm-dd 
+\end{itemize}& The date the staff member was offered a job. & 2 Good to Have & 
+\\ \hline
+
+offer\_date\ \_most\_recent & \begin{itemize} \item[] date format \item[] yyyy-mm-dd 
+\end{itemize}& If the staff member left and was re-hired, the most recent date 
+they were offered a job to work in the system. & 2 Good to Have & 
+\\ \hline
+
+hire\_date\_first & \begin{itemize} \item[] date format \item[] yyyy-mm-dd 
+\end{itemize}& The date the staff member was hired to work. & 2 Good to Have & 
+\\ \hline
+
+hire\_date \_most\_recent & \begin{itemize} \item[] date format \item[] yyyy-mm-dd 
+\end{itemize}& If the staff member left and was re-hired the most recent date 
+they were hired to work in the system. & 2 Good to Have & \\ \hline
+
+termination\_date \_first &  \begin{itemize} \item[] date format \item[] yyyy-mm-dd 
+\end{itemize}& The first date staff members terminated employment. & 
+1 Not Essential & \\ \hline
+
+termination\_date \_most\_recent & \begin{itemize} \item[] date format \item[]
+yyyy-mm-dd \end{itemize} & If the staff member left, was re-hired, and then left 
+again, the most recent date they left the system. & 1 Not Essential & \\ \hline
+
+certification\_path & use local values & The teacher's certification pathway. 
+For example, "university/college", "alternative", or "uncertified". & 
+2 Good to Have & Where data exists, TFA or NYC Teaching Fellows can be included. 
+\\ \hline
+
 \end{longtable}
 
 ### Staff School Year
@@ -679,6 +772,15 @@ p{.07\paperwidth} | p{.175\paperwidth} |}
 \caption*{Yearly pay, experience, school placement, and job codes for staff.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
+
+
+tid & numeric & Unique teacher or student identifier. State agencies may have 
+different identification numbers than district agencies for the same staff/teacher. & 
+4 Absolutely Necessary & Staff includes teachers and other agency employees. \\ 
+\hline
+
+school\_year & spring calendar year & Academic school year from fall to spring, 
+denoted here as the spring calendar year. & 5 Cannot Be Missing & \\ \hline
 
 \end{longtable}
 
