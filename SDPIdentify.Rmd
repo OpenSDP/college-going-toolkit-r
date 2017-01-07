@@ -39,20 +39,53 @@ Variable      | Macro        | Variable       | Variable
 
 ## How to Read a Research File
 
+![Task Structure](includes/img/research.jpg)
+
 ## The Distinction Between Raw and Clean Data
+
+![Task Structure](includes/img/rawvclean.jpg)
+
+\clearpage
 
 ## Advice on Collecting Your Data
 
+If you gather your agency's data to work through the toolkit (rather than using 
+the practice files) use these **"5 Ws of Data Collection"** to guide your efforts:
+
+
+\begin{tabular}{p{.15\linewidth} p{.15\linewidth} p{.15\linewidth} 
+p{.15\linewidth}  p{.15\linewidth} }
+\textbf{WHY}  & \textbf{WHAT} & \textbf{WHEN} &
+\textbf{WHERE} & \textbf{WHO} \\ 
+
+am I collecting data? & data are needed to answer these questions? & 
+(over what date range) do I need data for? & are the data stored? & 
+owns the systems where the data live and is responsible for delivery of the data? 
+\\ 
+
+What research questions am I trying to answer? & & How reliable are historical 
+data? &  & \\ 
+
+\end{tabular}
+
+
 ## The Role of Database Architects
 
-
+Database Architects play an important role equipping educational analysts and
+data strategists with data. SDP recognizes that education agencies have
+pre-established systems to collect and manage student-, teacher- and human
+resource- databases. This toolkit enables database architects to pull data
+available in pre-existing warehouses and transform it for analytic work. 
+Database architects should feel free to modify the data specification to meet
+their individual agency’s needs. However, to support analysts and data
+strategists interested in pursuing the rest of the SDP Toolkit, following the
+standards set in this specification will promote efficiencies in the way
+variables are coded and defined.
 
 ## Data Files
-
-### Student_Attributes
-
 \begin{landscape}
-
+\Large Student\_Attributes
+\vspace{-8mm}
 \small
 \singlespace
 \begin{longtable}{| p{.1\paperheight} | p{.14\paperheight} | p{.32\paperheight} |
@@ -124,12 +157,13 @@ zip\_code & xxxxx or xxxxx-yyyy & The zip code of the student's home address. &
 \end{landscape}
 \normalsize
 
-### Student School Year
-
+\begin{landscape}
+\Large{Student School Year}
+\vspace{-8mm}
 \small
 \singlespace
-\begin{longtable}{| p{.1\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
-p{.07\paperwidth} | p{.172\paperwidth} |}
+\begin{longtable}{| p{.1\paperheight} | p{.14\paperheight} | p{.32\paperheight} |
+p{.07\paperheight} | p{.17\paperheight} | }
 \caption*{Yearly classification and attendance data for students.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
@@ -196,14 +230,16 @@ the school year a student experienced in school suspension & 2 Good to Have &
 \\ \hline
 
 \end{longtable}
+\end{landscape}
+\normalsize
 
-
-### Student School Enrollment 
-
+\begin{landscape}
+\Large{Student School Enrollment}
+\vspace{-8mm}
 \small
 \singlespace
-\begin{longtable}{| p{.1\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
-p{.07\paperwidth} | p{.172\paperwidth} |}
+\begin{longtable}{| p{.1\paperheight} | p{.14\paperheight} | p{.32\paperheight} |
+p{.07\paperheight} | p{.17\paperheight} | }
 \caption*{School enrollment/withdrawal data for students.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
@@ -279,14 +315,17 @@ may report this directly or you may calculate it based on enrollment dates. &
 2 Good to Have & \\ \hline
 
 \end{longtable}
+\end{landscape}
+\normalsize
 
 
-### Student Class Enrollment
-
+\begin{landscape}
+\Large{Student Class Enrollment}
+\vspace{-8mm}
 \small
 \singlespace
-\begin{longtable}{| p{.1\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
-p{.07\paperwidth} | p{.172\paperwidth} |}
+\begin{longtable}{| p{.1\paperheight} | p{.14\paperheight} | p{.32\paperheight} |
+p{.07\paperheight} | p{.17\paperheight} | }
 \caption*{Class enrollment, grades, and credits earned data for students.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
@@ -328,13 +367,16 @@ Grades can range from ``Alpha Plus'' (A+ through F), or a numeric scale (0.0
 - 4.0 or 0-100). & 4 Necessary for Multiple Analyses & \\ \hline
 
 \end{longtable}
+\end{landscape}
+\normalsize
 
-### Student Test Scores
-
+\begin{landscape}
+\Large{Student Test Scores}
+\vspace{-8mm}
 \small
 \singlespace
-\begin{longtable}{| p{.1\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
-p{.07\paperwidth} | p{.172\paperwidth} |}
+\begin{longtable}{| p{.1\paperheight} | p{.14\paperheight} | p{.32\paperheight} |
+p{.07\paperheight} | p{.17\paperheight} | }
 \caption*{Standardized test data for students (state standardized tests, advanced placement, ACT, SAT, etc). Every attempt at a test by a student should be recorded.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
@@ -400,14 +442,16 @@ does not provide a standardized score for state tests, leave this blank. &
 and grade\_level \\ \hline
 
 \end{longtable}
+\end{landscape}
+\normalsize
 
-### Student NSC Enrollment
-
-
+\begin{landscape}
+\Large{Student NSC Enrollment}
+\vspace{-8mm}
 \small
 \singlespace
-\begin{longtable}{| p{.1\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
-p{.07\paperwidth} | p{.172\paperwidth} |}
+\begin{longtable}{| p{.1\paperheight} | p{.14\paperheight} | p{.32\paperheight} |
+p{.07\paperheight} | p{.17\paperheight} | }
 \caption*{Standardized test data for students (state standardized tests, advanced placement, ACT, SAT, etc). Every attempt at a test by a student should be recorded.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
@@ -490,15 +534,16 @@ degree\_title & use local values & Degree title. & 1 Not Essential & \\ \hline
 major & use local values & Student's major. & 1 Not Essential & \\ \hline
 
 \end{longtable}
+\end{landscape}
+\normalsize
 
-
-### School
-
-
+\begin{landscape}
+\Large{School}
+\vspace{-8mm}
 \small
 \singlespace
-\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
-p{.07\paperwidth} | p{.175\paperwidth} |}
+\begin{longtable}{| p{.1\paperheight} | p{.14\paperheight} | p{.32\paperheight} |
+p{.07\paperheight} | p{.17\paperheight} | }
 \caption*{Yearly location and classification information for schools.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
@@ -577,13 +622,17 @@ reduced price lunch, calculated by the agency. & 2 Good to Have &
 May be used to group schools by poverty status. \\ \hline
 
 \end{longtable}
+\end{landscape}
+\normalsize
 
-### Class
 
+\begin{landscape}
+\Large{Class}
+\vspace{-8mm}
 \small
 \singlespace
-\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
-p{.07\paperwidth} | p{.175\paperwidth} |}
+\begin{longtable}{| p{.1\paperheight} | p{.14\paperheight} | p{.32\paperheight} |
+p{.07\paperheight} | p{.17\paperheight} | }
 \caption*{Class level scheduling data.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
@@ -655,15 +704,16 @@ subject & \begin{itemize} \item[] 1 = math \item[] 2 = English language
 Analyses & Sometimes embedded in course code or course title. \\ \hline
 
 \end{longtable}
+\end{landscape}
 
 
-### Staff Attributes
-
-
+\begin{landscape}
+\Large{Staff Attributes}
+\vspace{-8mm}
 \small
 \singlespace
-\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
-p{.07\paperwidth} | p{.175\paperwidth} |}
+\begin{longtable}{| p{.1\paperheight} | p{.14\paperheight} | p{.32\paperheight} |
+p{.07\paperheight} | p{.17\paperheight} | }
 \caption*{Time invariant demographic and recruitment data related to staff.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
@@ -762,13 +812,16 @@ For example, "university/college", "alternative", or "uncertified". &
 \\ \hline
 
 \end{longtable}
+\end{landscape}
+\normalsize
 
-### Staff School Year
-
+\begin{landscape}
+\Large{Staff School Year}
+\vspace{-8mm}
 \small
 \singlespace
-\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
-p{.07\paperwidth} | p{.175\paperwidth} |}
+\begin{longtable}{| p{.1\paperheight} | p{.14\paperheight} | p{.32\paperheight} |
+p{.07\paperheight} | p{.17\paperheight} | }
 \caption*{Yearly pay, experience, school placement, and job codes for staff.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
@@ -776,39 +829,143 @@ p{.07\paperwidth} | p{.175\paperwidth} |}
 
 tid & numeric & Unique teacher or student identifier. State agencies may have 
 different identification numbers than district agencies for the same staff/teacher. & 
-4 Absolutely Necessary & Staff includes teachers and other agency employees. \\ 
+5 Cannot Be Missing & Staff includes teachers and other agency employees. \\ 
 \hline
 
 school\_year & spring calendar year & Academic school year from fall to spring, 
 denoted here as the spring calendar year. & 5 Cannot Be Missing & \\ \hline
 
+salary\_group\_code & use local values & 
+Seaparate variables that describe different components of salary. For example: 
+salary\_group\_degree, salary\_group\_experience, salary\_group\_nbct etc. 
+Identifies the teacher's base slaary, and genearally includes a component 
+for experience, degrees earned, and other considerations (e.g. NBTS certification). 
+A definition of how to interpret the variable or variables is particularly 
+important to caputre in the codebook. & Only necessary if we do not know teaching 
+experience and advanced degree. & \\ \hline
+
+additional\_pay & amount & The amount of salary above the base salary (captured in 
+salary\_group\_code) which the staff member received. & 1 Not Essential & \\ \hline
+
+teaching\_ experience & 0 or positive integer & Identifies the total teaching 
+experience of the staff member in years. (0 denotes a new teacher). & 
+4 Absolutely Necessary & Can be backed out from salary. Note: we only need to 
+differentiate between the first 1-5 years. It is okay (but not ideal) to 
+group more experienced teachers together. \\ \hline
+
+district\_experience & 0 or positive integer & Identifies teaching experience of the 
+staff member as an employee of the district. & 2 Good to Have & \\ \hline
+
+school\_code1 & use local values & The local code for the primary school in which a 
+staff member is employed. & 4 Absolutely Necessary & Can be determined from course file
+\\ \hline
+
+job\_code1 & use local values & The local code for the job or position held 
+in the primary school. & 2 Good to Have & \\ \hline
+
+school\_code2 & use local values & The local code for the secondary school, if 
+more than 1. & 1 Not Essential & \\ \hline
+
+job\_code2 & use local values & The local code for the job or position held 
+in the secdonary school. & 2 Good to Have & \\ \hline
+
+school\_code\# & use local values & The local code for the \#th school, if more 
+than two. & 4 Absolutely Necessary & Can be determined from course file
+\\ \hline
+
+job\_code\# & use local values & The local code for the job or position held 
+in the \#th school. & 2 Good to Have & \\ \hline
+
 \end{longtable}
+\end{landscape}
+\normalsize
 
-### Staff Degrees
 
-
+\begin{landscape}
+\Large{Staff Degrees}
+\vspace{-8mm}
 \small
 \singlespace
-\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
-p{.07\paperwidth} | p{.175\paperwidth} |}
+\begin{longtable}{| p{.1\paperheight} | p{.14\paperheight} | p{.32\paperheight} |
+p{.07\paperheight} | p{.17\paperheight} | }
 \caption*{Educational achievement for staff. Each degree a staff member has received should be recorded.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
 
+tid & numeric & Unique teacher or student identifier. State agencies may have 
+different identification numbers than district agencies for the same staff/teacher. & 
+5 Cannot Be Missing & Staff includes teachers and other agency employees. \\ 
+\hline
+
+degree\_year & \begin{itemize} \item[] 1 = less than four year degree
+\item[] 2 = four year degree \item[] 3 = master's degree \item[] 4 = doctoral degree
+\end{itemize} & The type of degree received by the staff member. & 
+3 Necessary for Multiple Analyses & Can be backed out from salary grade. \\ \hline
+
+degree\_institution \_code & use local codes & Local code for the degree granting 
+institution. & 2 Good to Have & \\ \hline
+
+degree\_date &  \begin{itemize} \item[] date format \item[] yyyy-mm-dd 
+\end{itemize} & The date (or at minimum year) on which the degree was granted. & 
+1 Not Essential & \\ \hline
+
+degree\_opeid & OPEIDs & OPEID for the degree granting institution. Identification 
+number used by the U.S. Department of Education's Office of Postsecondary Education 
+(OPE) to identify schools. & 2 Good to Have & Can be obtained from a sample 
+match if degree\_institution name is known. \\ \hline
+
+degree\_major & use local codes & Description of the dgree major or subject. & 
+2 Good to Have & \\ \hline
+
 \end{longtable}
+\end{landscape}
 
-### Staff Certifications
-
-
+\begin{landscape}
+\Large{Staff Certifications}
+\vspace{-8mm}
 \small
 \singlespace
-\begin{longtable}{| p{.07\paperwidth} | p{.14\paperwidth} | p{.32\paperwidth} |
-p{.07\paperwidth} | p{.175\paperwidth} |}
+\begin{longtable}{| p{.1\paperheight} | p{.14\paperheight} | p{.32\paperheight} |
+p{.07\paperheight} | p{.17\paperheight} | }
 \caption*{Teaching certifications received by staff.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
 
+tid & numeric & Unique teacher or student identifier. State agencies may have 
+different identification numbers than district agencies for the same staff/teacher. & 
+5 Cannot Be Missing & Staff includes teachers and other agency employees. \\ 
+\hline
+
+certification\_code & use local codes & One or more variables (e.g. grade level 
+may be separate from subject, area). Local code for the type or class of 
+certification or license. & 2 Good to Have & \\ \hline
+
+certification\_ effective\_date & \begin{itemize} \item[] 
+date format \item[] yyyy-mm-dd\end{itemize} & The date the certification took 
+effect. & 2 Good to Have & School year can also be used. \\ \hline
+
+certification\_code\_ desc & text & Descriptive text for certification\_code & 
+2 Good to Have & \\ \hline
+
+certification\_ expire\_date & \begin{itemize} \item[] date format \item[] yyyy-mm-dd 
+\end{itemize} & The date when certification expired or expires. & 2 Good to Have 
+& School year can also be used. \\ \hline
+
+special\_education & \begin{itemize} \item[] 0 = not special education certified 
+\item[] 1 = special education certified \end{itemize} & An indicator variable 
+for staff with Special Education certification. & 1 Not Essential & \\ \hline
+
+english\_language\_ learners & \begin{itemize} \item[] 0 = not English language 
+learners certified  \item[] 1 = English language learners certified \end{itemize} 
+& An indicator variable for staff with English language learners certification. 
+& 1 Not Essential & \\ \hline
+
+nbct & \begin{itemize} \item[] 0 = not National Board certified
+\item[] 1 = National Board certified \end{itemize} & An indicator variable 
+for staff that are National Board certified. & 2 Good to Have & \\ \hline
+
 \end{longtable}
+\end{landscape}
 
 \vfill
 Last updated January 2017.
