@@ -29,14 +29,49 @@ into research files that contain important information at the student-, school-,
 and teacher- levels. These research files comprise the elements needed to Clean,
 Connect, and then Analyze your data.
 
+\begin{small}
+\bgroup
+\def\arraystretch{1.5}
+\begin{tabular}{p{.15\paperwidth} p{.52\paperwidth} p{.06\paperwidth} 
+p{.06\paperwidth}  p{.06\paperwidth}}
+\textbf{STUDENT DATA FILES}  &  & \textbf{College-going} &
+\textbf{Human Capital} & \textbf{page} \\ 
 
-Data File     | Description     | College Going      | page
-------------- | ------------ | -------------  | ------------
-Row           | Observation  | Row or record  | Object
-Column        | Variable     | Column         | Field or attribute
-Variable      | Macro        | Variable       | Variable
+Student\_Attributes & Demographic, cohort, and graduation data for students. & 
+\cellcolor{blue!25} & \cellcolor{red!25} & 7 \\ 
+Student\_School\_Year & School year and attendance data for students. & 
+\cellcolor{blue!25} & \cellcolor{red!25} & 7 \\ 
+Student\_School\_Enrollment & School enrollment/withdrawal data for students. &
+\cellcolor{blue!25} & \cellcolor{red!25} & 7 \\ 
+Student\_Class\_Enrollment & Class enrollment, grades, and credits earned for 
+students & \cellcolor{blue!25} & \cellcolor{red!25} & 7 \\ 
+Student\_Test\_Scores & Standardized test data for students (state standardized tests, 
+advanced placement, SAT, ACT, etc.). Every attempt at a test by a student should 
+be recorded. & \cellcolor{blue!25} & \cellcolor{red!25} & 7 \\ 
+Student\_NSC\_Enrollment & The National Student Clearinghouse (NSC) Student 
+Tracker student-level data report that provides information on postsecondary 
+outcomes. & \cellcolor{blue!25} & \cellcolor{red!25} & 7 \\ \hline
 
+\textbf{SCHOOL DATA FILES} & & & & \\
 
+School & Location and classification of schools. & \cellcolor{blue!25} &
+\cellcolor{red!25} & 7 \\ 
+Class & Class level scheduling data. & 
+\cellcolor{blue!25} & \cellcolor{red!25} & 7 \\ \hline
+
+\textbf{STAFF DATA FILES} & & & & \\
+
+Staff\_Attributes & Demographic and recruitment data of staff. & \cellcolor{blue!25} & \cellcolor{red!25} & 7 \\ 
+Staff\_School\_Year & Pay, experience, school placement, and job codes of 
+staff. & \cellcolor{blue!25} & \cellcolor{red!25} & 7 \\ 
+Staff\_Degrees & Educational achievement of staff. Each degree a staff member 
+received should be recorded once. & \cellcolor{blue!25} & \cellcolor{red!25} & 7 \\ 
+Staff\_Certificaiton & Teaching Certifications received by staff. & 
+\cellcolor{blue!25} & \cellcolor{red!25} & 7 \\ \hline
+
+\end{tabular}
+\egroup
+\end{small}
 ## How to Read a Research File
 
 ![Task Structure](includes/img/research.jpg)
@@ -52,9 +87,11 @@ Variable      | Macro        | Variable       | Variable
 If you gather your agency's data to work through the toolkit (rather than using 
 the practice files) use these **"5 Ws of Data Collection"** to guide your efforts:
 
+\bgroup
+\def\arraystretch{2}
 
-\begin{tabular}{p{.15\linewidth} p{.15\linewidth} p{.15\linewidth} 
-p{.15\linewidth}  p{.15\linewidth} }
+\begin{tabular}{p{.15\paperwidth} p{.15\paperwidth} p{.15\paperwidth} 
+p{.15\paperwidth}  p{.15\paperwidth} }
 \textbf{WHY}  & \textbf{WHAT} & \textbf{WHEN} &
 \textbf{WHERE} & \textbf{WHO} \\ 
 
@@ -67,7 +104,7 @@ What research questions am I trying to answer? & & How reliable are historical
 data? &  & \\ 
 
 \end{tabular}
-
+\egroup
 
 ## The Role of Database Architects
 
@@ -154,6 +191,8 @@ zip\_code & xxxxx or xxxxx-yyyy & The zip code of the student's home address. &
 
 
 \end{longtable}
+\vspace{-6mm}
+\small{Identifies unique observation: \textbf{sid}}
 \end{landscape}
 \normalsize
 
@@ -230,6 +269,8 @@ the school year a student experienced in school suspension & 2 Good to Have &
 \\ \hline
 
 \end{longtable}
+\vspace{-6mm}
+\small{Identifies unique observation: \textbf{sid + school\_year}}
 \end{landscape}
 \normalsize
 
@@ -315,6 +356,9 @@ may report this directly or you may calculate it based on enrollment dates. &
 2 Good to Have & \\ \hline
 
 \end{longtable}
+\vspace{-6mm}
+\small{Identifies unique observation: \textbf{sid + school\_year + 
+school\_code + enrollment\_date}}
 \end{landscape}
 \normalsize
 
@@ -367,12 +411,13 @@ Grades can range from ``Alpha Plus'' (A+ through F), or a numeric scale (0.0
 - 4.0 or 0-100). & 4 Necessary for Multiple Analyses & \\ \hline
 
 \end{longtable}
+\vspace{-6mm}
+\small{Identifies unique observation: \textbf{sid + cid + enrollment\_date}}
 \end{landscape}
 \normalsize
 
 \begin{landscape}
 \Large{Student Test Scores}
-\vspace{-8mm}
 \small
 \singlespace
 \begin{longtable}{| p{.1\paperheight} | p{.14\paperheight} | p{.32\paperheight} |
@@ -442,17 +487,19 @@ does not provide a standardized score for state tests, leave this blank. &
 and grade\_level \\ \hline
 
 \end{longtable}
+\vspace{-6mm}
+\small{Identifies unique observation: \textbf{sid + test\_code + test\_date}}
 \end{landscape}
 \normalsize
 
 \begin{landscape}
 \Large{Student NSC Enrollment}
-\vspace{-8mm}
 \small
 \singlespace
 \begin{longtable}{| p{.1\paperheight} | p{.14\paperheight} | p{.32\paperheight} |
 p{.07\paperheight} | p{.17\paperheight} | }
-\caption*{Standardized test data for students (state standardized tests, advanced placement, ACT, SAT, etc). Every attempt at a test by a student should be recorded.} \\ \hline
+\caption*{National Student Clearinghouse Student Tracker student-level data that 
+provides information on postsecondary outcomes.} \\ \hline
 \textbf{Variable Name}  & \textbf{Values or Data Type} & \textbf{Definition} &
 \textbf{Importance} & \textbf{Notes} \\ \hline
 
@@ -534,6 +581,9 @@ degree\_title & use local values & Degree title. & 1 Not Essential & \\ \hline
 major & use local values & Student's major. & 1 Not Essential & \\ \hline
 
 \end{longtable}
+\vspace{-6mm}
+\small{Identifies unique observation: \textbf{sid + college\_code\_branch + 
+enrollment\_begin + enrollment\_end}}
 \end{landscape}
 \normalsize
 
@@ -622,6 +672,8 @@ reduced price lunch, calculated by the agency. & 2 Good to Have &
 May be used to group schools by poverty status. \\ \hline
 
 \end{longtable}
+\vspace{-6mm}
+\small{Identifies unique observation: \textbf{school\_code + school\_year}}
 \end{landscape}
 \normalsize
 
@@ -704,6 +756,8 @@ subject & \begin{itemize} \item[] 1 = math \item[] 2 = English language
 Analyses & Sometimes embedded in course code or course title. \\ \hline
 
 \end{longtable}
+\vspace{-6mm}
+\small{Identifies unique observation: \textbf{cid}}
 \end{landscape}
 
 
@@ -812,6 +866,8 @@ For example, "university/college", "alternative", or "uncertified". &
 \\ \hline
 
 \end{longtable}
+\vspace{-6mm}
+\small{Identifies unique observation: \textbf{tid}}
 \end{landscape}
 \normalsize
 
@@ -877,6 +933,8 @@ job\_code\# & use local values & The local code for the job or position held
 in the \#th school. & 2 Good to Have & \\ \hline
 
 \end{longtable}
+\vspace{-6mm}
+\small{Identifies unique observation: \textbf{tid + school\_year}}
 \end{landscape}
 \normalsize
 
@@ -918,6 +976,9 @@ degree\_major & use local codes & Description of the dgree major or subject. &
 2 Good to Have & \\ \hline
 
 \end{longtable}
+\vspace{-6mm}
+\small{Identifies unique observation: \textbf{tid + degree\_type + 
+degree\_institution\_code + degree\_date}}
 \end{landscape}
 
 \begin{landscape}
@@ -965,6 +1026,9 @@ nbct & \begin{itemize} \item[] 0 = not National Board certified
 for staff that are National Board certified. & 2 Good to Have & \\ \hline
 
 \end{longtable}
+\vspace{-6mm}
+\small{Identifies unique observation: \textbf{tid + certification\_code + 
+certification\_effective\_date}}
 \end{landscape}
 
 \vfill
