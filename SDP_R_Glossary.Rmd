@@ -1178,8 +1178,8 @@ A key advantage of using R is the data visualization capabilities it has. R
 boasts a number of ways to make statistical graphics and the more you use R 
 the more you will come across `base`, `lattice`, and `ggplot2` graphics. It 
 is recommended you start with using `ggplot2` because of its consistent language 
-and the modular way it allows users to assemble complex graphics from simple  
-parts. 
+and the modular way it allows users to assemble complex graphics from simple parts. 
+
 
 ```{r}
 library(ggplot2)
@@ -1203,6 +1203,24 @@ ggplot(mtcars, aes(x = hp, y = mpg)) +
 
 ```
 
+A key concept of `ggplot2` is the use of the `+` sign to combine distinct elements 
+of a visualization. In the example you can see that the first line of code 
+sets up the dataset to be used, `mtcars`, and mapping of the variables in that 
+dataset to data elements `x` position and `y` position. 
+
+The next line describes the visual geometries to be mapped to the data, here 
+both a `geom_point` for scatterplot points and a `geom_smooth` for a trend 
+line through those points. 
+
+The next lines set the scale -- or how the axes are drawn. Here the range of 
+the axes is manually specified (though `ggplot2` will try to automatically pick 
+good defaults), as are the breaks. 
+
+The final line allows fine-tuned control of the overall look of the elements 
+of the graph that are not related to the data (axis lines, tick marks, font 
+sizes for labels, etc.). `ggplot2` comes pre-packaged with a number of plot 
+themes, and more can be found online. 
+
 You can learn more about `ggplot2` from a number of high quality `ggplot2` 
 tutorials online and the excellent package documentation. 
 
@@ -1218,6 +1236,6 @@ print(sessionInfo(),locale = FALSE)
 ```
 
 \vfill
-Last updated December 2016.
+Last updated January 2017.
 
 © 2016 President and Fellows of Harvard College.

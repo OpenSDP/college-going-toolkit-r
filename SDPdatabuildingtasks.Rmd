@@ -92,6 +92,8 @@ answers after completing each task. If you have followed the
 task instructions correctly, you should arrive at the same
 cleaned output file.
 
+\vspace{8mm}
+
 In each task, you will also find:
 
 - **Purpose:** --- Clarifies the importance of the task.  

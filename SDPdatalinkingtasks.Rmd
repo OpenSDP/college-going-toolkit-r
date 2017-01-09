@@ -55,7 +55,7 @@ move through Connect, you should review these stages of the toolkit.
 
 Connect consists of 10 steps to build one analysis files from various sources.
 After the first ten steps, there is also a section on producing indicators to
-on-track gradudation. The steps in **Connect** require data files from **Clean**.
+on-track graduation. The steps in **Connect** require data files from **Clean**.
 
 
 ![Task Structure](includes/img/DLTaskDataAndStructure.jpg)
@@ -468,7 +468,7 @@ Step 2.
 
 **After this step** you will have created a number of high school indicators 
 and outcomes: 1) first, last, and longest high school; 2) 9th grade and 
-graduation cohorts; and 3) end of high school outcomes: ontime and late graduates 
+graduation cohorts; and 3) end of high school outcomes: on-time and late graduates 
 and high school enrollment outcomes for non-graduates.
 
 ### Steps
@@ -1275,7 +1275,7 @@ for(chrt in c("ninth", "grad")){
 
 You are almost finished creating the college-going analysis file. All that is 
 left is to merge the `Student_CollegeGoing` file with the NSC college-going 
-indicators you created in Step 9 and drop any students classified as transferout 
+indicators you created in Step 9 and drop any students classified as `transferout` 
 from the analysis. This allows your analysis file to contain student 
 characteristics, high school outcomes, and college enrollment and persistence 
 outcomes. 

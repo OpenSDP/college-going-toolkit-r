@@ -32,9 +32,9 @@ Connect, and then Analyze your data.
 \begin{small}
 \bgroup
 \def\arraystretch{1.5}
-\begin{tabular}{p{.15\paperwidth} p{.52\paperwidth} p{.06\paperwidth} 
-p{.06\paperwidth}  p{.06\paperwidth}}
-\textbf{STUDENT DATA FILES}  &  & \textbf{College-going} &
+\begin{tabular}{p{.15\paperwidth} p{.4\paperwidth} p{.03\paperwidth} 
+p{.03\paperwidth}  p{.03\paperwidth}}
+\textbf{STUDENT DATA FILES}  &  & \textbf{College- going} &
 \textbf{Human Capital} & \textbf{page} \\ 
 
 Student\_Attributes & Demographic, cohort, and graduation data for students. & 

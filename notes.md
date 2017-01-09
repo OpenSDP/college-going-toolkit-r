@@ -1,3 +1,14 @@
+## Build notes
+
+DONE: 
+
+QUICKSTART
+R GLOSSARY
+CONNECT
+
+- For QUICKSTART comment out the modifier for the itemize environment in the 
+prefix.tex file
+
 ## To Do / Notes
 
 
