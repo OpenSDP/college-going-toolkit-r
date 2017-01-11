@@ -38,36 +38,36 @@ p{.03\paperwidth}  p{.03\paperwidth}}
 \textbf{Human Capital} & \textbf{page} \\ 
 
 Student\_Attributes & Demographic, cohort, and graduation data for students. & 
-\cellcolor{blue!25} & \cellcolor{red!25} & 7 \\ 
+\cellcolor{blue!25} & \cellcolor{red!25} & 5 \\ 
 Student\_School\_Year & School year and attendance data for students. & 
-\cellcolor{blue!25} & \cellcolor{red!25} & 7 \\ 
+\cellcolor{blue!25} & \cellcolor{red!25} & 6 \\ 
 Student\_School\_Enrollment & School enrollment/withdrawal data for students. &
-\cellcolor{blue!25} & \cellcolor{red!25} & 7 \\ 
+\cellcolor{blue!25} & \cellcolor{red!25} & 8 \\ 
 Student\_Class\_Enrollment & Class enrollment, grades, and credits earned for 
-students & \cellcolor{blue!25} & \cellcolor{red!25} & 7 \\ 
-Student\_Test\_Scores & Standardized test data for students (state standardized tests, 
-advanced placement, SAT, ACT, etc.). Every attempt at a test by a student should 
-be recorded. & \cellcolor{blue!25} & \cellcolor{red!25} & 7 \\ 
+students & \cellcolor{blue!25} & \cellcolor{red!25} & 9 \\ 
+Student\_Test\_Scores & Standardized test data for students (state standardized 
+tests, advanced placement, SAT, ACT, etc.). Every attempt at a test by 
+a student should  be recorded. & \cellcolor{blue!25} & \cellcolor{red!25} & 10 \\ 
 Student\_NSC\_Enrollment & The National Student Clearinghouse (NSC) Student 
 Tracker student-level data report that provides information on postsecondary 
-outcomes. & \cellcolor{blue!25} & \cellcolor{red!25} & 7 \\ \hline
+outcomes. & \cellcolor{blue!25} &  & 12 \\ \hline
 
 \textbf{SCHOOL DATA FILES} & & & & \\
 
 School & Location and classification of schools. & \cellcolor{blue!25} &
-\cellcolor{red!25} & 7 \\ 
-Class & Class level scheduling data. & 
-\cellcolor{blue!25} & \cellcolor{red!25} & 7 \\ \hline
+\cellcolor{red!25} & 14 \\ 
+Class & Class level scheduling data. &  & \cellcolor{red!25} & 16 \\ \hline
 
 \textbf{STAFF DATA FILES} & & & & \\
 
-Staff\_Attributes & Demographic and recruitment data of staff. & \cellcolor{blue!25} & \cellcolor{red!25} & 7 \\ 
+Staff\_Attributes & Demographic and recruitment data of staff. & & 
+\cellcolor{red!25} & 18 \\ 
 Staff\_School\_Year & Pay, experience, school placement, and job codes of 
-staff. & \cellcolor{blue!25} & \cellcolor{red!25} & 7 \\ 
+staff. &  & \cellcolor{red!25} & 20 \\ 
 Staff\_Degrees & Educational achievement of staff. Each degree a staff member 
-received should be recorded once. & \cellcolor{blue!25} & \cellcolor{red!25} & 7 \\ 
-Staff\_Certificaiton & Teaching Certifications received by staff. & 
-\cellcolor{blue!25} & \cellcolor{red!25} & 7 \\ \hline
+received should be recorded once. &  & \cellcolor{red!25} & 21 \\ 
+Staff\_Certification & Teaching Certifications received by staff. &  &
+\cellcolor{red!25} & 22 \\ \hline
 
 \end{tabular}
 \egroup
@@ -162,7 +162,7 @@ If the system allows the indication of multiple categories simultaneously
 ethnicity & \begin{itemize} \setlength\itemsep{-2pt}
 \item[] 0 = not Hispanic
 \item[] 1 = Hispanic
-\end{itemize} & Student ethnicity. For systems wehre race and ethnicity are treated 
+\end{itemize} & Student ethnicity. For systems where race and ethnicity are treated 
 as separate variables and Hispanic or Latino origin is asked as a separate question. 
 & 4 Absolutely Necessary. & \footnotesize{Use either race\_ethnicity combined variable or 
 separate ethnicity and race variables.} \\ \hline
@@ -170,7 +170,7 @@ separate ethnicity and race variables.} \\ \hline
 birth\_date & \begin{itemize} \item[] date format \item[] yyyy-mm-dd 
 \end{itemize}& Student birth date. & 2 Good to Have & 
 \\ \hline
-first\_9th\_school\_year\_reported & spring calendar year & 
+first\_9th\_school \_year\_reported & spring calendar year & 
 The school year the student was a 9th grader for the first time. For this variable 
 report what the system recorded for the 9th grade school year. Not all systems 
 will record this information. & 1 Not Essential & \\ \hline
@@ -182,7 +182,7 @@ diploma from the system & 4 Absolutely Necessary &  \\ \hline
 
 hs\_diploma\_date & \begin{itemize} \setlength\itemsep{-2pt}
 \item[] date format
-\item[] (yyy-mm-dd)
+\item[] (yyyy-mm-dd)
 \end{itemize} & The date on which the student received a high school diploma. 
 If only a month and year, or only a school year, is known report the partial 
 information. & 4 Absolutely Necessary & Can also be graduation date. \\ \hline
@@ -229,12 +229,12 @@ Indicator for students who have an individualized education plan (IEP). &
 4 Absolutely Necessary & \\ \hline
 
 iep\_classification & use local values & Local IEP or special education classification.
-Generally these classifications folow the standard special education classification. & 
+Generally these classifications follow the standard special education classification. & 
 2 Good to Have & \\ \hline
 
 ell & \begin{itemize} \item[] 0 = not ell \item[] 1 = ell \end{itemize} & 
 Indicator for students who are classified as English Language Learners (ELL). 
-Some SYstems refer to this category as Limited English Proficienty (LEP) or 
+Some Systems refer to this category as Limited English Proficiency (LEP) or 
 English as a Second Language (ESL). & 4 Absolutely Necessary & \\ \hline
 
 ell\_classification & use local values & Local classification of level of English 
@@ -260,11 +260,11 @@ total\_days\_absent & number of days & Total number of days over the school year
 a student was marked absent. Cannot exceed the number of days enrolled. & 2 Good 
 to Have  & Can sometimes be unreliable. \\ \hline
 
-days\_suspended\_ out\_of\_school & number of days & Total number of days over 
+days\_suspended \_out\_of\_school & number of days & Total number of days over 
 the school year a student experienced out of school suspension & 2 Good to Have & 
 \\ \hline
 
-days\_suspended\_ in\_school & number of days & Total number of days over 
+days\_suspended \_in\_school & number of days & Total number of days over 
 the school year a student experienced in school suspension & 2 Good to Have & 
 \\ \hline
 
@@ -298,21 +298,21 @@ school. & 4 Absolutely Necessary & \\ \hline
 
 enrollment\_date &\begin{itemize} \setlength\itemsep{-2pt}
 \item[] date format
-\item[] (yyy-mm-dd)
+\item[] (yyyy-mm-dd)
 \end{itemize}  & When the student enrolled at the school. 
 In some systems an enrollment date is recorded when a student matriculates from 
 a different school (e.g. moving from an elementary to a middle school within the 
-system or moveing from one middle school to a different middle school). 
+system or moving from one middle school to a different middle school). 
 
 In other systems enrollment dates are recorded at the beginning of each school year 
 (e.g. 8th graders are assigned an enrollment date at the beginning of the year even 
-if they were enrolled at the same school the year before). Th elatter case is 
-perferred. It is also what we observe in most agencies. & 4 Absolutely Necessary
+if they were enrolled at the same school the year before). The latter case is 
+preferred. It is also what we observe in most agencies. & 4 Absolutely Necessary
 & \\ \hline
 
 withdrawal\_date & \begin{itemize} \setlength\itemsep{-2pt}
 \item[] date format
-\item[] (yyy-mm-dd)
+\item[] (yyyy-mm-dd)
 \end{itemize}  & The date the student withdrew from 
 the school. 
 
@@ -327,7 +327,7 @@ they plan to attend the same school next year).
 The latter case is preferred. & 4 Absolutely Necessary & \\ \hline
 
 enrollment\_code & use local values & The local numeric or alpha-numeric code 
-describing enrolment reason into the school, if available. & 1 Not Essential & 
+describing enrollment reason into the school, if available. & 1 Not Essential & 
 \\ \hline
 
 enrollment\_code \_desc & text & Description of the enrollment\_code. & 1 Not 
@@ -341,22 +341,22 @@ withdrawal\_code \_desc & text & Description of the withdrawal\_code. &
 
 
 days\_enrolled & number of days & Number of school days during the school year 
-the student was enrolled at a given school. The systems's data sources 
+the student was enrolled at a given school. The system's data sources 
 may report this directly or you may calculate it based on enrollment dates. & 
 2 Good to Have & Can be calculated by days\_present + days\_absent \\ \hline
 
 days\_present & number of days & Number of school days during the school year 
-the student was present at a given school. The systems's data sources 
+the student was present at a given school. The system's data sources 
 may report this directly or you may calculate it based on enrollment dates. & 
 2 Good to Have & \\ \hline
 
 days\_absent & number of days & Number of school days during the school year 
-the student was absent at a given school. The systems's data sources 
+the student was absent at a given school. The system's data sources 
 may report this directly or you may calculate it based on enrollment dates. & 
 2 Good to Have & \\ \hline
 
 \end{longtable}
-\vspace{-6mm}
+\vspace{-8mm}
 \small{Identifies unique observation: \textbf{sid + school\_year + 
 school\_code + enrollment\_date}}
 \end{landscape}
@@ -388,14 +388,14 @@ course\_code + section\_code + period\_bell + room\_number + tid &
 
 class\_enrollment \_date & \begin{itemize} \setlength\itemsep{-2pt} 
 \item[] date format
-\item[] (yyy-mm-dd) \end{itemize} & The date the student enrolled in the class. 
+\item[] (yyyy-mm-dd) \end{itemize} & The date the student enrolled in the class. 
 In some cases an enrollment date may not be explicitly recorded in the system's 
 data. Even if it is not recorded the enrollment date can often be derived. & 
 2 Good to Have & Can be substituted with days enrolled in a course. \\ \hline
 
 class\_withdrawal \_date & \begin{itemize} \setlength\itemsep{-2pt} 
 \item[] date format
-\item[] (yyy-mm-dd) \end{itemize} & The date the student withdrem from class. 
+\item[] (yyyy-mm-dd) \end{itemize} & The date the student withdrew from class. 
 In some cases a withdrawal date may not be recorded in the system's 
 data. Even if it is not explicitly recorded the enrollment date can often be 
 derived. & 
@@ -406,7 +406,7 @@ the course. & 3 Necessary for Multiple Analyses & Can be calculated by using
 credits possible and credit attainment rules. \\ \hline
 
 final\_grade\_mark & use local values & The final grade or mark the student 
-recieved in the class. (``final'' means last, cumulative grade assigned). 
+received in the class. (``final'' means last, cumulative grade assigned). 
 Grades can range from ``Alpha Plus'' (A+ through F), or a numeric scale (0.0 
 - 4.0 or 0-100). & 4 Necessary for Multiple Analyses & \\ \hline
 
@@ -440,7 +440,7 @@ below (e.g. test\_type and test\_subject) \\ \hline
 
 test\_date & \begin{itemize} \setlength\itemsep{-2pt} 
 \item[] date format
-\item[] (yyy-mm-dd) \end{itemize} & The exact date (or at a minimum school year) 
+\item[] (yyyy-mm-dd) \end{itemize} & The exact date (or at a minimum school year) 
 the test was completed. Note that students who retake tests or are retained may 
 have multiple observations for a single test\_code. These should be differentiated 
 by test\_date. & 4 Absolutely Necessary &  \\ \hline
@@ -514,19 +514,19 @@ and a two-digit branch code. & 2 Good to Have & \\ \hline
 
 enrollment\_begin &  \begin{itemize} \setlength\itemsep{-2pt} 
 \item[] date format
-\item[] (yyy-mm-dd) \end{itemize} & Start of enrollment. & 4 Absolutely Necessary & 
+\item[] (yyyy-mm-dd) \end{itemize} & Start of enrollment. & 4 Absolutely Necessary & 
 \\ \hline
 
 enrollment\_end &  \begin{itemize} \setlength\itemsep{-2pt} 
 \item[] date format
-\item[] (yyy-mm-dd) \end{itemize} & End of enrollment. & 4 Absolutely Necessary & 
+\item[] (yyyy-mm-dd) \end{itemize} & End of enrollment. & 4 Absolutely Necessary & 
 \\ \hline
 
 record\_found\_yn & 
 \begin{itemize} \setlength\itemsep{-2pt} 
 \item[] Y = yes
 \item[] N = no \end{itemize} & Whether or not the NSC has college enrollment 
-data for the student. & 4 Absolutely Necessar. & \\ \hline
+data for the student. & 4 Absolutely Necessary. & \\ \hline
 
 high\_school\_code & use local values & Local code for the student's high school. & 
 1 Not Essential &  \\ \hline
@@ -534,7 +534,7 @@ high\_school\_code & use local values & Local code for the student's high school
 high\_school \_grad\_dt & 
 \begin{itemize} \setlength\itemsep{-2pt} 
 \item[] date format
-\item[] (yyy-mm-dd) \end{itemize} & Student's high school graduation date; if 
+\item[] (yyyy-mm-dd) \end{itemize} & Student's high school graduation date; if 
 graduated. & 1 Not Essential & \\ \hline
 
 college\_name & text & The name of the college. & 2 Good to Have & \\ \hline
@@ -571,7 +571,7 @@ graduated & \begin{itemize} \setlength\itemsep{-2pt}
 
 graduation\_date & \begin{itemize} \setlength\itemsep{-2pt} 
 \item[] date format
-\item[] (yyy-mm-dd) \end{itemize} & Student's college graduation date. & 
+\item[] (yyyy-mm-dd) \end{itemize} & Student's college graduation date. & 
 2 Good to Have & \\ \hline
 
 college\_sequence & 1, 2, 3, ... & Sequence that student progresses through college. & 
@@ -727,7 +727,7 @@ different identification numbers than district agencies for the same staff/teach
 semester\_term \_year & \begin{itemize} \setlength\itemsep{-2pt} 
 \item[] 100 = year long course
 \item[] 010 = first semester course
-\item[] 020 = second semster course
+\item[] 020 = second semester course
 \item[] 001 = first term course
 \item[] 002 = second term course
 \item[] 004 = fourth term course
@@ -823,7 +823,7 @@ If the system allows the indication of multiple categories simultaneously
 ethnicity & \begin{itemize} \setlength\itemsep{-2pt}
 \item[] 0 = not Hispanic
 \item[] 1 = Hispanic
-\end{itemize} & Student ethnicity. For systems wehre race and ethnicity are treated 
+\end{itemize} & Student ethnicity. For systems where race and ethnicity are treated 
 as separate variables and Hispanic or Latino origin is asked as a separate question. 
 & 4 Absolutely Necessary. & Use either race\_ethnicity combined variable or 
 separate ethnicity and race variables \\ \hline
@@ -892,12 +892,12 @@ school\_year & spring calendar year & Academic school year from fall to spring,
 denoted here as the spring calendar year. & 5 Cannot Be Missing & \\ \hline
 
 salary\_group\_code & use local values & 
-Seaparate variables that describe different components of salary. For example: 
+Separate variables that describe different components of salary. For example: 
 salary\_group\_degree, salary\_group\_experience, salary\_group\_nbct etc. 
-Identifies the teacher's base slaary, and genearally includes a component 
+Identifies the teacher's base salary, and generally includes a component 
 for experience, degrees earned, and other considerations (e.g. NBTS certification). 
 A definition of how to interpret the variable or variables is particularly 
-important to caputre in the codebook. & Only necessary if we do not know teaching 
+important to capture in the codebook. & Only necessary if we do not know teaching 
 experience and advanced degree. & \\ \hline
 
 additional\_pay & amount & The amount of salary above the base salary (captured in 
@@ -923,7 +923,7 @@ school\_code2 & use local values & The local code for the secondary school, if
 more than 1. & 1 Not Essential & \\ \hline
 
 job\_code2 & use local values & The local code for the job or position held 
-in the secdonary school. & 2 Good to Have & \\ \hline
+in the secondary school. & 2 Good to Have & \\ \hline
 
 school\_code\# & use local values & The local code for the \#th school, if more 
 than two. & 4 Absolutely Necessary & Can be determined from course file
@@ -972,7 +972,7 @@ number used by the U.S. Department of Education's Office of Postsecondary Educat
 (OPE) to identify schools. & 2 Good to Have & Can be obtained from a sample 
 match if degree\_institution name is known. \\ \hline
 
-degree\_major & use local codes & Description of the dgree major or subject. & 
+degree\_major & use local codes & Description of the degree major or subject. & 
 2 Good to Have & \\ \hline
 
 \end{longtable}
@@ -1029,9 +1029,12 @@ for staff that are National Board certified. & 2 Good to Have & \\ \hline
 \vspace{-6mm}
 \small{Identifies unique observation: \textbf{tid + certification\_code + 
 certification\_effective\_date}}
-\end{landscape}
 
 \vfill
+\hfill
 Last updated January 2017.
-
 © 2016 President and Fellows of Harvard College. 
+
+\end{landscape}
+
+
