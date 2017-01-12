@@ -1,13 +1,17 @@
 \pagestyle{fancy}
 \fancyfoot{}
 \definecolor{harvardcrimson}{RGB}{165,28,48}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
 \fancyfoot[L]{SDP TOOLKIT FOR EFFECTIVE DATA USE | COLLEGE GOING |}
-\fancyfoot[R]{\textbf{IDENTIFY }\textcolor{harvardcrimson}{{\thepage}}}
+\fancyfoot[R]{\textbf{CONNECT }\textcolor{harvardcrimson}{{\thepage}}}
 \renewcommand{\footrulewidth}{0.4pt}
 %\thispagestyle{fancy}
 %\fontsize{12}{20}
 % For IDENTIFY uncomment line below
-\setlist[itemize]{leftmargin=-1mm,label=\scalebox{.2}{\textbullet}}
+%\setlist[itemize]{leftmargin=-1mm,label=\scalebox{.2}{\textbullet}}
+% For CLEAN/IDENTIFY uncomment the line below
+% For table captions to appear on the right, not the left
+%\captionsetup[table]{position=t,justification=raggedleft,slc=off}
 \fancypagestyle{plain}{%
   \setlength\headheight{48pt} 
   %\newgeometry{top=1in,bottom=1in,right=0.5in,left=1.5in}

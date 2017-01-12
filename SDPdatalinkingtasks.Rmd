@@ -102,7 +102,7 @@ please email us at sdp@gse.harvard.edu.
 ### Prepare the R Environment
 
 ```{r loadRequiredPackages}
-## Load the packages and prepare your R environment
+#  Load the packages and prepare your R environment
 library(tidyverse) # main suite of R packages to ease data analysis
 library(magrittr) # allows for some easier pipelines of data
 
@@ -946,8 +946,8 @@ Start with the graduating cohort. If the student enrolled in college within
 `2*365` days after high school graduation, set the indicator to 1.
 
 ```{r genTwoYearEnrollment}
-## create and indicator to show if the student enrolled within two years 
-## of HS graduation
+# create and indicator to show if the student enrolled within two years 
+# of HS graduation
 
 stunsc$enrl_ever_w2_grad <- ifelse(stunsc$first_enrl_date_any < 
                                      (stunsc$hs_diploma_date + (365*2)) &
@@ -964,8 +964,8 @@ ninth grade cohort. Then create the enrollment indicator using this date.
 stunsc$ontime_yr <- stunsc$chrt_ninth + 3
 stunsc$ontime_date <- mdy(paste0("09", "01", stunsc$ontime_yr))
 
-## create and indicator to show if the student enrolled within two years of 
-## expected HS graduation
+# create and indicator to show if the student enrolled within two years of 
+# expected HS graduation
 stunsc$enrl_ever_w2_ninth <- ifelse(stunsc$first_enrl_date_any < 
                                       (stunsc$ontime_date + (365*2)) & 
                                       !is.na(stunsc$ontime_date) &
@@ -1337,7 +1337,7 @@ need to reload any packages (necessary if you are restarting R at
 this point) and re-source any custom functions in the `functions.R` file.
 
 ```{r reloadWorkspace}
-## Load the packages and prepare your R environment
+# Load the packages and prepare your R environment
 library(tidyverse) # main suite of R packages to ease data analysis
 library(magrittr) # allows for some easier pipelines of data
 

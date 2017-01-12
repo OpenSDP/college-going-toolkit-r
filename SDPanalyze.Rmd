@@ -608,8 +608,8 @@ seamlessly enroll in college, and then persist to the second year of college.
 - `sid`
 - `chrt_ninth`
 - `ontrack_sample`
-- `ontrack_endyr1*`
-- `cum_gpa_yr1*`
+- `ontrack_end_yr*`
+- `cum_gpa_yr*`
 - `ontime_grad`
 - `enrl_1oct_ninth_yr1_any`
 - `enrl_1oct_ninth_yr2_any`
@@ -643,8 +643,8 @@ that progressed along the education pipeline.
 
 ```{r A4filterAndSortData}
 
-## // Step 1: Keep students in ninth grade cohorts you can observe persisting 
-## to the second year of college AND are included in the on-track analysis sample
+#  // Step 1: Keep students in ninth grade cohorts you can observe persisting 
+#  to the second year of college AND are included in the on-track analysis sample
 
 plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
                    chrt_ninth <= chrt_ninth_end_persist_yr2) %>% 
@@ -676,7 +676,7 @@ plotdf$ot[plotdf$ontrack_endyr1 == 1 & plotdf$cum_gpa_yr1 >= 3 &
 
 
 ```{r A4reshapeAndFormat}
-## // Step 4: Calculate aggregates for the Agency by on track status
+#  // Step 4: Calculate aggregates for the Agency by on track status
 progressTrack <- plotdf %>% group_by(ot) %>% 
   summarize(grad = mean(grad), 
             seameless_transitioners_any = mean(seamless_transitioners_any, na.rm=TRUE), 
@@ -684,7 +684,7 @@ progressTrack <- plotdf %>% group_by(ot) %>%
             N = n())
 
 # // Step 5: Reformat the data file so that one variable contains all the outcomes 
-## of interest
+#  of interest
 progressTrack$cohort <- 1
 progressTrack <- progressTrack %>% gather(key = outcome, 
                              value = measure, -N, -ot)
@@ -777,10 +777,12 @@ grade academic achievement).
 **Analytic Technique:** Calculate the proportion of students on-track at each 
 school, and across the agency.
 
+\hline
+
 ```{r B1filterAndSort}
-## // Step 1: Keep students in ninth grade cohorts you can observe graduating 
-## high school on time AND are part of the ontrack sample (attended the first 
-## semester of ninth grade and never transferred into or out of the system)
+#  // Step 1: Keep students in ninth grade cohorts you can observe graduating 
+#  high school on time AND are part of the ontrack sample (attended the first 
+#  semester of ninth grade and never transferred into or out of the system)
 
 plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
                    chrt_ninth <= chrt_ninth_end_persist_yr2) %>% 
@@ -823,8 +825,8 @@ progressBars <- bind_rows(
 progressBars$first_hs_name <- gsub(" High School", "", progressBars$first_hs_name)
 
 # // Step 5: For students who are off-track upon completion of their first year 
-## of high school, convert the values to be negative for ease of 
-## visualization in the graph
+#  of high school, convert the values to be negative for ease of 
+#  visualization in the graph
 
 progressBars$n[progressBars$ot == "Off-Track to Graduate"] <- 
   -progressBars$n[progressBars$ot == "Off-Track to Graduate"] 
@@ -888,6 +890,8 @@ incorporated into analyses like the one above. This could be used to further
 understand which students struggle, why they struggle, and interventions to keep 
 them enrolled and engaged.
 
+\hline
+
 ```{r B2filterAndSort}
 # // Step 1: Keep students in ninth grade cohorts you can observe graduating 
 # high school on time AND are part of the ontrack sample (attended the first 
@@ -898,7 +902,7 @@ plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 &
    filter(ontrack_sample == 1)
 
 # // Step 2: Create variables for the outcomes "regular diploma recipients", 
-## "seamless transitioners" and "second year persisters"
+#  "seamless transitioners" and "second year persisters"
 
 plotdf$grad <- ifelse(!is.na(plotdf$chrt_grad) & plotdf$ontime_grad ==1, 1, 0)
 plotdf$seamless_transitioners_any <- as.numeric(plotdf$enrl_1oct_ninth_yr1_any == 1 &
@@ -918,7 +922,7 @@ plotdf$ot[plotdf$ontrack_endyr1 == 1 & plotdf$cum_gpa_yr1 >= 3 &
             !is.na(plotdf$cum_gpa_yr1)] <- "On-Track, GPA >= 3.0"
 
 # // Step 4: Create indicators for students upon completion of their second 
-## year of high school
+#  year of high school
 
 plotdf$ot_10 <- NA
 plotdf$ot_10[plotdf$ontrack_endyr2 == 0] <- "Off-Track to Graduate"
@@ -938,8 +942,8 @@ onTrackBar <- plotdf %>% group_by(ot, ot_10) %>%
   mutate(count = sum(n))
 
 # // Step 6: For students who are off-track upon completion of their first year 
-## of high school, convert the values to be negative for ease of visualization 
-## in the graph
+#  of high school, convert the values to be negative for ease of visualization 
+#  in the graph
 
 onTrackBar$n[onTrackBar$ot_10 == "Off-Track to Graduate"] <- 
   -onTrackBar$n[onTrackBar$ot_10 == "Off-Track to Graduate"] 
@@ -981,7 +985,7 @@ completion. After identifying these high schools, you may conduct deeper
 analyses on your own to explore what drives these outcomes. To begin exploring
 high school graduation further, use the analyses below:
 
-[Insert images here]
+ 
 
 1. High School Completion Rates By School
 2. High School Completion Rates by Average 8th Grade Achievement
@@ -996,7 +1000,8 @@ high school graduation further, use the analyses below:
 across high schools in the system for both on-time and late high school 
 graduates.
 
-Required Analysis File Variables:
+**Required Analysis File Variables:**
+
 - `sid`
 - `chrt_ninth`
 - `hs_diploma`
@@ -1022,7 +1027,7 @@ school by school.
 ```{r C1filterandSort}
 
 # // Step 1: Keep students in ninth grade cohorts you can observe 
-## graduating high school one year late
+#  graduating high school one year late
 
 plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
                    chrt_ninth <= chrt_ninth_end_persist_yr2) 
@@ -1032,7 +1037,7 @@ plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 &
 
 ```{r C1ReshapeCalculate}
 # // Step 2: Obtain agency level high school and school level graduation 
-## rates
+#  rates
 
 schoolLevel <- bind_rows(
   plotdf %>% group_by(first_hs_name) %>% 
@@ -1046,12 +1051,12 @@ schoolLevel <- bind_rows(
               count = n())
 )
 
-## // Step 3: Reshape the data wide
+#  // Step 3: Reshape the data wide
 schoolLevel <- schoolLevel %>% gather(key = outcome, 
                              value = measure, -count, -first_hs_name)
 schoolLevel$first_hs_name <- gsub(" High School", "", schoolLevel$first_hs_name)
 
-## // Step 4: Recode variables for plotting
+#  // Step 4: Recode variables for plotting
 
 schoolLevel$outcome[schoolLevel$outcome == "ontime_grad"] <- "On-Time HS Graduate"
 schoolLevel$outcome[schoolLevel$outcome == "late_grad"] <- "Graduate in 4+ Years"
@@ -1059,7 +1064,7 @@ schoolLevel$outcome[schoolLevel$outcome == "late_grad"] <- "Graduate in 4+ Years
 
 
 ```{r C1plot}
-## // Step 5: Plot
+#  // Step 5: Plot
 ggplot(schoolLevel, aes(x = reorder(first_hs_name, measure), y = measure, 
                         group = first_hs_name, fill = outcome)) + 
   geom_bar(aes(fill = outcome), stat = 'identity') + 
@@ -1119,7 +1124,10 @@ accounts for whether students failed a core class, were chronically absent, and
 other information predictive of student achievement in high school) in place of 
 8th grade test scores.
 
-**Analytic Technique:** 
+**Analytic Technique:** Bivariate scatterplot of school-level average student 
+test scores and high school completion rates.
+
+\hline
 
 ```{r C2filterandSort}
 
@@ -1135,7 +1143,7 @@ plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 &
 
 ```{r C2reshapeandCalculate}
 # // Step 2: Obtain agency and school level completion and prior achievement 
-## rates
+#  rates
 
 schoolLevel <- bind_rows(
   plotdf %>% group_by(first_hs_name) %>% 
@@ -1209,7 +1217,8 @@ students in the same quartile or range of achievement. Each high school is
 repeated as a blue bar in each quartile.
 
 
-**Required Analysis File Variables**
+**Required Analysis File Variables:**
+
 - `sid`
 - `chrt_ninth`
 - `test_math_8_std`
@@ -1237,6 +1246,11 @@ schools in each quartile?
 variation across quartiles and explore reasons why students at different 
 schools, but with similar academic profiles at high school entry, are more or 
 less likely to graduate.
+
+**Analytic Technique:** Calculate the proportion of students, by high school, who 
+complete high school and an 8th grade test score quartile for each. 
+
+\hline
 
 ```{r C3filterAndSort}
 # // Step 1: Keep students in ninth grade cohorts you can observe graduating 
@@ -1270,7 +1284,7 @@ schoolLevel$first_hs_name <- gsub(" High School", "", schoolLevel$first_hs_name)
 
 ```{r C3plot}
 # //  Step 4: Create plot template
-## Load library for arranging multiple plots into one
+#  Load library for arranging multiple plots into one
 library(gridExtra)
 
 # Create a plot template that you can drop different data elements into
@@ -1351,7 +1365,8 @@ persistent academic achievement gaps that emerge in early grades, or if other
 factors unique to the high school experience drive high school completion rate
 differences by race.
 
-**Required Analysis File Variables**
+**Required Analysis File Variables:**
+
 - `sid`
 - `chrt_ninth`
 - `test_math_8_std`
@@ -1378,6 +1393,12 @@ accounted for? Do these gaps change for different prior achievement quartiles?
 qualify for free or reduced price lunch (FRPL) to explore if racial gaps are 
 better explained by disparities in prior academic achievement and family 
 socioeconomic status.
+
+**Analytic Technique:** Calculate the proportion of students who complete high 
+school by race/ethnicity overall, and by race/ethnicity and 8th grade test 
+score quartile.
+
+\hline
 
 ```{r C4filterandSort}
 # // Step 1: Keep students in ninth grade cohorts you can observe graduating 
@@ -1491,6 +1512,12 @@ qualify for free or reduced price lunch (FRPL) to explore whether racial gaps
 are better explained by disparities in prior academic achievement and family
 socioeconomic status.
 
+**Analytic Technique:** Calculate the proportion of students who graduate high 
+school within four years, dropout, remain enrolled in high school for a fifth 
+year, etc. based on on-track status upon completion of ninth grade.
+
+\hline
+
 ```{r C5filterandsort}
 # // Step 1: Keep students in ninth grade cohorts you can observe graduating 
 # high school AND have non-missing eighth grade math scores AND are part of 
@@ -1563,8 +1590,6 @@ a students’ likelihood of college persistence and degree attainment.
 
 To explore these questions, consider the following model analyses:
 
-[Insert image thumbnails and descriptions here]
-
 1. College Enrollment Rates by High School
 2. Seamless and Delayed College Enrollment Rate by High School
 3. College Enrollment Rates by Average 8th Grade Achievement
@@ -1624,6 +1649,10 @@ all first-time ninth graders (i.e. ninth grade cohorts) in place of graduates.
 Additionally, create individual high school reports that provide more details 
 for school administrators (top enrolling institutions of the school’s graduates).
 
+**Analytic Technique:** Calculate the proportion of students who enroll in college 
+by high school.
+
+\hline
 
 ```{r D1filterAndSort}
 # // Step 2: Keep students in high school graduation cohorts you can observe 
@@ -1740,6 +1769,11 @@ all first-time ninth graders (i.e. ninth grade cohorts) in place of graduates.
 Additionally, create individual high school reports that provide more details 
 for school administrators (top enrolling institutions of the school’s graduates).
 
+**Analytic Technique:** Calculate the proportion of graduates who enroll in 
+four-year institutions across high schools according to the selectivity ranking 
+of the postsecondary institutions attended.
+
+\hline
 
 ```{r D2filterAndSort}
 # // Step 1: Keep students in high school graduation cohorts you can observe 
@@ -1867,6 +1901,8 @@ student bodies report similar matriculation rates to college.
 
 **Analytic Technique:** Bivariate scatterplot of school-level average student 
 test scores and college enrollment rates.
+
+\hline
 
 ```{r D3FilterAndSort}
 # // Step 2: Keep students in high school graduation cohorts you can observe 
@@ -2169,6 +2205,8 @@ who do not enroll in college, enroll in 2-year college, and enroll in least
 competitive and unranked 4-year colleges the fall following high school 
 graduation.
 
+\hline
+
 ```{r D5filterAndSort}
 # // Step 1: Keep students in high school graduation cohorts you can observe 
 # enrolling in college the fall after graduation
@@ -2362,17 +2400,17 @@ library(broom)
 # students 
 
 # Estimate unadjusted enrollment gap
-## Fit the model
+#  Fit the model
 mod1 <- lm(enrl_1oct_grad_yr1_any ~ race_ethnicity, data = plotdf)
-## Extract the coefficients
+#  Extract the coefficients
 betas_unadj <- tidy(mod1)
-## Get the clustered variance-covariance matrix
-## Use the get_CL_vcov function from the functions.R script
+#  Get the clustered variance-covariance matrix
+#  Use the get_CL_vcov function from the functions.R script
 clusterSE <- get_CL_vcov(mod1, plotdf$cluster_var)
-## Get the clustered standard errors and combine with the betas
+#  Get the clustered standard errors and combine with the betas
 betas_unadj$std.error <- sqrt(diag(clusterSE))
 betas_unadj <- betas_unadj[, 1:3]
-## Label
+#  Label
 betas_unadj$model <- "Unadjusted enrollment gap"
 
 # Estimate enrollment gap adjusting for prior achievement
@@ -2684,8 +2722,6 @@ towards degree attainment.
 
 To explore college persistence, use the models below:
 
-[Insert figures here]
-
 1. Persistence Rates to the Second Year of College By High School
 2. Persistence Across Two-Year and Four-Year Colleges
 3. Top Enrolling Colleges and Universities of Agency Graduates
@@ -2735,6 +2771,8 @@ to explore persistence rates by assignment to remediation coursework.
 
 **Analytic Technique:** Calculate the proportion of students who persist to the 
 second year of college by the high school those students first attended.
+
+\hline
 
 ```{r E1filterAndSort}
 # // Step 1: Keep students in high school graduation cohorts you can observe 
@@ -2876,6 +2914,8 @@ tuition and room/board, financial aid, etc.).
 persist through four years of college by the postsecondary institution first 
 attended and cumulative high school GPA category.
 
+\hline
+
 ```{r E2filterAndSort}
 # // Step 1: Keep students in high school graduation cohorts you can observe 
 # enrolling in college the fall after graduation
@@ -2910,7 +2950,7 @@ plotdf$groupVar[plotdf$enrl_1oct_grad_yr1_4yr == 1] <- "4-year College"
 
 
 # // Step 3: Obtain agency and school level average for persistence outcomes
-## TODO: Explain this block of code better
+#  TODO: Explain this block of code better
 chartData <- plotdf %>% filter(groupVar != "Non-enroller") %>% 
   group_by(last_hs_name, groupVar, persist_pattern) %>% 
   summarize(tally = n()) %>% 

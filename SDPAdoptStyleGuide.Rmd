@@ -395,13 +395,13 @@ RAWDIR <- "cepr-files/projects/DCPS/Raw"
 DATADIR <- "cepr-files/projects/DCPS/Data"
 LOGIDR <- "cepr-files/projects/DCPS/Log Files"
 
-## Step 1: Input universe of student ids ##
+#- Step 1: Input universe of student ids ##
 ...
-## Step 2: Filter distinct set of student ids ##
+#- Step 2: Filter distinct set of student ids ##
 ...
-## Step 3: Generate random ids and associate to student ids ##
+#- Step 3: Generate random ids and associate to student ids ##
 ...
-## Update 1: Add check to ensure ids unique ##
+#- Update 1: Add check to ensure ids unique ##
 ...
 
 ```
@@ -777,7 +777,7 @@ filenames <- c("filename1", "filename2", "filename3")
 # ----------------------------------
 # Change directories to location of files
 setwd(location)
-## Merge masked ids onto files
+#- Merge masked ids onto files
 for(filename in filenames){
   load(filename)
 }

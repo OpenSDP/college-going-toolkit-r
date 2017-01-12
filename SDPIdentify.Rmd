@@ -72,13 +72,21 @@ Staff\_Certification & Teaching Certifications received by staff. &  &
 \end{tabular}
 \egroup
 \end{small}
+
+\clearpage
+
+
 ## How to Read a Research File
 
-![Task Structure](includes/img/research.jpg)
+![](includes/img/TableEdits.jpg)
+
+
+\clearpage
+
 
 ## The Distinction Between Raw and Clean Data
 
-![Task Structure](includes/img/rawvclean.jpg)
+![](includes/img/rawvclean.jpg)
 
 \clearpage
 
@@ -120,6 +128,9 @@ standards set in this specification will promote efficiencies in the way
 variables are coded and defined.
 
 ## Data Files
+
+The tables that follow will describe the data files you will need.
+
 \begin{landscape}
 \Large Student\_Attributes
 \vspace{-8mm}

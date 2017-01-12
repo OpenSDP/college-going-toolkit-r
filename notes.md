@@ -1,4 +1,8 @@
 ## Build notes
+$\hspace{\linewidth}$
+TODO: 
+Analyze
+CHeck A3, graduation numbers are wrong
 
 DONE: 
 

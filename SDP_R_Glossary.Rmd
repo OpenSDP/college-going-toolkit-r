@@ -79,9 +79,9 @@ linebreak. To make a block of comments use the following:
 ```{r comments}
 # Commenting one line
 
-### Starting a block of comments
-### The spacing makes it clear
-### Being consistent is key
+#-- Starting a block of comments
+#   The spacing makes it clear
+#   Being consistent is key
 ```
 
 ## Breaking Up Long Lines of Code
@@ -414,7 +414,7 @@ mtcars$mpgBinary <- NA
 mtcars$mpgBinary[mtcars$mpg > 25] <- 1
 mtcars$mpgBinary[mtcars$mpg <= 25] <- 0
 
-## Alternatively you can use the ifelse function for simple assignments
+#  Alternatively you can use the ifelse function for simple assignments
 
 mtcars$mpgBinary <- ifelse(mtcars$mpg > 25, 1, 0)
 
