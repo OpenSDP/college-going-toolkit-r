@@ -3,7 +3,7 @@
 library(knitr)
 knitr::opts_chunk$set(comment=NA, warning=FALSE, echo=TRUE,
                       error=FALSE, message=FALSE, fig.align='center',
-                      fig.width=10, fig.height=8, dpi = 144, 
+                      fig.width=8, fig.height=6, dpi = 144, 
                       fig.path = "figure/Analyze_")
 options(width=80)
 
@@ -106,7 +106,7 @@ plotdf$second_year_persisters = as.numeric(plotdf$enrl_1oct_ninth_yr1_any == 1 &
 
 agencyData <- plotdf %>%  
   summarize(grad = mean(grad), 
-            seameless_transitioners_any = mean(seamless_transitioners_any, na.rm=TRUE), 
+            seamless_transitioners_any = mean(seamless_transitioners_any, na.rm=TRUE), 
             second_year_persisters = mean(second_year_persisters, na.rm=TRUE), 
             N = n())
 
@@ -114,7 +114,8 @@ agencyData$school_name <- "AGENCY AVERAGE"
 # // 2. Calculate the mean of each outcome variable by first high school attended
 schoolData <- plotdf %>% group_by(first_hs_name) %>% 
   summarize(grad = mean(grad), 
-            seameless_transitioners_any = mean(seamless_transitioners_any, na.rm=TRUE), 
+            seamless_transitioners_any = mean(seamless_transitioners_any,
+                                               na.rm=TRUE), 
             second_year_persisters = mean(second_year_persisters, na.rm=TRUE), 
             N = n())
 # // 1. Create a variable school_name that takes on the value of students’ first 
@@ -134,10 +135,7 @@ schoolData <- bind_rows(schoolData, agencyData,
 rm(agencyData, minSchool, maxSchool)
 
 ## ----A1tidydata----------------------------------------------------------
-# // Step 6: Format the outcome variables so they read as percentages in the graph
-
-# // Step 7: Reformat the data file so that one variable contains all the outcomes of interest
-# // Step 8: Prepare to graph the results
+# // Step 6: Prepare to graph the results
 library(tidyr)
 schoolData$cohort <- 1
 schoolData <- schoolData %>% gather(key = outcome, 
@@ -154,7 +152,7 @@ schoolData$outcome[schoolData$outcome == "second_year_persisters"] <-
   "Second Year Persisters"
 
 ## ----A1graph-------------------------------------------------------------
-## // Step 9: Graph the results
+## // Step 7: Graph the results
 
 ggplot(schoolData[schoolData$subset,], 
        aes(x = outcome, y = measure, group = school_name, 
@@ -172,8 +170,8 @@ ggplot(schoolData[schoolData$subset,],
   labs(y = "Percent of Ninth Graders", 
        title = "Student Progression from 9th Grade Through College", 
        subtitle = "Agency Average", x = "",
-       caption = paste0("Sample: 2004-2005 Agency first-time ninth graders.", 
-                  "Postsecondary enrollment outcomes from NSC matched records.",
+       caption = paste0("Sample: 2004-2005 Agency first-time ninth graders. \n", 
+                  "Postsecondary enrollment outcomes from NSC matched records. \n",
                         "All other data from Agency administrative records."))
 
 
@@ -182,7 +180,8 @@ ggplot(schoolData[schoolData$subset,],
 # // Step 1: Keep students in ninth grade cohorts you can observe persisting to 
 ## the second year of college
 
-plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & chrt_ninth <= chrt_ninth_end_persist_yr2)
+plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
+                   chrt_ninth <= chrt_ninth_end_persist_yr2)
 
 # // Step 2: Create variables for the outcomes "regular diploma recipients", 
 ## "seamless transitioners" and "second year persisters"
@@ -240,21 +239,18 @@ ggplot(progressRace[progressRace$subset,],
   labs(y = "Percent of Ninth Graders", 
        title = "Student Progression from 9th Grade Through College", 
        subtitle = "By Student Race/Ethnicity", x = "",
-       caption = paste0("Sample: 2004-2005 Agency first-time ninth graders.", 
-                       "Postsecondary enrollment outcomes from NSC matched records.",
+       caption = paste0("Sample: 2004-2005 Agency first-time ninth graders. \n", 
+                  "Postsecondary enrollment outcomes from NSC matched records. \n",
                        "All other data from Agency administrative records."))
 
 
 ## ----A3 filterSample-----------------------------------------------------
-#TODO: equal to 1 seems wrong
-## TODO: Graduation seems way off
-
 ## Step 1: Keep students in ninth grade cohorts you can observe persisting to 
 ## the second year of college AND are ever FRPL-eligible
 
 plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
                    chrt_ninth <= chrt_ninth_end_persist_yr2) %>% 
-  filter(frpl_ever_hs > 0)
+  filter(frpl_ever > 0)
 
 # // Step 2: Create variables for the outcomes "regular diploma recipients", 
 ## "seamless transitioners" and "second year persisters"
@@ -290,10 +286,14 @@ progressRaceFRL <- progressRaceFRL %>% gather(key = outcome,
 
 ## Recode the variables for plot friendly labels
 
-progressRaceFRL$outcome[progressRaceFRL$outcome == "cohort"] <- "Ninth Graders"
-progressRaceFRL$outcome[progressRaceFRL$outcome == "grad"] <- "On-time Graduates"
-progressRaceFRL$outcome[progressRaceFRL$outcome == "seameless_transitioners_any"] <- "Seamless College Transitioner"
-progressRaceFRL$outcome[progressRaceFRL$outcome == "second_year_persisters"] <- "Second Year Persisters"
+progressRaceFRL$outcome[progressRaceFRL$outcome == "cohort"] <- 
+  "Ninth Graders"
+progressRaceFRL$outcome[progressRaceFRL$outcome == "grad"] <- 
+  "On-time Graduates"
+progressRaceFRL$outcome[progressRaceFRL$outcome == "seameless_transitioners_any"] <-
+  "Seamless College Transitioner"
+progressRaceFRL$outcome[progressRaceFRL$outcome == "second_year_persisters"] <- 
+  "Second Year Persisters"
 
 progressRaceFRL$subset <- ifelse(progressRaceFRL$race_ethnicity %in% c(1, 3, 5), 
                               TRUE, FALSE)
@@ -321,14 +321,18 @@ ggplot(progressRaceFRL[progressRaceFRL$subset,],
          linetype = "none") +
   labs(y = "Percent of Ninth Graders", 
        title = "Student Progression from 9th Grade Through College", 
-       subtitle = "Among Students Qualifying for Free or Reduced Price Lunch \n By Student Race/Ethnicity", x = "",
-       caption = "Sample: 2004-2005 Agency first-time ninth graders. Postsecondary enrollment outcomes from NSC matched records.
-All other data from Agency administrative records.")
+       subtitle = paste0(c(
+         "Among Students Qualifying for Free or Reduced Price Lunch \n", 
+                           "By Student Race/Ethnicity")), 
+       x = "",
+       caption = paste0("Sample: 2004-2005 Agency first-time ninth graders. \n",
+                   "Postsecondary enrollment outcomes from NSC matched records.\n", 
+                        "All other data from Agency administrative records."))
 
 ## ----A4filterAndSortData-------------------------------------------------
 
-## // Step 1: Keep students in ninth grade cohorts you can observe persisting 
-## to the second year of college AND are included in the on-track analysis sample
+#  // Step 1: Keep students in ninth grade cohorts you can observe persisting 
+#  to the second year of college AND are included in the on-track analysis sample
 
 plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
                    chrt_ninth <= chrt_ninth_end_persist_yr2) %>% 
@@ -358,7 +362,7 @@ plotdf$ot[plotdf$ontrack_endyr1 == 1 & plotdf$cum_gpa_yr1 >= 3 &
 
 
 ## ----A4reshapeAndFormat--------------------------------------------------
-## // Step 4: Calculate aggregates for the Agency by on track status
+#  // Step 4: Calculate aggregates for the Agency by on track status
 progressTrack <- plotdf %>% group_by(ot) %>% 
   summarize(grad = mean(grad), 
             seameless_transitioners_any = mean(seamless_transitioners_any, na.rm=TRUE), 
@@ -366,11 +370,11 @@ progressTrack <- plotdf %>% group_by(ot) %>%
             N = n())
 
 # // Step 5: Reformat the data file so that one variable contains all the outcomes 
-## of interest
+#  of interest
 progressTrack$cohort <- 1
 progressTrack <- progressTrack %>% gather(key = outcome, 
                              value = measure, -N, -ot)
-# TODO: Function to recode outcome
+
 progressTrack$outcome[progressTrack$outcome == "cohort"] <- "Ninth Graders"
 progressTrack$outcome[progressTrack$outcome == "grad"] <- "On-time Graduates"
 progressTrack$outcome[progressTrack$outcome == "seameless_transitioners_any"] <-
@@ -382,10 +386,10 @@ progressTrack$outcome[progressTrack$outcome == "second_year_persisters"] <-
 ## ----A4plot--------------------------------------------------------------
 # Annotate for direct labels
 ann_txt <- data.frame(outcome = rep("Second Year Persisters", 3), 
-                      measure = c(0.2, 0.55, 0.85), 
-                      textlabel = c("Off-Track to Graduate", 
-                                    "On-Track to Graduate, GPA < 3.0", 
-                                    "On-Track to Graduate, GPA >= 3.0"))
+                      measure = c(0.22, 0.55, 0.85), 
+                      textlabel = c("Off-Track \nto Graduate", 
+                                    "On-Track to Graduate,\n GPA < 3.0", 
+                                    "On-Track to Graduate,\n GPA >= 3.0"))
 ann_txt$ot <- ann_txt$textlabel
 
 ggplot(progressTrack, 
@@ -403,20 +407,21 @@ ggplot(progressTrack,
   labs(y = "Percent of Ninth Graders", 
        title = "Student Progression from 9th Grade Through College", 
        subtitle = "By Course Credits and GPA after First High School Year", x = "",
-       caption = paste0("Sample: 2004-2005 Agency first-time ninth graders.",
-                        "Postsecondary enrollment outcomes from NSC matched records.",
-                        "All other data from Agency administrative records."))
+       caption = paste0("Sample: 2004-2005 Agency first-time ninth graders. \n",
+                "Postsecondary enrollment outcomes from NSC matched records. \n",
+                 "All other data from Agency administrative records."))
 
 ## ----B1filterAndSort-----------------------------------------------------
-## // Step 1: Keep students in ninth grade cohorts you can observe graduating 
-## high school on time AND are part of the ontrack sample (attended the first 
-## semester of ninth grade and never transferred into or out of the system)
+#  // Step 1: Keep students in ninth grade cohorts you can observe graduating 
+#  high school on time AND are part of the ontrack sample (attended the first 
+#  semester of ninth grade and never transferred into or out of the system)
 
-plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
-                   chrt_ninth <= chrt_ninth_end_persist_yr2) %>% 
+plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_grad & 
+                   chrt_ninth <= chrt_ninth_end_grad) %>% 
   filter(ontrack_sample == 1)
 
-# // Step 2: Create variables for the outcomes "regular diploma recipients", "seamless transitioners" and "second year persisters"
+# // Step 2: Create variables for the outcomes "regular diploma recipients", 
+#           "seamless transitioners" and "second year persisters"
 plotdf$grad <- ifelse(!is.na(plotdf$chrt_grad) & plotdf$ontime_grad ==1, 1, 0)
 plotdf$seamless_transitioners_any <- as.numeric(plotdf$enrl_1oct_ninth_yr1_any == 1 &
                                                  plotdf$ontime_grad == 1)
@@ -451,8 +456,8 @@ progressBars <- bind_rows(
 progressBars$first_hs_name <- gsub(" High School", "", progressBars$first_hs_name)
 
 # // Step 5: For students who are off-track upon completion of their first year 
-## of high school, convert the values to be negative for ease of 
-## visualization in the graph
+#  of high school, convert the values to be negative for ease of 
+#  visualization in the graph
 
 progressBars$n[progressBars$ot == "Off-Track to Graduate"] <- 
   -progressBars$n[progressBars$ot == "Off-Track to Graduate"] 
@@ -462,18 +467,20 @@ progressBars$n[progressBars$ot == "Off-Track to Graduate"] <-
 ggplot(progressBars, aes(x = reorder(first_hs_name, n/count), 
                          y = n/count, group = ot)) + 
   geom_bar(aes(fill = ot), stat = 'identity') + 
-  geom_text(aes(label = round(100* n/count, 1)), 
+  geom_text(aes(label = round(100* n/count, 0)), 
             position = position_stack(vjust=0.3)) + 
   theme_bw() + 
-  scale_y_continuous(limits = c(-0.5, 0.95), label = percent, 
-                    name = "Percent of Ninth Graders") + 
+  scale_y_continuous(limits = c(-0.8,1), label = percent, 
+                    name = "Percent of Ninth Graders", 
+                    breaks = seq(-0.8, 1, 0.2)) + 
   scale_fill_brewer(name = "", type = "qual", palette = 6) + 
   theme(axis.text.x = element_text(angle = 30, color = "black", vjust = 0.5), 
         legend.position = c(0.15, 0.875)) +
   labs(title = "Proportion of Students On-Track to Graduate by School", 
        subtitle = "End of Ninth Grade On-Track Status \n By High School", x = "",
-       caption = paste0("Sample: 2004-2005 Agency first-time ninth graders.", 
-                        "Postsecondary enrollment outcomes from NSC matched records.",
+       caption = paste0("Sample: 2004-2005 and 2005-20065 Agency first-time ninth
+                      graders. \n", 
+              "Postsecondary enrollment outcomes from NSC matched records. \n",
                         "All other data from Agency administrative records."))
 
 
@@ -482,12 +489,12 @@ ggplot(progressBars, aes(x = reorder(first_hs_name, n/count),
 # high school on time AND are part of the ontrack sample (attended the first 
 # semester of ninth grade and never transferred into or out of the system)
 
-plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
-                   chrt_ninth <= chrt_ninth_end_persist_yr2) %>% 
+plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_grad & 
+                   chrt_ninth <= chrt_ninth_end_grad) %>% 
    filter(ontrack_sample == 1)
 
 # // Step 2: Create variables for the outcomes "regular diploma recipients", 
-## "seamless transitioners" and "second year persisters"
+#  "seamless transitioners" and "second year persisters"
 
 plotdf$grad <- ifelse(!is.na(plotdf$chrt_grad) & plotdf$ontime_grad ==1, 1, 0)
 plotdf$seamless_transitioners_any <- as.numeric(plotdf$enrl_1oct_ninth_yr1_any == 1 &
@@ -507,7 +514,7 @@ plotdf$ot[plotdf$ontrack_endyr1 == 1 & plotdf$cum_gpa_yr1 >= 3 &
             !is.na(plotdf$cum_gpa_yr1)] <- "On-Track, GPA >= 3.0"
 
 # // Step 4: Create indicators for students upon completion of their second 
-## year of high school
+#  year of high school
 
 plotdf$ot_10 <- NA
 plotdf$ot_10[plotdf$ontrack_endyr2 == 0] <- "Off-Track to Graduate"
@@ -525,10 +532,12 @@ onTrackBar <- plotdf %>% group_by(ot, ot_10) %>%
   ungroup %>% group_by(ot) %>%
   mutate(count = sum(n))
 
-# // Step 6: For students who are off-track upon completion of their first year 
-## of high school, convert the values to be negative for ease of visualization 
-## in the graph
 
+# // Step 6: For students who are off-track upon completion of their first year 
+#  of high school, convert the values to be negative for ease of visualization 
+#  in the graph
+
+onTrackBar <- na.omit(onTrackBar) # drop missing
 onTrackBar$n[onTrackBar$ot_10 == "Off-Track to Graduate"] <- 
   -onTrackBar$n[onTrackBar$ot_10 == "Off-Track to Graduate"] 
 onTrackBar$n[onTrackBar$ot_10 == "Dropout/Disappear"] <- 
@@ -543,7 +552,7 @@ ggplot(onTrackBar, aes(x = reorder(ot, n/count),
             position = position_stack(vjust=0.3)) + 
   theme_bw() + 
   scale_y_continuous(limits = c(-1, 1), label = percent, 
-                    name = "Percent of Tenth Grade Students \n by Ninth Grade Status") + 
+      name = "Percent of Tenth Grade Students \n by Ninth Grade Status") + 
   scale_fill_brewer(name = "End of Tenth Grade \n On-Track Status", 
                     type = "div", palette = 5) + 
   theme(axis.text.x = element_text(color = "black"), 
@@ -551,21 +560,23 @@ ggplot(onTrackBar, aes(x = reorder(ot, n/count),
   labs(title = "Proportion of Students On-Track to Graduate by School", 
        x = "Ninth Grade On-Track Status",
        subtitle = "End of Ninth Grade On-Track Status \n By High School", 
-       caption = paste0("Sample: 2004-2005 Agency first-time ninth graders. \n", 
-                        "Postsecondary enrollment outcomes from NSC matched records. All other data from Agency administrative records."))
+       caption = paste0("Sample: 2004-2005 and 2005-2006 Agency first-time ninth
+                        graders. \n", 
+              "Postsecondary enrollment outcomes from NSC matched records. \n",
+                        "All other data from Agency administrative records."))
 
 ## ----C1filterandSort-----------------------------------------------------
 
 # // Step 1: Keep students in ninth grade cohorts you can observe 
-## graduating high school one year late
+#  graduating high school one year late
 
-plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
-                   chrt_ninth <= chrt_ninth_end_persist_yr2) 
+plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_grad_late & 
+                   chrt_ninth <= chrt_ninth_end_grad_late) 
 
 
 ## ----C1ReshapeCalculate--------------------------------------------------
 # // Step 2: Obtain agency level high school and school level graduation 
-## rates
+#  rates
 
 schoolLevel <- bind_rows(
   plotdf %>% group_by(first_hs_name) %>% 
@@ -579,18 +590,18 @@ schoolLevel <- bind_rows(
               count = n())
 )
 
-## // Step 3: Reshape the data wide
+#  // Step 3: Reshape the data wide
 schoolLevel <- schoolLevel %>% gather(key = outcome, 
                              value = measure, -count, -first_hs_name)
 schoolLevel$first_hs_name <- gsub(" High School", "", schoolLevel$first_hs_name)
 
-## // Step 4: Recode variables for plotting
+#  // Step 4: Recode variables for plotting
 
 schoolLevel$outcome[schoolLevel$outcome == "ontime_grad"] <- "On-Time HS Graduate"
 schoolLevel$outcome[schoolLevel$outcome == "late_grad"] <- "Graduate in 4+ Years"
 
 ## ----C1plot--------------------------------------------------------------
-## // Step 5: Plot
+#  // Step 5: Plot
 ggplot(schoolLevel, aes(x = reorder(first_hs_name, measure), y = measure, 
                         group = first_hs_name, fill = outcome)) + 
   geom_bar(aes(fill = outcome), stat = 'identity') + 
@@ -613,14 +624,14 @@ ggplot(schoolLevel, aes(x = reorder(first_hs_name, measure), y = measure,
 # // Step 1: Keep students in ninth grade cohorts you can observe graduating 
 # high school AND have non-missing eighth grade math scores
 
-plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
-                   chrt_ninth <= chrt_ninth_end_persist_yr2) %>% 
+plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_grad & 
+                   chrt_ninth <= chrt_ninth_end_grad) %>% 
   filter(!is.na(test_math_8_std))
 
 
 ## ----C2reshapeandCalculate-----------------------------------------------
 # // Step 2: Obtain agency and school level completion and prior achievement 
-## rates
+#  rates
 
 schoolLevel <- bind_rows(
   plotdf %>% group_by(first_hs_name) %>% 
@@ -672,20 +683,21 @@ ggplot(schoolLevel[schoolLevel$first_hs_name != "Agency AVERAGE", ],
   scale_x_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.2)) + 
   scale_y_continuous(limits = c(0, 1), label = percent, 
                      name = "Percent of Ninth Graders", breaks = seq(0, 1, 0.1)) + 
-  geom_text(aes(label = first_hs_name), nudge_y = 0.025, vjust = "top", size = I(4), 
+  geom_text(aes(label = first_hs_name), nudge_y = 0.065, vjust = "top", size = I(4), 
             nudge_x = 0.01) +
   labs(title = "High School Graduation Rates by High School", 
        x = "Average 8th Grade Math Standardized Score",
-       subtitle = "By Student Achievement Profile Upon High SChool Entry",
-       caption = paste0("Sample: 2004-2005 through 2005-2006 Agency first-time ninth graders with eighth grade math test scores. \n", 
+       subtitle = "By Student Achievement Profile Upon High School Entry",
+       caption = paste0("Sample: 2004-2005 through 2005-2006 Agency first-time ", 
+                        "ninth graders with eighth grade math test scores. \n", 
                         "Data from Agency administrative records."))
 
 ## ----C3filterAndSort-----------------------------------------------------
 # // Step 1: Keep students in ninth grade cohorts you can observe graduating 
 # high school AND have non-missing eighth grade math scores
 
-plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
-                   chrt_ninth <= chrt_ninth_end_persist_yr2) %>% 
+plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_grad & 
+                   chrt_ninth <= chrt_ninth_end_grad) %>% 
   filter(!is.na(test_math_8_std))
 
 
@@ -710,8 +722,8 @@ schoolLevel$first_hs_name <- gsub(" High School", "", schoolLevel$first_hs_name)
 
 ## ----C3plot--------------------------------------------------------------
 # //  Step 4: Create plot template
-## Load library for arranging multiple plots into one
-library(gridExtra)
+#  Load library for arranging multiple plots into one
+library(gridExtra); library(grid)
 
 # Create a plot template that you can drop different data elements into
 p2 <-  ggplot(schoolLevel[schoolLevel$qrt_8_math == 2 & 
@@ -726,7 +738,8 @@ p2 <-  ggplot(schoolLevel[schoolLevel$qrt_8_math == 2 &
                        expand = c(0, 0), label = percent) + 
     theme_bw() + 
     theme(panel.grid = element_blank(),
-                       axis.text.x = element_text(angle = 30, color = "black", vjust = 0.5),
+                       axis.text.x = element_text(angle = 30, color = "black", 
+                                                  vjust = 0.5, size = 6),
           axis.ticks = element_blank(),
           axis.text.y = element_blank(), axis.line.y = element_blank(), 
           panel.border = element_blank()) +
@@ -742,19 +755,22 @@ grobList <- list(
                        schoolLevel$first_hs_name != "Agency AVERAGE", ], 
        aes(x = reorder(first_hs_name, ontime_grad), y = ontime_grad)) + 
         geom_hline(yintercept =
-                     as.numeric(schoolLevel$ontime_grad[schoolLevel$first_hs_name ==
-                                                          "Agency AVERAGE"]),
+                     schoolLevel$ontime_grad[schoolLevel$first_hs_name ==
+                                                          "Agency AVERAGE"],
                    linetype = 2, size = I(1.1)) +
   geom_bar(stat = "identity", fill = "lightsteelblue4", color = I("black")) + 
     scale_y_continuous(limits = c(0,1), breaks = seq(0, 1, 0.2), 
                        expand = c(0, 0), label = percent) + 
     theme_bw() + 
     theme(panel.grid = element_blank(),
-                       axis.text.x = element_text(angle = 30, 
+                       axis.text.x = element_text(angle = 30, size = 6,
                                                   color = "black", vjust = 0.5),
           axis.line.y = element_line(),
           axis.ticks.x = element_blank(),panel.border = element_blank()) +
     labs(y = "Percent of Ninth Graders", x = "") + 
+    annotate(geom = "text", x = 5, 
+    y = 0.025 + schoolLevel$ontime_grad[schoolLevel$first_hs_name == "Agency AVERAGE"], 
+          label = "Agency Average") +
     geom_text(aes(label = round(ontime_grad * 100, 0)), vjust = -0.2) +
     expand_limits(y = 0, x = 0),
   p2, 
@@ -774,17 +790,19 @@ wrap <- mapply(arrangeGrob, grobList,
 # Step 7: Draw the plot
 grid.arrange(grobs=wrap, nrow=1, 
     top = "On-Time High School Graduation Rates \n by Prior Student Achievement", 
-             bottom = paste0("Sample: 2004-2005 through 2005-2006 Agency first-time", 
-                              "ninth graders with eighth grade math test scores. \n",
-                              "Data from Agency administrative records."))
+    bottom = textGrob(
+      label = paste0("Sample: 2004-2005 through 2005-2006 Agency first-time",
+      "ninth graders with eighth grade math test scores. \n",
+      "Data from Agency administrative records."), 
+      gp=gpar(fontsize=10,lineheight=1), just = 1, x = unit(0.99, "npc")))
 
 
 ## ----C4filterandSort-----------------------------------------------------
 # // Step 1: Keep students in ninth grade cohorts you can observe graduating 
 # high school AND have non-missing eighth grade math scores
 
-plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
-                   chrt_ninth <= chrt_ninth_end_persist_yr2) %>% 
+plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_grad & 
+                   chrt_ninth <= chrt_ninth_end_grad) %>% 
   filter(!is.na(test_math_8_std))
 
 plotdf$race <- as_factor(plotdf$race_ethnicity)
@@ -830,7 +848,9 @@ ggplot(plotOne, aes( x= reorder(race, -N), y = ontimeGrad, fill = race)) +
                      label = percent) + 
   labs(x = "", title = "On-Time High School Graduation Rates",
        subtitle = "by Race", 
-       caption = "Sample: 2004-2005 through 2005-2006 Agency first-time ninth graders. \n All data from Agency administrative records.")
+       caption = paste0(
+         "Sample: 2004-2005 through 2005-2006 Agency first-time ninth graders. \n", 
+         "All data from Agency administrative records."))
 
 ggplot(plotTwo, aes( x = qrt_label, 
                      group= reorder(race, -N), y = ontimeGrad, fill = race)) + 
@@ -845,7 +865,9 @@ ggplot(plotTwo, aes( x = qrt_label,
                      label = percent) + 
   labs(x = "", title = "On-Time High School Graduation Rates",
        subtitle = "by Race", 
-       caption = "Sample: 2004-2005 through 2005-2006 Agency first-time ninth graders. \n All data from Agency administrative records.")
+       caption = paste0(
+         "Sample: 2004-2005 through 2005-2006 Agency first-time ninth graders. \n ", 
+         "All data from Agency administrative records."))
 
   
 
@@ -853,8 +875,8 @@ ggplot(plotTwo, aes( x = qrt_label,
 # // Step 1: Keep students in ninth grade cohorts you can observe graduating 
 # high school AND have non-missing eighth grade math scores AND are part of 
 # the on-track sample
-plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_persist_yr2 & 
-                   chrt_ninth <= chrt_ninth_end_persist_yr2) %>% 
+plotdf <- filter(cgdata, chrt_ninth >= chrt_ninth_begin_grad & 
+                   chrt_ninth <= chrt_ninth_end_grad)  %>% 
   filter(!is.na(cum_gpa_yr1)) %>% 
   filter(ontrack_sample == 1)
 
@@ -883,11 +905,15 @@ plotOne$count[plotOne$statusVar == "Dropped Out"] <-
   -plotOne$count[plotOne$statusVar == "Dropped Out"]
 plotOne$count[plotOne$statusVar == "Disappeared"] <- 
   -plotOne$count[plotOne$statusVar == "Disappeared"]  
+plotOne$statusVar <- ordered(plotOne$statusVar, 
+                             c("Graduated On-Time", "Enrolled, Not Graduated", 
+                               "Disappeared", "Dropped Out"))
 
 ## ----C5plot--------------------------------------------------------------
 ggplot(plotOne, aes(x = ontrackStatus, y = count/sum, fill = statusVar, 
                     group = statusVar)) + 
   geom_bar(stat="identity") + 
+  geom_text(aes(label = round((count/sum) * 100, digits = 0))) + 
   scale_fill_brewer(type = "div", palette=7, direction = -1) + 
   geom_hline(yintercept = 0, size =1.1) + 
   scale_y_continuous(limits = c(-0.6, 1), label = percent, 
@@ -896,17 +922,18 @@ ggplot(plotOne, aes(x = ontrackStatus, y = count/sum, fill = statusVar,
        title = "Enrollment Status After Four Years in High School", 
        subtitle = "By Course Credits and GPA after First Year of High School", 
        caption = paste0("Sample: 2004-2005 through 2005-2006 Agency", 
-                        " first-time ninth graders.", 
+                        " first-time ninth graders. \n", 
                         "Students who transferred into or out of the agency are", 
-                        " excluded from the sample.",
-                        "\n All data from Agency administrative records.")) + 
-  theme_classic() + theme(legend.position = c(0.2, 0.8),
+                        " excluded from the sample. \n",
+                        "All data from Agency administrative records.")) + 
+  theme_classic() + theme(legend.position = c(0.8, 0.2),
                           axis.text = element_text(color = "black")) 
 
 ## ----D1filterAndSort-----------------------------------------------------
 # // Step 2: Keep students in high school graduation cohorts you can observe 
 # enrolling in college the fall after graduation
-plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & chrt_grad <= chrt_grad_end)
+plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & 
+                              chrt_grad <= chrt_grad_end)
 
 ## ----D1reshapeAndRecode--------------------------------------------------
 # // Step 3: Obtain the agency-level and school averages for seamless enrollment
@@ -933,10 +960,14 @@ chartData %<>% group_by(last_hs_name) %>%
 
 # // Step 6: Recode variables
 chartData$last_hs_name <- gsub("High School", "", chartData$last_hs_name)
+# Split levels
+chartData$last_hs_name <- gsub(" ", "\n", chartData$last_hs_name)
 chartData$outcome[chartData$outcome == "enrl_1oct_grad_yr1_2yr"] <- 
   "2-yr Seamless Enroller"
 chartData$outcome[chartData$outcome == "enrl_1oct_grad_yr1_4yr"] <- 
   "4-yr Seamless Enroller"
+
+
 
 
 ## ----D1plot--------------------------------------------------------------
@@ -956,9 +987,10 @@ ggplot(chartData, aes(x = reorder(last_hs_name, enroll_any),
   labs(x = "", y = "Percent of High School Graduates", 
        title = "College Enrollment by High School", 
        subtitle = "Seamless Enrollers", 
-       caption = paste0("Sample: 2007-2008 through 2008-2009 Agency graduates.",
-                        "Postsecondary enrollment outcomes from NSC matched records.", 
-                        "\n All other data from administrative records.")) + 
+       caption = paste0(
+         "Sample: 2007-2008 through 2008-2009 Agency graduates.",
+         "Postsecondary enrollment outcomes from NSC matched records.", 
+         "\n All other data from administrative records.")) + 
   theme(axis.text.x = element_text(angle = 30, vjust = 0.8, color = "black"), 
         legend.position = c(0.1, 0.8), axis.ticks.x = element_blank())
 
@@ -1013,6 +1045,7 @@ chartData %<>% group_by(last_hs_name) %>%
 
 # // Step 6: Recode values for plotting
 chartData$last_hs_name <- gsub("High School", "", chartData$last_hs_name)
+chartData$last_hs_name <- gsub(" ", "\n", chartData$last_hs_name)
 chartData$outcome[chartData$outcome == "enrl_1oct_grad_yr1_2yr"] <- "2-yr Seamless"
 chartData$outcome[chartData$outcome == "enrl_1oct_grad_yr1_4yr"] <- "4-yr Seamless"
 chartData$outcome[chartData$outcome == "late_2yr"] <- "2-yr Delayed"
@@ -1073,7 +1106,7 @@ chartData <- plotdf %>% group_by(last_hs_name) %>%
             count = n())
 # // Step 4: Shorten HS name for plotting
 chartData$last_hs_name <- gsub("High School", "", chartData$last_hs_name)
-
+chartData$last_hs_name <- gsub(" ", "\n", chartData$last_hs_name)
 
 ## ----D3plot--------------------------------------------------------------
 
@@ -1089,23 +1122,23 @@ ggplot(chartData, aes(x = math_test, y = enroll_rate)) +
              size = I(1.1), color = I("goldenrod")) +
   scale_y_continuous(limits = c(0,1), breaks = seq(0, 1, 0.2), label = percent) + 
   scale_x_continuous(limits = c(-0.8, 1), breaks = seq(-0.8, 1, 0.2)) + 
-  annotate(geom = "text", x = -.725, y = 0.025, 
+  annotate(geom = "text", x = -.675, y = 0.025, 
            label = "Below average math scores & \n below average college enrollment", 
            size = I(2.5)) +
-  annotate(geom = "text", x = .9, y = 0.025, 
+  annotate(geom = "text", x = .88, y = 0.025, 
            label = "Above average math scores & \n below average college enrollment", 
            size = I(2.5)) +
-  annotate(geom = "text", x = .9, y = 0.975, 
+  annotate(geom = "text", x = .88, y = 0.975, 
            label = "Above average math scores & \n above average college enrollment", 
            size = I(2.5)) +
-  annotate(geom = "text", x = -.725, y = 0.975, 
+  annotate(geom = "text", x = -.675, y = 0.975, 
            label = "Below average math scores & \n above average college enrollment", 
            size = I(2.5)) + 
   annotate(geom = "text", x = .255, y = 0.125, 
            label = "Agency Average \n Test Score", 
            size = I(2.5), color = I("goldenrod")) + 
-  annotate(geom = "text", x = -.7, y = 0.71, 
-           label = "Agency Average College Enrollment Rate", 
+  annotate(geom = "text", x = -.675, y = 0.71, 
+           label = "Agency Average \nCollege Enrollment Rate", 
            size = I(2.5)) + 
   labs(x = "Percent of High School Graduates", 
        y = "Average 8th Grade Math Standardized Score", 
@@ -1151,7 +1184,7 @@ chartData <- bind_rows(
 
 # // Step 6: Recode HS Name for plotting
 chartData$last_hs_name <- gsub("High School", "", chartData$last_hs_name)
-
+# chartData$last_hs_name <- gsub(" ", "\n", chartData$last_hs_name)
 
 ## ----D4plot--------------------------------------------------------------
 # // Step 7: Make plot for first panel with legend and labels
@@ -1164,9 +1197,9 @@ p1 <- ggplot(chartData[chartData$qrt_8_math == 1, ],
     scale_y_continuous(limits = c(0,1), breaks = seq(0, 1, 0.2), 
                        expand = c(0, 0), label = percent) + 
     theme_bw() + 
-  annotate(geom = "text", x = 3, y = 0.775, label = "Agency Average") +
+  annotate(geom = "text", x = 6, y = 0.775, label = "Agency Average") +
     theme(panel.grid = element_blank(),
-                       axis.text.x = element_text(angle = 30, 
+                       axis.text.x = element_text(angle = 30, size=6,
                                                   color = "black", vjust = 0.5),
           axis.line.y = element_line(),  axis.line.x = element_line(),
           axis.ticks.x = element_blank(),panel.border = element_blank()) +
@@ -1186,7 +1219,7 @@ p2 <-  ggplot(chartData[chartData$qrt_8_math == 2, ],
                        expand = c(0, 0), label = percent) + 
     theme_bw() + 
     theme(panel.grid = element_blank(),
-                       axis.text.x = element_text(angle = 30, 
+                       axis.text.x = element_text(angle = 30, size=6,
                                                   color = "black", vjust = 0.5),
           axis.ticks = element_blank(), axis.line.x = element_line(),
           axis.text.y = element_blank(), axis.line.y = element_blank(), 
@@ -1215,11 +1248,15 @@ wrap <- mapply(arrangeGrob, grobList,
 
 # // Step 11: Plot with labels
 grid.arrange(grobs=wrap, nrow=1, 
-             top = "College Enrollment Rates \n by Prior Student Achievement, Seamless Enrollers Only", 
-             bottom = paste0("Sample: 2007-2008 through 2008-2009 ", 
-                             "Agency graduates with eighth grade math scores. Postsecondary ",
-                             "enrollment outcomes from NSC matched records.", 
-                             " \n All other data from Agency administrative records."))
+             top = paste0("College Enrollment Rates ", 
+                          "\n by Prior Student Achievement, Seamless Enrollers Only"), 
+             bottom = textGrob(label = paste0(
+               "Sample: 2007-2008 through 2008-2009.",
+               "Agency graduates with eighth grade math scores. \n", 
+               "Postsecondary enrollment outcomes from NSC matched records. \n", 
+               "All other data from Agency administrative records."
+               ), gp=gpar(fontsize=10,lineheight=1), just = 1, 
+               x = unit(0.99, "npc")))
 
 ## ----D5filterAndSort-----------------------------------------------------
 # // Step 1: Keep students in high school graduation cohorts you can observe 
@@ -1296,13 +1333,14 @@ chartData$outcomeLabel <- factor(chartData$outcomeLabel,
 ## ----D5plot--------------------------------------------------------------
 #// Step 10: Create a caption to put under the figure
 
-myCap <- paste0("Sample: 2007-2008 through 2008-2009 Agency first-time ninth graders.", 
-                " Students who transferred into or out of Agency are excluded \n", 
-                "from the sample. Eligibility to attend a public four-year university", 
-                  " is based on students' cumulative GPA and ACT/SAT scores. \n", 
-                  "Sample includes 30 African American, 82 Asian American students, ", 
-                "53 Hispanic, and 198 White students. \n", 
-                "Post-secondary enrollment data are from NSC matched records.")
+myCap <- paste0(
+        "Sample: 2007-2008 through 2008-2009 Agency first-time ninth graders. ", 
+        "Students who transferred into or out of\nAgency are excluded ", 
+        "from the sample. Eligibility to attend a public four-year university ", 
+        "is based on students' cumulative GPA\nand ACT/SAT scores. ",
+        "Sample includes 30 African American, 82 Asian American students, ",
+        "53 Hispanic, \nand 198 White students. ", 
+        "Post-secondary enrollment data are from NSC matched records.")
 
 # // Step 11: Plot
 
@@ -1319,7 +1357,7 @@ ggplot(chartData, aes(x = reorder(label, total_count), y = measure,
   guides(fill = guide_legend(nrow=1, title = "", keywidth = 2)) +
   scale_fill_brewer(type = "qual", palette = 2, direction = -1) + 
   theme(legend.position = "top", axis.text = element_text(color = "black"), 
-        plot.caption = element_text(hjust = 0), 
+        plot.caption = element_text(hjust = 0, size = 8), 
         plot.title = element_text(hjust = 0.5), 
         plot.subtitle = element_text(hjust = 0.5)) + 
   labs(x = "", y = "Percent of Highly-Qualified Graduates", 
@@ -1358,17 +1396,17 @@ library(broom)
 # students 
 
 # Estimate unadjusted enrollment gap
-## Fit the model
+#  Fit the model
 mod1 <- lm(enrl_1oct_grad_yr1_any ~ race_ethnicity, data = plotdf)
-## Extract the coefficients
+#  Extract the coefficients
 betas_unadj <- tidy(mod1)
-## Get the clustered variance-covariance matrix
-## Use the get_CL_vcov function from the functions.R script
+#  Get the clustered variance-covariance matrix
+#  Use the get_CL_vcov function from the functions.R script
 clusterSE <- get_CL_vcov(mod1, plotdf$cluster_var)
-## Get the clustered standard errors and combine with the betas
+#  Get the clustered standard errors and combine with the betas
 betas_unadj$std.error <- sqrt(diag(clusterSE))
 betas_unadj <- betas_unadj[, 1:3]
-## Label
+#  Label
 betas_unadj$model <- "Unadjusted enrollment gap"
 
 # Estimate enrollment gap adjusting for prior achievement
@@ -1409,7 +1447,8 @@ rm(plotdf, betas_unadj, betas_adj_frpl, betas_adj_frpl_prior,
 ggplot(chartData[chartData$term == "race_ethnicityHispanic", ],
        aes(x = model, y = -estimate, fill = model)) + 
   geom_bar(stat = 'identity', color = I("black")) + 
-  scale_fill_hue(h = c(210, 250), l = 30, c = 70) +
+  scale_fill_brewer(type = "seq", palette = 8) +
+  geom_hline(yintercept = 0) + 
   guides(fill = guide_legend("", keywidth = 6, nrow = 2)) + 
   geom_text(aes(label = round(100 * -estimate, 0)), vjust = -0.3) +
   scale_y_continuous(limits = c(-0.2, 0.5), breaks = seq(-0.2, 0.5, 0.1), 
@@ -1419,9 +1458,11 @@ ggplot(chartData[chartData$term == "race_ethnicityHispanic", ],
   labs(title = paste0("Differences in Rates of College Enrollment", 
                       " \nBetween Latino and White High School Graduates"), 
        x = "",
-       caption = paste0("Sample: 2007-2008 through 2008-2009 high school graduates.",
-                        "Postsecondary enrollment outcomes from NSC matched records.",
-                        " \n All other data from Agency administrative records."))
+       caption = paste0(
+                  "Sample: 2007-2008 through 2008-2009 high school graduates. \n",
+                  "Postsecondary enrollment outcomes from NSC matched records. \n",
+                  "All other data from Agency administrative records.")
+       )
 
 
 ## ----D7filterAndSOrt-----------------------------------------------------
@@ -1465,7 +1506,11 @@ ggplot(chartData, aes(x = factor(qrt_8_math), y = pct_enrl)) +
        x = "Quartile of Prior Achievement", 
        title = "College Enrollment Rates Among High School Gradautes", 
        subtitle = "Within Quartile of Prior Achievement, by High School", 
-        caption = "Sample: 2007-2008 through 2008-2009 high school graduates. Postsecondary enrollment outcomes from NSC matched records. \n All other data from Agency administrative records.")
+        caption = paste0(
+                  "Sample: 2007-2008 through 2008-2009 high school graduates. \n", 
+                  "Postsecondary enrollment outcomes from NSC matched records. \n", 
+                  "All other data from Agency administrative records.")
+       )
 
 
 ## ----D8filterAndSort-----------------------------------------------------
@@ -1473,7 +1518,7 @@ ggplot(chartData, aes(x = factor(qrt_8_math), y = pct_enrl)) +
 # enrolling in college the fall after graduation AND are highy qualified
 
 plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin & 
-                              chrt_grad <= chrt_grad_end) %>% 
+                              chrt_grad <= chrt_grad_begin) %>% 
   select(sid, chrt_grad, highly_qualified, first_college_opeid_4yr,
          enrl_1oct_grad_yr1_any, enrl_1oct_grad_yr1_4yr, enrl_1oct_grad_yr1_2yr) %>% 
   filter(!is.na(highly_qualified)) %>% 
@@ -1526,8 +1571,8 @@ chartData %<>% filter(outcome != "Match") %>%
 
 ggplot(arrange(chartData, -count), 
        aes(x = factor(1), fill = outcome, y = count/totalCount)) +
-  geom_bar(stat = 'identity', position = "stack") +
-  scale_fill_hue(h = c(210, 250), l = 30, c = 70) +
+  geom_bar(stat = 'identity', position = "stack", color = I("black")) +
+  scale_fill_brewer(type = "qual", palette= 3, direction=1) +
   guides(fill = guide_legend("", keywidth = 6, nrow = 2)) + 
   geom_text(aes(label = round(100 * count/totalCount, 1)), 
             position = position_stack(vjust = 0.5)) +
@@ -1538,7 +1583,10 @@ ggplot(arrange(chartData, -count),
   labs(title = "Undermatch Rates by Agency", 
        subtitle = "Among Highly Qualified High School Graduates",
        x = "",
-       caption = "Sample: 2007-2008 through 2008-2009 high school graduates. Postsecondary enrollment outcomes from NSC matched records. \n All other data from Agency administrative records.")
+       caption = paste0(
+                "Sample: 2007-2008 through 2008-2009 high school graduates. \n",
+                 "Postsecondary enrollment outcomes from NSC matched records. \n", 
+                "All other data from Agency administrative records."))
 
 
 ## ----E1filterAndSort-----------------------------------------------------
@@ -1618,7 +1666,10 @@ ggplot(chartData, aes(x = reorder(last_hs_name, -order),
   labs(x = "", 
        title = "College Persistence by High School, at Any College", 
        subtitle = "Seamless Enrollers by Type of College", 
-       caption = "Sample: 2007-2008 through 2008-2009 Agency high school graduates. Postsecondary enrollment outcomes from NSC matched records. \n All other data from agency administrative records")
+       caption = paste0(
+         "Sample: 2007-2008 through 2008-2009 Agency high school graduates.\n",
+                 "Postsecondary enrollment outcomes from NSC matched records. \n", 
+                  "All other data from agency administrative records"))
 
 
 ## ----E2filterAndSort-----------------------------------------------------
@@ -1634,10 +1685,16 @@ plotdf <- cgdata %>% filter(chrt_grad >= chrt_grad_begin &
 
 
 ## ----E2recodeAndReshape--------------------------------------------------
+# Clean up missing data for binary recoding
+plotdf$enrl_grad_persist_4yr <- zeroNA(plotdf$enrl_grad_persist_4yr)
+plotdf$enrl_grad_persist_2yr <- zeroNA(plotdf$enrl_grad_persist_2yr)
+plotdf$enrl_1oct_grad_yr1_2yr <- zeroNA(plotdf$enrl_1oct_grad_yr1_2yr)
+plotdf$enrl_1oct_grad_yr1_4yr <- zeroNA(plotdf$enrl_1oct_grad_yr1_4yr)
+
 # // Step 2: Create binary outcomes for enrollers who switch from 4-yr to 2-yr, 
 # or vice versa and recode variables
 plotdf$persist_pattern <- "Not persisting"
-plotdf$persist_pattern[plotdf$enrl_grad_persist_4yr ==1 &
+plotdf$persist_pattern[plotdf$enrl_grad_persist_4yr == 1 &
                          !is.na(plotdf$chrt_grad)] <- "Persisted at 4-Year College"
 plotdf$persist_pattern[plotdf$enrl_grad_persist_2yr ==1 &
                          !is.na(plotdf$chrt_grad)] <- "Persisted at 2-Year College"
@@ -1648,24 +1705,23 @@ plotdf$persist_pattern[plotdf$enrl_1oct_grad_yr1_2yr == 1 &
                         plotdf$enrl_1oct_grad_yr2_4yr == 1 & 
                          !is.na(plotdf$chrt_grad)] <- "Switched to 4-Year College"
 
-plotdf$groupVar <- "Non-enroller"
+plotdf$groupVar <- NA
 plotdf$groupVar[plotdf$enrl_1oct_grad_yr1_2yr == 1] <- "2-year College"
 plotdf$groupVar[plotdf$enrl_1oct_grad_yr1_4yr == 1] <- "4-year College"
-
-
+# Drop NA
+plotdf %<>% filter(!is.na(groupVar))
 # // Step 3: Obtain agency and school level average for persistence outcomes
-## TODO: Explain this block of code better
-chartData <- plotdf %>% filter(groupVar != "Non-enroller") %>% 
+chartData <- plotdf %>% 
   group_by(last_hs_name, groupVar, persist_pattern) %>% 
-  summarize(tally = n()) %>% 
+  summarize(tally = n()) %>% # counts the occurrence persist_pattern
   ungroup %>% 
-  group_by(last_hs_name, groupVar) %>% 
-  mutate(denominator = sum(tally)) %>% 
-  mutate(persistRate = tally / denominator) %>% 
+  group_by(last_hs_name, groupVar) %>% # regroup by grouping variable and school
+  mutate(denominator = sum(tally)) %>% # sum all levels of persist_pattern
+  mutate(persistRate = tally / denominator) %>% # calculate rate
   filter(persist_pattern != "Not persisting") %>%
   mutate(rankRate = sum(persistRate))
 
-agencyData <- plotdf %>% filter(groupVar != "Non-enroller") %>% 
+agencyData <- plotdf %>%
   group_by(groupVar, persist_pattern) %>% 
   summarize(tally = n(), 
             last_hs_name = "Agency AVERAGE") %>% 
@@ -1680,6 +1736,7 @@ chartData <- bind_rows(chartData, agencyData)
 
 # // Step 4: Recode variable names, sort data frame, and code labels for plot
 chartData$last_hs_name <- gsub(" High School", "", chartData$last_hs_name)
+chartData$last_hs_name <- gsub(" ", "\n", chartData$last_hs_name)
 # chartData %<>% filter(persist_pattern != "Not persisting")
 chartData %<>% arrange(persist_pattern)
 chartData <- as.data.frame(chartData)
@@ -1708,10 +1765,13 @@ p1 <- ggplot(chartData[chartData$groupVar == "2-year College",],
   labs(x = "", y = "Percent of Seamless Enrollers") + 
   theme_classic() + theme(axis.text.x = element_text(angle = 30, vjust = 0.2), 
                           axis.ticks.x = element_blank(), 
-                          legend.position = c(0.2, 0.9), 
-                          plot.caption = element_text(hjust = 0)) + 
+                          legend.position = c(0.3, 0.875), 
+                          plot.caption = element_text(hjust = 0, size = 7)) + 
   labs(subtitle = "Seamless Enrollers at 2-year Colleges", 
-       caption = "Sample: 2007-2008 through 2008-2009 Agency high school graduates. Postsecondary enrollment outcomes from NSC matched records. \n All other data from agency administrative records")
+       caption = paste0(
+          "Sample: 2007-2008 through 2008-2009 Agency high school graduates.\n", 
+              "Postsecondary enrollment outcomes from NSC matched records. \n", 
+              "All other data from agency administrative records"))
 
 # // Step 6: Prepare plot for 4-year colleges by replacing data in plot 
 # above with 4 year data

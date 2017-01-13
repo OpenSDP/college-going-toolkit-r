@@ -8,7 +8,7 @@ knitr::opts_chunk$set(comment=NA, warning=FALSE,
 options(width=80)
 
 ## ----loadRequiredPackages------------------------------------------------
-## Step 0: Load the packages and prepare your R environment
+#  Step 0: Load the packages and prepare your R environment
 
 library(tidyverse) # main suite of R packages to ease data analysis
 library(magrittr) # allows for some easier pipelines of data
@@ -20,8 +20,8 @@ source("R/functions.R")
 library(haven) # required for importing .dta files
 
 ## ----readStudentDemogFile, echo=TRUE-------------------------------------
-## Step 0: Load the college-going analysis file into Stata
-## using the haven library
+#  Step 0: Load the college-going analysis file into Stata
+#  using the haven library
 
 # To read data from a zip file and unzip it in R we can 
 # create a connection to the path of the zip file
@@ -209,7 +209,7 @@ library(pander) # library to beautify output
 pander(prop.table(table(stuatt$race_ethnicity))*100, style = "rmarkdown")
 pander(table(stuatt$race_ethnicity), style = "rmarkdown")
 
-## ----prettyGraph, fig.align='center'-------------------------------------
+## ----prettyGraph, fig.align='center', fig.width=7, fig.height=5----------
 library(ggplot2) # the best R library for plotting
 
 qplot(stuatt$race_ethnicity,geom='bar') + 
@@ -386,7 +386,8 @@ stuatt %>% select(sid, school_year, hs_diploma, hs_diploma_date,
 # This statement is extra long and includes the mode because it needs to avoid 
 # ties in the earliest diploma date
 stuatt %<>% group_by(sid) %>%
- mutate(earliest_dipl_type_mode = statamode(hs_diploma_type[hs_diploma_date==earliest_diploma_date]))
+ mutate(earliest_dipl_type_mode =
+          statamode(hs_diploma_type[hs_diploma_date==earliest_diploma_date]))
 
 
 stuatt %>% select(sid, school_year, hs_diploma, hs_diploma_date, 
@@ -553,7 +554,8 @@ stuclass %<>% group_by(sid, school_year) %>%
 stuclass %>% select(one_of(varIdx)) %>% 
   filter(sid == 3)
 
-stuclass$grade_level[stuclass$nvals_grade > 1] <- stuclass$max_grade_level[stuclass$nvals_grade > 1]
+stuclass$grade_level[stuclass$nvals_grade > 1] <-
+  stuclass$max_grade_level[stuclass$nvals_grade > 1]
 
 stuclass %>% select(one_of(varIdx)) %>% 
   filter(sid == 3)
@@ -623,7 +625,8 @@ stuclass %<>% group_by(sid, school_year) %>%
 ## ----ellConsistStuYear---------------------------------------------------
 # Follow the same procedure as Step 1 for grade_level.
 
-# // Report the highest value of ell by year for each student, selecting is ell over not ell.
+#  Report the highest value of ell by year for each student, selecting is 
+#  ell over not ell.
 
 stuclass %<>% group_by(sid, school_year) %>% 
   mutate(highest_ell = max(ell)) %>% 
@@ -634,8 +637,8 @@ stuclass %<>% group_by(sid, school_year) %>%
 ## ----gtConsistStuYear----------------------------------------------------
 # Follow the same procedure as Step 1 for grade_level.
 
-## Report the highest value of gifted by year for each student, selecting 
-## is enrolled in gifted program over not enrolled.
+#  Report the highest value of gifted by year for each student, selecting 
+#  is enrolled in gifted program over not enrolled.
 
 stuclass %<>% group_by(sid, school_year) %>% 
   mutate(highest_gifted = max(gifted)) %>% 
@@ -818,7 +821,8 @@ stusy %>% ungroup %>%
 stusy %<>% arrange(sid, school_year) %>% 
   group_by(sid) %>% 
   mutate(grade_lag = lag(grade_level, order_by = school_year)) %>% 
-  mutate(grade_flag = ifelse(grade_lag > grade_level & !is.na(grade_lag > grade_level), 1, 0)) %>% 
+  mutate(grade_flag = ifelse(grade_lag > grade_level & 
+                               !is.na(grade_lag > grade_level), 1, 0)) %>% 
   mutate(grade_flag_max = max(grade_flag, na.rm=TRUE)) %>% 
   select(-grade_lag)
 
@@ -844,29 +848,16 @@ stusy %>% select(sid, school_year, grade_level,
 
 ## ----replaceImputed9thgrade----------------------------------------------
 # Replace the first_9th_school_year_observed with the correctly imputed values.
-## TODO write this into a loop!
 stusy$temp4_first9year <- NA
 
-stusy$temp4_first9year[stusy$grade_flag_max == 1 & 
+for(g in c(10, 11, 12)){
+  stusy$temp4_first9year[stusy$grade_flag_max == 1 & 
                          stusy$first_9th_flag == 1 & 
-                         stusy$grade_level == 10] <-
+                         stusy$grade_level == g] <-
   stusy$school_year[stusy$grade_flag_max == 1 & 
                          stusy$first_9th_flag == 1 & 
-                         stusy$grade_level == 10] - 1
-
-stusy$temp4_first9year[stusy$grade_flag_max == 1 & 
-                         stusy$first_9th_flag == 1 & 
-                         stusy$grade_level == 11] <-
-  stusy$school_year[stusy$grade_flag_max == 1 & 
-                         stusy$first_9th_flag == 1 & 
-                         stusy$grade_level == 11] - 2
-
-stusy$temp4_first9year[stusy$grade_flag_max == 1 & 
-                         stusy$first_9th_flag == 1 & 
-                         stusy$grade_level == 12] <-
-  stusy$school_year[stusy$grade_flag_max == 1 & 
-                         stusy$first_9th_flag == 1 & 
-                         stusy$grade_level == 12] - 3
+                         stusy$grade_level == g] - (g - 9)
+}
 
 stusy %<>% group_by(sid) %>% 
   mutate(temp5_first9year = min(temp4_first9year, na.rm=TRUE))
@@ -890,16 +881,16 @@ stusy %>% ungroup %>% distinct(sid, first_9th_schyear_obs) %>%
 
 
 ## ----cleanandSave--------------------------------------------------------
-## Keep relevant variables
+#  Keep relevant variables
 
 stusy %<>% select(sid, school_year, grade_level, frpl, iep, ell, gifted, 
                   total_days_enrolled, total_days_absent, 
                   days_suspended_out_of_school, first_9th_schyear_obs)
 
-## Make directory and save
+#  Make directory and save
 # dir.create("clean")
 # save(stusy, file = "clean/Student_School_Year_Ninth.rda")
-## Or if you want to save the Stata file
+#  Or if you want to save the Stata file
 # write_dta(stusy, file = "clean/Student_School_Year_Ninth.dta")
 
 # Clean up the workspace
@@ -920,22 +911,22 @@ stuenr <- read_stata(con) # read data in the data subdirectory
 glimpse(stuenr)
 
 ## ----createSchoolStartEnd------------------------------------------------
-## Step 1: Create a school_start and school_end variable
-## In this example, school start is August 1, and school end is July 31 of 
-## each school year. This may be different in your agency.
+#  Step 1: Create a school_start and school_end variable
+#  In this example, school start is August 1, and school end is July 31 of 
+#  each school year. This may be different in your agency.
 
 library(lubridate) # handle dates and times in R correctly
 
 stuenr$school_start <- mdy(paste0("08", "01", stuenr$school_year-1))
 stuenr$school_end <- mdy(paste0("07", "31", stuenr$school_year))
 
-## - Caution - ##
-## In R we have to create a character string that we convert to a date
-## Converting numerics to dates and times can introduce errors
-## - Caution - ##
+#  - Caution - ##
+#  In R we have to create a character string that we convert to a date
+#  Converting numerics to dates and times can introduce errors
+#  - Caution - ##
 
 ## ----cleanAbnormalEnroll-------------------------------------------------
-## Step 2: Remove abnormal enrollment observations. 
+#  Step 2: Remove abnormal enrollment observations. 
 
 # Drop observations missing both enrollment and withdrawal dates.
 stuenr %<>% filter(!is.na(enrollment_date) & !is.na(withdrawal_date))
@@ -987,9 +978,9 @@ stuenr %<>% group_by(sid, school_code) %>%
 #          enrollment_code_desc, withdrawal_date, lag_withdrawal_date,
 #          withdrawal_code_desc, min_enroll_date)
 
-## For overlapping observations, replace the enrollment date and enrollment code
-## description of all but the first enrollment spell with the earliest enrollment 
-## date
+#  For overlapping observations, replace the enrollment date and enrollment code
+#  description of all but the first enrollment spell with the earliest enrollment 
+#  date
 
 stuenr$enrollment_date[stuenr$enrollment_date <= stuenr$lag_withdrawal_date & 
                          !is.na(stuenr$lag_withdrawal_date)] <-
@@ -1001,8 +992,8 @@ stuenr %>% filter(sid == 2) %>%
   select(sid, school_year, school_code, enrollment_date, 
          enrollment_code_desc, withdrawal_date,
          withdrawal_code_desc)
-## Replace the withdrawal date and withdrawal code description of the earliest
-## enrollment spell with the latest withdrawal date.
+#  Replace the withdrawal date and withdrawal code description of the earliest
+#  enrollment spell with the latest withdrawal date.
 
 # Sort the data first so that latest withdrawal
 # information appears as the first record.
@@ -1049,24 +1040,24 @@ stuenr %>% filter(sid == 16) %>%
          withdrawal_code_desc, last_withdrawal_reason)
 
 ## ----cleanStuEnrandSave--------------------------------------------------
-## Drop duplicate records
+#  Drop duplicate records
 
 stuenr %<>% select(-min_enroll_date, -lag_withdrawal_date)
 stuenr <- ungroup(stuenr) %>% distinct(sid, school_year, school_code, 
                                     enrollment_date, .keep_all = TRUE)
 
-## Confirm that file is unique by student, school_year, school_code, 
-## and enrollment_date
+#  Confirm that file is unique by student, school_year, school_code, 
+#  and enrollment_date
 
 n_distinct(paste0(stuenr$sid, stuenr$school_year, stuenr$school_code, 
              stuenr$enrollment_date)) == nrow(stuenr)
 
-## Save the current file as Student_School_Enrollment_Clean
+#  Save the current file as Student_School_Enrollment_Clean
 
-## Make directory and save
+#  Make directory and save
 # dir.create("clean")
 # save(stuenr, file = "clean/Student_School_Enrollment_Clean.rda")
-## Or if you want to save the Stata file
+#  Or if you want to save the Stata file
 # write_dta(stuenr, file = "clean/Student_School_Enrollment_Clean.dta")
 
 rm(tmp, stuenr); gc()
@@ -1087,8 +1078,8 @@ stutest$test_subject <- tolower(as.character(stutest$test_subject))
 glimpse(stutest)
 
 ## ----dropVarsTest--------------------------------------------------------
-## Keep only the variables you need and limit the sample to state test scores 
-## in 8th grade.
+#  Keep only the variables you need and limit the sample to state test scores 
+#  in 8th grade.
 
 statetest <- stutest %>% 
             select(sid, test_type, test_subject, school_year, 
@@ -1099,8 +1090,8 @@ statetest <- stutest %>%
 # we can keep multiple datasets open in the workset at the same time.
 
 ## ----cleanupScaledScores-------------------------------------------------
-## Clean up raw and scaled scores.
-## Change raw and scaled scores to missing if zero.
+#  Clean up raw and scaled scores.
+#  Change raw and scaled scores to missing if zero.
 
 # A forloop in R
 for(var in c("raw_score", "scaled_score")){
@@ -1111,8 +1102,8 @@ for(var in c("raw_score", "scaled_score")){
 statetest %<>% filter(!is.na(raw_score) | !is.na(scaled_score))
 
 ## ----identifyRepeatTests-------------------------------------------------
-## Identify same-year repeat test takers and take the highest test score
-## For ties in scores, take the last date tested
+#  Identify same-year repeat test takers and take the highest test score
+#  For ties in scores, take the last date tested
 
 statetest %<>% arrange(sid, test_subject, 
                        grade_level, school_year, scaled_score)
@@ -1139,7 +1130,7 @@ statetest %>% distinct(sid, test_subject, grade_level, school_year) %>%
   nrow == nrow(statetest)
 
 ## ----reshapeELAMathWide--------------------------------------------------
-## Reshape the data so math and ELA tests appear on the same row.
+#  Reshape the data so math and ELA tests appear on the same row.
 statetest <- reshape(as.data.frame(statetest), 
                v.names = c("raw_score", "scaled_score"), 
                timevar = c("test_subject"), 
@@ -1149,7 +1140,7 @@ statetest <- reshape(as.data.frame(statetest),
                sep = "_")
 
 ## ----scaleAndCenterScores------------------------------------------------
-## Compute standardized test scores with mean 0 and standard deviation 1.
+#  Compute standardized test scores with mean 0 and standard deviation 1.
 statetest$scaled_math_std <- scale(statetest$scaled_score_math)
 statetest$scaled_ela_std <- scale(statetest$scaled_score_ela)
 
@@ -1157,53 +1148,55 @@ statetest %>% select(scaled_math_std, scaled_ela_std) %>%
   na.omit %>% summary
 
 ## ----giveRepeatersEarlyScore---------------------------------------------
-## Identify different-year repeat test takers and take the earliest test score.
+#  Identify different-year repeat test takers and take the earliest test score.
 
-## In R we can do this all at once using group_by
+#  In R we can do this all at once using group_by
 statetest %<>% group_by(sid) %>% 
   mutate(keep_flag = test_date == min(test_date)) %>% 
   filter(keep_flag) %>% select(-keep_flag)
 
 ## ----verifyAndDrop-------------------------------------------------------
-## Verify that each student has only one state test, and drop unneeded variables
+#  Verify that each student has only one state test, and drop unneeded variables
 nrow(statetest) == n_distinct(statetest$sid)
 statetest %<>% select(-test_date, -test_type)
 
 
 ## ----genCompositeStateTest-----------------------------------------------
-## Generate composite scaled and standardized scores that average ELA and 
-## math scores.
-statetest$scaled_score_composite <- (statetest$scaled_score_ela + statetest$scaled_score_math) /2
-statetest$scaled_score_composite_std <- (statetest$scaled_math_std + statetest$scaled_ela_std) /2
+#  Generate composite scaled and standardized scores that average ELA and 
+#  math scores.
+statetest$scaled_score_composite <- (statetest$scaled_score_ela +
+                                       statetest$scaled_score_math) /2
+statetest$scaled_score_composite_std <- (statetest$scaled_math_std +
+                                           statetest$scaled_ela_std) /2
 
 
 ## ----saveCleanStuTestState-----------------------------------------------
-## Save the current file as Prior_Achievement.dta.
+#  Save the current file as Prior_Achievement.dta.
 
 statetest %<>% arrange(sid, school_year, grade_level) %>% 
   select(sid, school_year, grade_level, raw_score_math, raw_score_ela,
          scaled_score_math, scaled_score_ela, scaled_score_composite,
          scaled_math_std, scaled_ela_std, scaled_score_composite_std)
 
-## Make directory and save
+#  Make directory and save
 # dir.create("clean")
 # save(statetest, file = "clean/Prior_Achievement.rda")
-## Or if you want to save the Stata file
+#  Or if you want to save the Stata file
 # write_dta(statetest, file = "clean/Prior_Achievement.dta")
 
 rm(tmp, statetest); gc()
 
 ## ----SATscores-----------------------------------------------------------
-## Keep only the variables and limit the sample to SAT.
+#  Keep only the variables and limit the sample to SAT.
 sattest <- stutest %>% filter(test_type == "SAT")
 sattest %<>% select(sid, test_subject, test_date, scaled_score)
 
-## Drop duplicate observations and any observations missing test scores.
+#  Drop duplicate observations and any observations missing test scores.
 sattest %<>% distinct()
 sattest %<>% filter(!is.na(scaled_score))
 
-## Reshape the data so that math, ELA, and writing scores appear on one row 
-## by student and test date.
+#  Reshape the data so that math, ELA, and writing scores appear on one row 
+#  by student and test date.
 sattest <- reshape(as.data.frame(sattest), 
                v.names = c("scaled_score"), 
                timevar = c("test_subject"), 
@@ -1211,22 +1204,22 @@ sattest <- reshape(as.data.frame(sattest),
                direction = "wide", 
                sep = "_")
 
-## Rename for convenience
+#  Rename for convenience
 names(sattest) <- c("sid", "sat_test_date", "sat_math_score", 
                     "sat_verbal_score", "sat_writing_score")
 sattest %<>% arrange(sid, sat_test_date)
 
-## Identify repeat test takers and take the earliest test score.
+#  Identify repeat test takers and take the earliest test score.
 
 sattest %<>% group_by(sid) %>% 
   mutate(keep_flag = sat_test_date == min(sat_test_date)) %>% 
   filter(keep_flag) %>% select(-keep_flag)
 
-## Verify that the file is now unique by student.
+#  Verify that the file is now unique by student.
 nrow(sattest) == n_distinct(sattest$sid)
 
-## Verify that test scores from the component subjects are not missing and 
-## generate total scores.
+#  Verify that test scores from the component subjects are not missing and 
+#  generate total scores.
 
 table(!is.na(sattest$sat_math_score) & !is.na(sattest$sat_verbal_score))
 sattest$sat_total_score <- sattest$sat_math_score + sattest$sat_verbal_score
@@ -1237,38 +1230,38 @@ table(!is.na(sattest$sat_math_score) & !is.na(sattest$sat_verbal_score) &
 sattest$sat_total_score_plus_writing <- sattest$sat_math_score +
   sattest$sat_verbal_score + sattest$sat_writing_score
 
-## Save the current file as SAT.dta.
+#  Save the current file as SAT.dta.
 
-## Make directory and save
+#  Make directory and save
 # dir.create("clean")
 # save(sattest, file = "clean/SAT.rda")
-## Or if you want to save the Stata file
+#  Or if you want to save the Stata file
 # write_dta(sattest, file = "clean/SAT.dta")
 rm(sattest); gc()
 
 ## ----actScoreClean-------------------------------------------------------
-## Keep only the variables you need and limit the sample to ACT.
+#  Keep only the variables you need and limit the sample to ACT.
 acttest <- stutest %>% filter(test_type == "ACT")
 acttest %<>% select(sid, test_subject, test_date, scaled_score)
 
-## Identify repeat test takers and take the earliest test score.
+#  Identify repeat test takers and take the earliest test score.
 
 acttest %<>% group_by(sid) %>% 
   mutate(keep_flag = test_date == min(test_date)) %>% 
   filter(keep_flag) %>% select(-keep_flag)
 
-## Keep and rename the relevant variables.
+#  Keep and rename the relevant variables.
 acttest %>% select(sid, test_date, scaled_score)
 names(acttest) <- c("sid", "act_test_date", "act_composite_score")
 
-## Verify that the file is now unique by student.
+#  Verify that the file is now unique by student.
 nrow(acttest) == n_distinct(acttest$sid)
 
-## Save the current file as ACT.dta.
-## Make directory and save
+#  Save the current file as ACT.dta.
+#  Make directory and save
 # dir.create("clean")
 # save(acttest, file = "clean/ACT.rda")
-## Or if you want to save the Stata file
+#  Or if you want to save the Stata file
 # write_dta(acttest, file = "clean/ACT.dta")
 rm(acttest); gc()
 
@@ -1294,54 +1287,54 @@ glimpse(stuclass)
 
 
 ## ----filterandSelectClassData--------------------------------------------
-## Identify the critical variables that identify a class.
+#  Identify the critical variables that identify a class.
 
 local_ids <- c("cid", "school_year", "school_code", "section_code", 
                      "course_code")
-## Drop the observations where any of the critical variables are missing
+#  Drop the observations where any of the critical variables are missing
 classRaw %<>% 
   filter(complete.cases(.[, local_ids]))
 
 
 ## ----flagMathandEngCourses-----------------------------------------------
-## Tabulate course names
+#  Tabulate course names
 table(classRaw$course_code_desc)
 
-## Flag math courses based on the tabulation results
-## Generate a flag variable
+#  Flag math courses based on the tabulation results
+#  Generate a flag variable
 classRaw$math_flag <- NA
 
-## Use the grep function to identify course names that contain common word 
-## stems, but slightly different spellings, e.g.Algebra I and Algebra-I
+#  Use the grep function to identify course names that contain common word 
+#  stems, but slightly different spellings, e.g.Algebra I and Algebra-I
 
-## In R the patterns need to have no spaces in the grep command 
-## The spaces will be matched
-## The | = OR
-## grep does partial matching
-## grepl returns TRUE/FALSE, as.numeric converts this to 1/0
+#  In R the patterns need to have no spaces in the grep command 
+#  The spaces will be matched
+#  The | = OR
+#  grep does partial matching
+#  grepl returns TRUE/FALSE, as.numeric converts this to 1/0
 classRaw$math_flag <- as.numeric(grepl("GEOM|ALGEBRA|MATH|STAT|CALC|TRIG", 
                                         classRaw$course_code_desc))
 
-## Check the results of flagging your variables
+#  Check the results of flagging your variables
 table(classRaw$course_code_desc, classRaw$math_flag)
 
-## Repeat this process for flagging ELA courses
+#  Repeat this process for flagging ELA courses
 classRaw$ela_flag <- NA
 classRaw$ela_flag <- as.numeric(grepl("ENG|ELA", 
                                         classRaw$course_code_desc))
 
-## Check the results of flagging your variables
+#  Check the results of flagging your variables
 table(classRaw$course_code_desc, classRaw$ela_flag)
 
 ## ----dropCleanSaveClassData----------------------------------------------
-## Drop the course_code_desc, as it is no longer needed.
+#  Drop the course_code_desc, as it is no longer needed.
 classRaw %<>% select(-course_code_desc)
 
-## Collapse the data
+#  Collapse the data
 classRaw %<>% distinct()
 
-## Verify that the data is unique by cid, and also unique by school year, 
-## school code, section code and course code.
+#  Verify that the data is unique by cid, and also unique by school year, 
+#  school code, section code and course code.
 nrow(classRaw) == n_distinct(classRaw$cid)
 
 classRaw %>% distinct(school_year, school_code, 
@@ -1350,29 +1343,30 @@ classRaw %>% distinct(school_year, school_code,
 
 
 ## ----mergeClassandEnrollFiles--------------------------------------------
-## Merge classRaw and stuclass together
-## keep only files merged from both files
+#  Merge classRaw and stuclass together
+#  keep only files merged from both files
 stuclass <- inner_join(stuclass, classRaw, by = "cid")
 
+
 ## ----courseGrades--------------------------------------------------------
-## Evaluate course marks
-table(stuclass$final_grade_mark, stuclass$credits_possible)
+#  Evaluate course marks
+table(stuclass$final_grade_mark, round(stuclass$credits_possible, digits = 1))
 table(stuclass$final_grade_mark, stuclass$final_grade_mark_num)
 
 
 ## ----courseCompletion----------------------------------------------------
-## Evaluate course completion
-## Drop observations that have no record of course completion
+#  Evaluate course completion
+#  Drop observations that have no record of course completion
 stuclass %<>% filter(!is.na(final_grade_mark) & 
                        !is.na(final_grade_mark_num) & 
                        !is.na(credits_earned))
 
 
 ## ----courseEnrollment----------------------------------------------------
-## Evaluate course enrollment
+#  Evaluate course enrollment
 
-## Fix cases where a student has multiple observations for the same course 
-## with the same year and marking period (i.e. with overlapping enrollment dates)
+#  Fix cases where a student has multiple observations for the same course 
+#  with the same year and marking period (i.e. with overlapping enrollment dates)
 
 # Remove enrollment and withdrawal dates that are not in the current school year.
 library(lubridate) # handle dates and times in R correctly
@@ -1397,17 +1391,11 @@ stuclass %>% filter(sid == 2251 & cid == 78150780) %>%
 # Identify the variables that identify a course
 local_ids <- c("sid", "cid", "school_year", "marking_period")
 
-## Populate all enrollments with the earliest enrollment date
+#  Populate all enrollments with the earliest enrollment date
 stuclass %<>% ungroup %>% 
   group_by(sid, cid, school_year, marking_period) %>% 
   arrange(class_enrollment_date) %>%
   mutate(first_enroll = min(class_enrollment_date, na.rm=TRUE)) 
-
-## TODO: Is this bug real? I do not think so.
-# There is a bug here in the enrollment date
-# If you use group_by_ and mutate without the underscore
-# in a pipe, and then calculate max or min of a date, you 
-# get the wrong time
 
 stuclass$class_enrollment_date <- stuclass$first_enroll
 stuclass %<>% select(-first_enroll)
@@ -1416,7 +1404,7 @@ stuclass %>% ungroup %>% filter(sid == 2251 & cid == 78150780) %>%
   select(sid, cid, school_code, school_year, class_enrollment_date, 
          class_withdrawal_date)
 
-## Populate all enrollments with the latest withdrawal date
+#  Populate all enrollments with the latest withdrawal date
 
 stuclass %<>% ungroup %>% 
   arrange(sid, cid, school_year, marking_period, class_withdrawal_date) %>%
@@ -1437,14 +1425,14 @@ stuclass %>% ungroup %>% filter(sid == 2251 & cid == 78150780) %>%
 
 
 ## ----dropCleanSaveCourseEnroll-------------------------------------------
-## Drop any unneeded variables, drop duplicates, and save the file
-## Drop duplicate values
+#  Drop any unneeded variables, drop duplicates, and save the file
+#  Drop duplicate values
 stuclass %<>% ungroup %>% distinct()
 
-## Verify that the file is unique by sid and cid
+#  Verify that the file is unique by sid and cid
 nrow(stuclass) == n_distinct(paste0(stuclass$sid, stuclass$cid, sep ="_"))
 
-##  Order the variables
+#   Order the variables
 
 stuclass %<>% select(sid, cid, school_year, school_code, course_code,
                      marking_period, section_code, instructional_level,
@@ -1452,20 +1440,20 @@ stuclass %<>% select(sid, cid, school_year, school_code, course_code,
                      class_enrollment_date, class_withdrawal_date,
                      final_grade_mark, final_grade_mark_num, 
                      credits_earned)
-## Sort the data
+#  Sort the data
 stuclass %<>% ungroup() %>% 
   arrange(sid, school_year, marking_period, cid)
 
-## Save the current file as Student_Class_Enrollment_Merged.dta.
-## Make directory and save
+#  Save the current file as Student_Class_Enrollment_Merged.dta.
+#  Make directory and save
 
 # dir.create("clean")
 # save(stuclass, file = "clean/Student_Class_Enrollment_Merged.rda")
-## Or if you want to save the Stata file
+#  Or if you want to save the Stata file
 # write_dta(stuclass, file = "clean/Student_Class_Enrollment_Merged.dta")
 
 ## ----readNSCdata---------------------------------------------------------
-## Load the Student_NSC_Enrollment data file
+#  Load the Student_NSC_Enrollment data file
 # Read in Stata
 library(haven) # required for .dta files
 # To read data from a zip file we create a connection to the path of the 
@@ -1479,7 +1467,7 @@ close(con)
 glimpse(stunsc)
 
 ## ----renameNSCvars-------------------------------------------------------
-## Rename variables and format them for analysis
+#  Rename variables and format them for analysis
 
 # Rename variables to indicate that they are NSC variables.
 names(stunsc) <- c("sid", "n_record_found_yn", "n_enrollment_begin", 
@@ -1503,10 +1491,10 @@ stunsc %>% filter(sid == 13047) %>%
          n_enrollment_end, n_college_name, yr2_yr4, 
          public_private, n_enrollment_status, graduated)
 
-## Drop missing
+#  Drop missing
 stunsc %<>% filter(stunsc$college_state != "")
 
-## Standardize types of college by:
+#  Standardize types of college by:
 #  2-year and 4-year college
 stunsc$n_college_4yr <- ifelse(stunsc$yr2_yr4 == "4-year", 1, 0)
 stunsc$n_college_2yr <- ifelse(stunsc$yr2_yr4 == "2-year" |
@@ -1539,10 +1527,10 @@ stunsc$n_enrl_status <- factor(stunsc$n_enrollment_status,
 stunsc$n_enrollment_status <- NULL
 
 ## ----identifyFirstCollege------------------------------------------------
-## Identify first college attended by type (any, 4-year and 2-year) 
-## that didn’t result in a withdrawal.
+#  Identify first college attended by type (any, 4-year and 2-year) 
+#  that didn’t result in a withdrawal.
 
-## Calculate the days enrolled.
+#  Calculate the days enrolled.
 stunsc$days_enrolled <- stunsc$n_enrollment_end - stunsc$n_enrollment_begin
 
 # Identify the first college a student enrolled in by type 
@@ -1601,7 +1589,7 @@ stunsc %<>% group_by(sid) %>%
                                   n_enrollment_begin & n_college_2yr > 0][1]) %>% 
   ungroup
 
-# // Get the college name and id for the first enrollment date
+# Get the college name and id for the first enrollment date
 
 stunsc %>% filter(sid == 13047) %>%
   select(sid, n_college_opeid,
@@ -1613,18 +1601,18 @@ stunsc %>% filter(sid == 13047) %>%
 
 
 ## ----saveStuNSC----------------------------------------------------------
-## Drop the unneeded variables
+#  Drop the unneeded variables
 # drop temp* nvals* days_enrolled
 stunsc$flag_status <- NULL
 
-## Sort the data
+#  Sort the data
 stunsc %<>% ungroup() %>% 
   arrange(sid, n_enrollment_begin)
 
-## Save the current file as Student_NSC_Enrollment_Indicators.dta
-## Make directory and save
+#  Save the current file as Student_NSC_Enrollment_Indicators.dta
+#  Make directory and save
 # dir.create("clean")
 # save(stunsc, file = "clean/Student_NSC_Enrollment_Indicators.rda")
-## Or if you want to save the Stata file
+#  Or if you want to save the Stata file
 # write_dta(stunsc, file = "clean/Student_NSC_Enrollment_Indicators.dta")
 

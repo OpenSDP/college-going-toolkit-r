@@ -6,15 +6,15 @@ knitr::opts_chunk$set(comment=NA, warning=FALSE, echo=TRUE,
 options(width=80)
 
 ## ----unevaluatedExample, eval=FALSE, echo=TRUE---------------------------
-# keep only observations if 8th grade math score is not missing
-stutest %<>% filter(!is.na(test_math_8))
-
-# check to see if the file is unique by student id
-nrow(stutest) == n_distinct(stutest$sid)
-
+## # keep only observations if 8th grade math score is not missing
+## stutest %<>% filter(!is.na(test_math_8))
+## 
+## # check to see if the file is unique by student id
+## nrow(stutest) == n_distinct(stutest$sid)
+## 
 
 ## ----loadRequiredPackages------------------------------------------------
-## Load the packages and prepare your R environment
+#  Load the packages and prepare your R environment
 library(tidyverse) # main suite of R packages to ease data analysis
 library(magrittr) # allows for some easier pipelines of data
 
@@ -172,7 +172,6 @@ nrow(stusy) / nrow_stusy
 stusy %<>% filter(grade_level >= 9 & !is.na(grade_level) & 
                     grade_level <= 12)
 
-# TODO: Why is grade level > 12 sometimes?
 
 ## ----dropZeroDayAttend---------------------------------------------------
 stusy %<>% filter(days_enrolled > 0)
@@ -372,8 +371,8 @@ tmp <- select(stuCG, sid, hs_diploma_date, hs_diploma, chrt_grad, chrt_ninth)
 stunsc <- inner_join(tmp, stunsc, by = c("sid")); rm(tmp)
 
 ## ----genTwoYearEnrollment------------------------------------------------
-## create and indicator to show if the student enrolled within two years 
-## of HS graduation
+# create and indicator to show if the student enrolled within two years 
+# of HS graduation
 
 stunsc$enrl_ever_w2_grad <- ifelse(stunsc$first_enrl_date_any < 
                                      (stunsc$hs_diploma_date + (365*2)) &
@@ -385,8 +384,8 @@ stunsc$enrl_ever_w2_grad <- ifelse(stunsc$first_enrl_date_any <
 stunsc$ontime_yr <- stunsc$chrt_ninth + 3
 stunsc$ontime_date <- mdy(paste0("09", "01", stunsc$ontime_yr))
 
-## create and indicator to show if the student enrolled within two years of 
-## expected HS graduation
+# create and indicator to show if the student enrolled within two years of 
+# expected HS graduation
 stunsc$enrl_ever_w2_ninth <- ifelse(stunsc$first_enrl_date_any < 
                                       (stunsc$ontime_date + (365*2)) & 
                                       !is.na(stunsc$ontime_date) &
@@ -476,7 +475,6 @@ stunsc %>% filter(sid %in% c(16011, 16016)) %>%
          enrl_1oct_grad_yr1, enrl_1oct_grad_yr2, 
          enrl_1oct_grad_yr3, enrl_1oct_grad_yr4) %>% 
   as.data.frame
-
 
 for(i in as.numeric(unique(stunsc$ontime_yr))){
   for(j in 1:4){
@@ -641,7 +639,7 @@ rm(list = ls()[ls() != "cg_analysis"])
 current_schyr <- 2010
 
 ## ----reloadWorkspace-----------------------------------------------------
-## Load the packages and prepare your R environment
+# Load the packages and prepare your R environment
 library(tidyverse) # main suite of R packages to ease data analysis
 library(magrittr) # allows for some easier pipelines of data
 
@@ -694,8 +692,8 @@ stuOT %<>% select(-ever_transferout)
 
 ## ----filterSaveSortStuOT-------------------------------------------------
 # Keep only relevant variables and drop duplicates
-# TODO: Explain this
 stusy <- stuOT %>% select(sid, school_year, grade_level) %>% 
+  # Select only one unique row by sid, school_year, and grade_level
   distinct(school_year, grade_level)
 # Confirm uniqueness of rows
 n_distinct(paste0(stusy$sid, stusy$school_year)) == nrow(stusy)
@@ -718,25 +716,20 @@ close(con)
 
 # We can only assess if a student is on track if we have course information for 
 # them. Keep only records that appear in both files using inner_join
-#
+
 stuOT <- inner_join(stuenrl, stuCG, by = c("sid"))
 rm(stuenrl, stuCG); gc()
 
 ## ----mergeStusyOn--------------------------------------------------------
 # Use right_join to keep only sids found in stusy
 stuOT <- inner_join(stuOT, stusy, by = c("sid", "school_year"))
-
 # rm(stusy)
 
 ## ----filterLateHSStudents------------------------------------------------
 markList <- c("YL", "S1", "Q1")
 
-stuOT %<>% group_by(sid, grade_level) %>% 
-  mutate(validMarking = any(marking_period %in% markList)) %>% ungroup()
-
-
 stuOT %<>% group_by(sid) %>% 
-  mutate(any_grade_9 = any(grade_level[!is.na(grade_level)] == 9)) %>% 
+  mutate(any_grade_9 = any(grade_level == 9)) %>% 
   mutate(enrolled_grade_9 = any(marking_period[any_grade_9] %in% markList)) %>% 
   ungroup %>% 
   select(-any_grade_9)
@@ -744,11 +737,9 @@ stuOT %<>% group_by(sid) %>%
 stuOT %<>% filter(enrolled_grade_9) %>% 
   select(-enrolled_grade_9)
 
-# 703341
 
 ## ----restrictCohorts-----------------------------------------------------
 stuOT %<>% filter(chrt_ninth <= current_schyr - 4)
- # 289,530 
 
 ## ----nonLinEnrollPattern-------------------------------------------------
 
@@ -775,17 +766,14 @@ stuOT %<>% filter(stuOT$nonlin_enrl < 1) %>%
 all(!is.na(stuOT$credits_possible))
 all(!is.na(stuOT$credits_earned))
 
-table(stuOT$credits_earned, stuOT$credits_possible)
-
+table(stuOT$credits_possible,stuOT$credits_earned)
 
 ## ----gradeCreditTables---------------------------------------------------
-table(stuOT$final_grade_mark[stuOT$credits_possible == 0 & 
-                               stuOT$credits_earned !=0])
+# stuOT %>% filter(credits_possible == 0 & credits_earned != 0) %>% 
+#   with(., table(final_grade_mark))
 
-table(stuOT$final_grade_mark[stuOT$credits_possible == 0 & 
-                               stuOT$credits_earned !=0], 
-      stuOT$credits_earned[stuOT$credits_possible == 0 & 
-                               stuOT$credits_earned !=0])
+stuOT %>% filter(credits_possible == 0 & credits_earned != 0) %>% 
+  with(., table(final_grade_mark, credits_earned))
 
 ## ----recodeGrades--------------------------------------------------------
 
@@ -818,7 +806,6 @@ table(stuOT$final_grade_mark[stuOT$credits_earned == 0],
 
 
 ## ----assignCredits-------------------------------------------------------
-
 with(stuOT, credits_earned[credits_earned == 0 & 
                        credits_possible != 0  & 
                          grepl("A|B|C|D|E", final_grade_mark) & 
@@ -869,7 +856,6 @@ with(stuOT, credits_earned[credits_possible == 0 &
                              grepl("A|B|C|D|E", final_grade_mark) & 
                              final_grade_mark != "NGPA"])
 
-
 ## ----useCourseModeCredits------------------------------------------------
 stuOT$replace_credits <- ifelse(stuOT$credits_possible > 0 &
                            stuOT$credits_earned > stuOT$credits_possible & 
@@ -887,16 +873,19 @@ stuOT$credits_possible[stuOT$replace_credits == 1 &
                               !is.na(stuOT$credits_earned_mode)]
 
 ## ----filterFinalMissingMarks---------------------------------------------
-############
-# TODO FIX THIS AFTER DATA ISSUES ABOVE RESOLVED
-###########
 stuOT %>% filter(!credits_earned > credits_possible & 
                     (grepl("A|B|C|D|E", final_grade_mark) &
                     stuOT$final_grade_mark != "NGPA")) %>% nrow
 
+stuOT %>%  filter(credits_earned != credits_possible & replace_credits == 1) %>% 
+  with(., table(credits_earned, credits_possible))
 
-## ----tableofCreditsandGrade----------------------------------------------
+## ----tableofCreditsandGrade, results='hide'------------------------------
 table(stuOT$credits_possible, stuOT$credits_earned, stuOT$final_grade_mark)
+
+## ----checkMissingnessCredits---------------------------------------------
+all(!is.na(stuOT$credits_possible))
+all(!is.na(stuOT$credits_earned))
 
 ## ----calcYearsinHS-------------------------------------------------------
 
@@ -1212,15 +1201,38 @@ cg_student %<>% select(sid, starts_with("ontrack_"),
 cg_student$ontrack_sample <- 1
 
 ## ----combineWithAnalysisFile---------------------------------------------
-
 cg_analysis <- inner_join(cg_analysis, cg_student, by = "sid")
 rm(cg_student)
-
 # use "${analysis}/CG_Analysis.dta", clear
 # merge 1:1 sid using `ontrack', nogen
 # save "${analysis}/CG_Analysis.dta", replace
 
-## ------------------------------------------------------------------------
-# TODO: Clean up column names to match file
+## ----cleanUpNames, echo=FALSE--------------------------------------------
+cg_analysis$hs_diploma_date <- cg_analysis$hs_diploma_date.x
+cg_analysis$first_hs_name <- cg_analysis$school_name_first_hs
+cg_analysis$longest_hs_name <- cg_analysis$school_name_longest_hs
+cg_analysis$last_hs_name <- cg_analysis$school_name_last_hs
+cg_analysis$chrt_ninth <- cg_analysis$chrt_ninth.x
+cg_analysis$chrt_grad <- cg_analysis$chrt_grad.x
+
+cg_analysis %<>% select(sid, male, race_ethnicity, hs_diploma, hs_diploma_type, 
+                        hs_diploma_date, frpl_ever, iep_ever, ell_ever, 
+                        gifted_ever, frpl_ever_hs, iep_ever_hs, ell_ever_hs,
+                        gifted_ever_hs, first_hs_code, first_hs_name, 
+                        last_hs_code, last_hs_name, longest_hs_code, 
+                        longest_hs_name, last_wd_group, chrt_ninth, chrt_grad, 
+                        ontime_grad, late_grad, still_enrl, transferout, 
+                        dropout, disappear, test_math_8_raw, test_math_8, 
+                        test_math_8_std, test_ela_8, test_ela_8_std, 
+                        test_composite_8, test_composite_8_std, 
+                        qrt_8_math, qrt_8_ela, qrt_8_composite,
+                      matches("first_college_opeid|enrl_1oct_grad_|enrl_ever_w2|enrl_grad_|enrl_1oct_ninth_|cum_credits_yr|ontrack_endyr|status_after_yr|cum_gpa_yr"), 
+                        ontrack_hsgrad_sample,
+                        cum_gpa_final,
+                        sat_act_concordance,
+                        highly_qualified,
+                        ontrack_sample)
+
+## ----columnNamesend------------------------------------------------------
 names(cg_analysis)
 

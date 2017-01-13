@@ -676,11 +676,11 @@ another outcome.
 
 #### 6.3a Group last withdrawal codes together into four end of high school outcomes:
 
-1 = Graduated (define graduated using withdrawal data and `hs_diploma` in the 
-Student Attributes file, or any other source of graduation information used)
-2 = Transfer Out
-3 = Drop Out
-4 = Other (all other reasons for withdrawal)
+
+* 1 = Graduated (define graduated using withdrawal data and `hs_diploma` in the Student Attributes file, or any other source of graduation information used)
+* 2 = Transfer Out
+* 3 = Drop Out
+* 4 = Other (all other reasons for withdrawal)
 
 Outcomes are captured using the `last_wd_group` variable. Assigning the last 
 withdrawal code to `last_wd_group` requires an understanding of decision rules in 

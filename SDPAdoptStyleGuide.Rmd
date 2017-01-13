@@ -159,7 +159,7 @@ following guidelines:
 - The root folder should be named according to the project that data and
 analyses contained within belong to (e.g. School_Reports). - Sub-folders within
 a project should be named according to their contents, with the most common
-being "data"" (with sub-folders for "raw" and "clean" files), "programs" or
+being "data" (with sub-folders for "raw" and "clean" files), "programs" or
 "do_files", "logs" or "log_files", "notes", and "tables_figures".
 
 For those programming in a Windows environment, pin commonly accessed folders to
@@ -206,14 +206,18 @@ be limited to 30 characters depending on platform. Additionally, many R commands
 only print a few characters by default. Keep this in mind when you name
 variables. Try to be both specific and concise in your variable names.
 
-All variables in an R dataframe should be labeled (as should database columns). 
-For commonly used variables with existing definitions, consider reading in 
-labels from a common external file rather than entering labels manually or by 
-copy/paste. Alternatively, call upon a separate .R file in your main code that 
-contains a function to apply standard labels rather than including labeling code
-in your primary .R script.
+All variables in an R dataframe should be named (as should database columns). 
+R does not have functionality to add additional labels to describe the data. 
+These additional variable descriptions should be listed in a separate .R file 
+that you can call in your main code, in a list object that stores information 
+about key variables, or externally in a common external file. 
 
-```{r variableNaming}
+```{r variableNaming, eval=FALSE}
+# label variables in standard student file
+source("programs/dcps_student_labeling.R")
+
+# label variables not in a standard labeling file
+varList <- list(stu_struc_move = "student had a structural move, moving schools")
 
 ```
 
@@ -409,7 +413,7 @@ LOGIDR <- "cepr-files/projects/DCPS/Log Files"
 ### White Space and Readability
 
 White space refers to indentation and extra lines that make code readable. Lack
-of white space is referred to as "spaghetti code"" since it is difficult to
+of white space is referred to as "spaghetti code" since it is difficult to
 ascertain where one command ends and the next begins.
 
 Code should be indented to make clear which blocks of code are nested inside of
@@ -791,7 +795,6 @@ these guidelines will equip you and your team to conduct analyses effectively,
 efficiently, and reliably. These coding practices, will improve your ability to
 share knowledge across your organization and build capacity to construct
 sophisticated analyses with statistical software.
-
 
 
 \vfill

@@ -1,10 +1,13 @@
 # Knit and purr
 
 purl(input = "SDPdatabuildingtasks.Rmd", 
-     output = "ToolkitSDPdatabuilding.R")
+     output = "ToolkitSDP_Clean.R")
 
 purl(input = "SDPdatalinkingtasks.Rmd", 
-     output = "ToolkitSDPdatalinking.R")
+     output = "ToolkitSDP_Connect.R")
 
 purl(input = "SDPanalyze.Rmd", 
-     output = "ToolkitSDPanalyze.R")
+     output = "ToolkitSDP_Analyze.R")
+
+purl(input = "SDP_R_Glossary.Rmd", 
+     output = "ToolkitSDP_R_Glossary.R")
