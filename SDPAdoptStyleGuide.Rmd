@@ -157,10 +157,10 @@ To organize files properly on any server, we recommend you adhere to the
 following guidelines:
 
 - The root folder should be named according to the project that data and
-analyses contained within belong to (e.g. School_Reports). - Sub-folders within
-a project should be named according to their contents, with the most common
-being "data" (with sub-folders for "raw" and "clean" files), "programs" or
-"do_files", "logs" or "log_files", "notes", and "tables_figures".
+analyses contained within belong to (e.g. School_Reports). 
+- Sub-folders within a project should be named according to their contents, 
+with the most common being "data" (with sub-folders for "raw" and "clean" files),
+"programs" or "do_files", "logs" or "log_files", "notes", and "tables_figures".
 
 For those programming in a Windows environment, pin commonly accessed folders to
 the Favorites bar in Windows Explorer for easier access.

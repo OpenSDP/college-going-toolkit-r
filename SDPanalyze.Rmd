@@ -775,7 +775,7 @@ grade academic achievement).
 **Analytic Technique:** Calculate the proportion of students on-track at each 
 school, and across the agency.
 
-\\hline
+ 
 
 ```{r B1filterAndSort}
 #  // Step 1: Keep students in ninth grade cohorts you can observe graduating 
@@ -890,7 +890,7 @@ incorporated into analyses like the one above. This could be used to further
 understand which students struggle, why they struggle, and interventions to keep 
 them enrolled and engaged.
 
-\\hline
+ 
 
 ```{r B2filterAndSort}
 # // Step 1: Keep students in ninth grade cohorts you can observe graduating 
@@ -1130,7 +1130,7 @@ other information predictive of student achievement in high school) in place of
 **Analytic Technique:** Bivariate scatterplot of school-level average student 
 test scores and high school completion rates.
 
-\\hline
+ 
 
 ```{r C2filterandSort}
 
@@ -1253,7 +1253,7 @@ less likely to graduate.
 **Analytic Technique:** Calculate the proportion of students, by high school, who 
 complete high school and an 8th grade test score quartile for each. 
 
-\\hline
+ 
 
 ```{r C3filterAndSort}
 # // Step 1: Keep students in ninth grade cohorts you can observe graduating 
@@ -1406,7 +1406,7 @@ socioeconomic status.
 school by race/ethnicity overall, and by race/ethnicity and 8th grade test 
 score quartile.
 
-\\hline
+ 
 
 ```{r C4filterandSort}
 # // Step 1: Keep students in ninth grade cohorts you can observe graduating 
@@ -1524,7 +1524,7 @@ socioeconomic status.
 school within four years, dropout, remain enrolled in high school for a fifth 
 year, etc. based on on-track status upon completion of ninth grade.
 
-\\hline
+ 
 
 ```{r C5filterandsort}
 # // Step 1: Keep students in ninth grade cohorts you can observe graduating 
@@ -1661,7 +1661,7 @@ for school administrators (top enrolling institutions of the school’s graduate
 **Analytic Technique:** Calculate the proportion of students who enroll in college 
 by high school.
 
-\\hline
+ 
 
 ```{r D1filterAndSort}
 # // Step 2: Keep students in high school graduation cohorts you can observe 
@@ -1783,7 +1783,7 @@ for school administrators (top enrolling institutions of the school’s graduate
 four-year institutions across high schools according to the selectivity ranking 
 of the postsecondary institutions attended.
 
-\\hline
+ 
 
 ```{r D2filterAndSort}
 # // Step 1: Keep students in high school graduation cohorts you can observe 
@@ -1912,7 +1912,7 @@ student bodies report similar matriculation rates to college.
 **Analytic Technique:** Bivariate scatterplot of school-level average student 
 test scores and college enrollment rates.
 
-\\hline
+ 
 
 ```{r D3FilterAndSort}
 # // Step 2: Keep students in high school graduation cohorts you can observe 
@@ -2216,7 +2216,7 @@ who do not enroll in college, enroll in 2-year college, and enroll in least
 competitive and unranked 4-year colleges the fall following high school 
 graduation.
 
-\\hline
+ 
 
 ```{r D5filterAndSort}
 # // Step 1: Keep students in high school graduation cohorts you can observe 
@@ -2784,7 +2784,7 @@ to explore persistence rates by assignment to remediation coursework.
 **Analytic Technique:** Calculate the proportion of students who persist to the 
 second year of college by the high school those students first attended.
 
-\\hline
+ 
 
 ```{r E1filterAndSort}
 # // Step 1: Keep students in high school graduation cohorts you can observe 
@@ -2926,7 +2926,7 @@ tuition and room/board, financial aid, etc.).
 persist through four years of college by the postsecondary institution first 
 attended and cumulative high school GPA category.
 
-\\hline
+ 
 
 ```{r E2filterAndSort}
 # // Step 1: Keep students in high school graduation cohorts you can observe 
